@@ -1,5 +1,5 @@
 name: Docker Image Release
-# Ricorda di pushare il tag
+
 
 on:
   pull_request:
@@ -30,12 +30,9 @@ jobs:
       - name: Get Version
         id: versioning
         run: |
-          # Controllo se ci sono tag nel repository
           if [[ $(git tag) ]]; then
-            # Se ci sono tag, ottieni l'ultimo tag
             LAST_TAG=$(git describe --tags --abbrev=0)
           else
-            # Se non ci sono tag, crea un nuovo tag v0.0.0
             LAST_TAG="v0.0.0"
             git tag $LAST_TAG
             git push --tags
@@ -48,7 +45,6 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          # Aggiornamento della versione in base al commit
           if git log --format=%B -n 1 $GITHUB_SHA | grep -q "version-major"; then
             echo "Version Major Detected"
             ((MAJOR+=1))
@@ -65,7 +61,6 @@ jobs:
 
           echo "creating new version ..."
 
-          # Costruzione della versione aggiornata
           UPDATED_VERSION="v${MAJOR}.${MID}.${MINOR}"
           echo "Updated Version: $UPDATED_VERSION"
           echo "::set-output name=updated_version::$UPDATED_VERSION"
