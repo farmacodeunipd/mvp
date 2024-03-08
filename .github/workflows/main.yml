@@ -1,9 +1,9 @@
 name: Docker Image Release
 
 on:
-  push:
+  pull_request:
     branches:
-      - develop
+      - main
 
 jobs:
   release-and-test:

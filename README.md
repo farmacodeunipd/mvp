@@ -6,7 +6,7 @@
 
 ## Docker
 
-L'integrazione delle varie componenti del prodotto è gestito interamente tramite l'uso di alcuni container docker realizzati ad hoc. L'utilizzo di docker facilità inoltre il rilascio del software, sul repository sono infatti disponibili tutte le versione delle [immagini](https://github.com/farmacodeunipd?tab=packages&repo_name=poc) per poter ricreare i container in qualsiasi ambiente. Il progetto si suddivide in 4 container differenti:
+L'integrazione delle varie componenti del prodotto è gestito interamente tramite l'uso di alcuni container docker realizzati ad hoc. L'utilizzo di docker facilità inoltre il rilascio del software, sul repository sono infatti disponibili tutte le versione delle [immagini](https://github.com/farmacodeunipd?tab=packages&repo_name=mvp) per poter ricreare i container in qualsiasi ambiente. Il progetto si suddivide in 4 container differenti:
 
 - **db (container adibito al database)**;
 - **python-api (container adibito alle api che espongo l'algotirmo di raccomandazione)**;
