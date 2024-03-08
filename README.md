@@ -4,7 +4,6 @@
 
 ![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/poc)
 
-
 ## Docker
 
 L'integrazione delle varie componenti del prodotto è gestito interamente tramite l'uso di alcuni container docker realizzati ad hoc. L'utilizzo di docker facilità inoltre il rilascio del software, sul repository sono infatti disponibili tutte le versione delle [immagini](https://github.com/farmacodeunipd?tab=packages&repo_name=poc) per poter ricreare i container in qualsiasi ambiente. Il progetto si suddivide in 4 container differenti:
