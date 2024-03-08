@@ -68,7 +68,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
 
       - name: Log in to GitHub Packages
-        run: echo "${{ secrets.PAT }}" | docker login docker.pkg.github.com -u farmacodeunipd --password-stdin
+        run: echo "${{ secrets.PAT }}" | docker login docker.pkg.github.com -u farmacode --password-stdin
 
       - name: Set up Docker Compose
         run: docker-compose up -d
