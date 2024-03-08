@@ -82,16 +82,16 @@ jobs:
       - name: Run tests and stop if they do not pass
         run: |
           ci_env=$(bash <(curl -s https://codecov.io/env))
-          docker exec $ci_env poc_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose
-          docker exec $ci_env poc_react-app_1 npm test
-          docker exec $ci_env poc_express_1 npm test
+          docker exec $ci_env mvp_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose
+          docker exec $ci_env mvp_react-app_1 npm test
+          docker exec $ci_env mvp_express_1 npm test
         continue-on-error: false
 
       - name: Copy coverage reports
         run: |
-          docker cp poc_python-api_1:/tests/coverage.xml ./coverage-python-api.xml
-          docker cp poc_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
-          docker cp poc_express_1:/express/coverage/coverage-final.json ./coverage-express.json
+          docker cp mvp_python-api_1:/tests/coverage.xml ./coverage-python-api.xml
+          docker cp mvp_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
+          docker cp mvp_express_1:/express/coverage/coverage-final.json ./coverage-express.json
 
       - name: Upload Python API coverage report to Codecov
         uses: codecov/codecov-action@v4.0.1
@@ -120,13 +120,13 @@ jobs:
       - name: Push Docker images
         run: |
           docker images
-          IMAGES=("poc_db" "poc_python-api" "poc_react-app" "poc_express")
+          IMAGES=("mvp_db" "mvp_python-api" "mvp_react-app" "mvp_express")
           for IMAGE in "${IMAGES[@]}"; do
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:${{ steps.versioning.outputs.updated_version }}
-            docker push docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
             
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:latest
-            docker push docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:latest
+            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
+            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
           done
 
       - name: Stop and remove Docker containers
@@ -136,7 +136,7 @@ jobs:
         id: check_release
         run: |
           VERSION="${{ steps.versioning.outputs.updated_version }}"
-          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/poc/releases/tags/${VERSION}; then
+          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION}; then
             echo "Release already exists for version ${VERSION}"
             echo "::set-output name=release_exists::true"
           else
