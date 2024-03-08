@@ -235,10 +235,10 @@ docker-compose up
 ```
 E' possibile anche reperire l'ultima versione delle immagini dal repository del progetto, per velocizzare così il processo:
 ```bash
-docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_db:latest
-docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_python-api:latest
-docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_react-app:latest
-docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_express:latest
+docker pull ghcr.io/farmacodeunipd/mvp/mvp_db:latest
+docker pull ghcr.io/farmacodeunipd/mvp/mvp_python-api:latest
+docker pull ghcr.io/farmacodeunipd/mvp/mvp_react-app:latest
+docker pull ghcr.io/farmacodeunipd/mvp/mvp_express:latest
 ```
 Una volta che il container e tutte le sue immagini hanno concluso il loro avvio, sarà possibili testare i vari servizi con i rispettivi comandi:
 
