@@ -127,17 +127,21 @@ jobs:
             docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
           done
 
-      - name: Check if release already exists
-        id: check_release
-        run: |
-          VERSION="${{ steps.versioning.outputs.updated_version }}"
-          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION}; then
-            echo "Release already exists for version ${VERSION}"
-            echo "::set-output name=release_exists::true"
-          else
-            echo "Release does not exist for version ${VERSION}"
-            echo "::set-output name=release_exists::false"
-          fi
+    - name: Check if release already exists
+      id: check_release
+      run: |
+        VERSION="${{ steps.versioning.outputs.updated_version }}"
+        response_code=$(curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION})
+        if [ "$response_code" -eq 200 ]; then
+          echo "Release already exists for version ${VERSION}"
+          echo "::set-output name=release_exists::true"
+        elif [ "$response_code" -eq 404 ]; then
+          echo "Release does not exist for version ${VERSION}"
+          echo "::set-output name=release_exists::false"
+        else
+          echo "Failed to check release existence for version ${VERSION}. Received response code: ${response_code}"
+          echo "::set-output name=release_exists::unknown"
+        fi
 
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
