@@ -1,0 +1,33 @@
+# Use an official Node.js image as the base image
+FROM node:14-alpine
+
+# Installa bash nell'immagine Alpine
+RUN apk add --no-cache bash
+
+# Set the working directory inside the container
+WORKDIR /express
+
+# Download wait-for-it.sh from GitHub
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /express/wait-for-it.sh
+
+# Set execute permissions for the script
+RUN chmod +x /express/wait-for-it.sh
+
+#Install test dependecies
+RUN npm install -g jest
+RUN npm install --save-dev supertest
+
+# Copy package.json and package-lock.json to the container
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code to the container
+COPY . .
+
+# Expose the port on which the app will run (adjust if needed)
+EXPOSE 3080
+
+# Command to run the application
+CMD ["./wait-for-it.sh", "-t", "30", "db:3306", "--", "node", "app.js"]

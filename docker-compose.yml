@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.db
+    ports:
+      - "3306:3306"
+
+  react-app:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - EXPRESS_API_URL=express:3080
+      - ALGO_API_URL=python-api:4000
+
+  python-api:
+    build:
+      context: ./algo
+      dockerfile: Dockerfile.python
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
+  express:
+    build:
+      context: ./express
+      dockerfile: Dockerfile.express
+    ports:
+      - "3080:3080"
+    depends_on:
+      - db
