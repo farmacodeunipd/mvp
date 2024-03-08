@@ -2,9 +2,9 @@ name: Docker Image Release
 
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - develop
 
 jobs:
   release-and-test:
@@ -88,6 +88,9 @@ jobs:
           docker cp mvp_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
           docker cp mvp_express_1:/express/coverage/coverage-final.json ./coverage-express.json
 
+      - name: Stop and remove Docker containers
+        run: docker-compose down
+
       - name: Upload Python API coverage report to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
@@ -123,9 +126,6 @@ jobs:
             docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
             docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
           done
-
-      - name: Stop and remove Docker containers
-        run: docker-compose down
 
       - name: Check if release already exists
         id: check_release
