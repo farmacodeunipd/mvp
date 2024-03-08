@@ -127,18 +127,15 @@ jobs:
           done
           
       - name: Check if release already exists
+        id: check_release
         run: |
           VERSION="${{ steps.versioning.outputs.updated_version }}"
-          response_code=$(curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION})
-          if [ "$response_code" -eq 200 ]; then
+          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/poc/releases/tags/${VERSION}; then
             echo "Release already exists for version ${VERSION}"
             echo "::set-output name=release_exists::true"
-          elif [ "$response_code" -eq 404 ]; then
+          else
             echo "Release does not exist for version ${VERSION}"
             echo "::set-output name=release_exists::false"
-          else
-            echo "Failed to check release existence for version ${VERSION}. Received response code: ${response_code}"
-            echo "::set-output name=release_exists::unknown"
           fi
 
       - name: Create GitHub Release
