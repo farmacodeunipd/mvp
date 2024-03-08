@@ -130,7 +130,7 @@ jobs:
         id: check_release
         run: |
           VERSION="${{ steps.versioning.outputs.updated_version }}"
-          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/poc/releases/tags/${VERSION}; then
+          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION}; then
             echo "Release already exists for version ${VERSION}"
             echo "::set-output name=release_exists::true"
           else
