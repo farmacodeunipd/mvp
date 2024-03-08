@@ -119,11 +119,11 @@ jobs:
           docker images
           IMAGES=("mvp_db" "mvp_python-api" "mvp_react-app" "mvp_express")
           for IMAGE in "${IMAGES[@]}"; do
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
-            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            docker tag $IMAGE docker.pkg.github.com/farmacode/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            docker push docker.pkg.github.com/farmacode/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
             
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
-            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
+            docker tag $IMAGE docker.pkg.github.com/farmacode/mvp/$IMAGE:latest
+            docker push docker.pkg.github.com/farmacode/mvp/$IMAGE:latest
           done
           
       - name: Check if release already exists
