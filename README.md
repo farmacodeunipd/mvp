@@ -2,7 +2,7 @@
 
 ## Releases
 
-![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/poc)
+![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/mvp/develop)
 
 ## Docker
 
