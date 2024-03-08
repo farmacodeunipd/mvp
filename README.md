@@ -2,7 +2,7 @@
 
 ## Releases
 
-![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/mvp/develop)
+![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/mvp)
 
 ## Docker
 
@@ -22,13 +22,13 @@ Per la realizzazione e integrazione dei test (dinamici) automatici sono stati in
 
 ### Code coverage
 
-[![codecov](https://codecov.io/gh/farmacodeunipd/poc/graph/badge.svg?token=BECENNCPRE)](https://codecov.io/gh/farmacodeunipd/poc)
+[![codecov](https://codecov.io/gh/farmacodeunipd/mvp/graph/badge.svg?token=CP0VPR2TT5)](https://codecov.io/gh/farmacodeunipd/mvp)
 
-Maggiori informazioni sono disponibili al link: [Codecov repo](https://app.codecov.io/gh/farmacodeunipd/poc?search=&displayType=tree)
+Maggiori informazioni sono disponibili al link: [Codecov repo](https://app.codecov.io/gh/farmacodeunipd/mvp?search=&displayType=tree)
 
 ### Sunburst graph
 
-![Coverage grah](https://codecov.io/gh/farmacodeunipd/poc/graphs/sunburst.svg?token=BECENNCPRE)
+![Coverage grah](https://codecov.io/gh/farmacodeunipd/mvp/graphs/sunburst.svg?token=CP0VPR2TT5)
 
 #### Descrizione
 Il cechio centrale rappresenta il progetto nella sua totalità, spostandosi verso l'esterno ci sono le directory, e infine, i singoli file. La grandezza e il colore di ogni "slice" (o spicchio) rappresenta rispettivamente il numero di statements e il coverage.
@@ -235,23 +235,22 @@ docker-compose up
 ```
 E' possibile anche reperire l'ultima versione delle immagini dal repository del progetto, per velocizzare così il processo:
 ```bash
-docker pull docker.pkg.github.com/farmacodeunipd/poc/poc_db:${{ steps.versioning.outputs.updated_version }}
-docker pull docker.pkg.github.com/farmacodeunipd/poc/poc_python-api:${{ steps.versioning.outputs.updated_version }}
-docker pull docker.pkg.github.com/farmacodeunipd/poc/poc_react-app:${{ steps.versioning.outputs.updated_version }}
-docker pull docker.pkg.github.com/farmacodeunipd/poc/poc_express:${{ steps.versioning.outputs.updated_version }}
-
+docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_db:latest
+docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_python-api:latest
+docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_react-app:latest
+docker pull docker.pkg.github.com/farmacodeunipd/mvp/mvp_express:latest
 ```
 Una volta che il container e tutte le sue immagini hanno concluso il loro avvio, sarà possibili testare i vari servizi con i rispettivi comandi:
 
 - Python-api (Algoritmo e relative API):
     ```bash
-        docker exec poc-python-api-1 pytest --verbose
+        docker exec mvp-python-api-1 pytest --verbose
     ``` 
 - React-app (Client web):
     ```bash
-        docker exec poc-react-app-1 npm test
+        docker exec mvp-react-app-1 npm test
     ```
 - Express (API per la connesione tra db e client):
     ```bash
-        docker exec poc-express-1 npm test
+        docker exec mvp-express-1 npm test
     ``` 
