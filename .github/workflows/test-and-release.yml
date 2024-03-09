@@ -44,9 +44,6 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          commit_message=$(git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1))
-          echo "Commit Message: $commit_message"
-
           if git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-major"; then
             echo "Version Major Detected"
             ((MAJOR+=1))
@@ -144,6 +141,12 @@ jobs:
             echo "::set-output name=release_exists::false"
           fi
 
+      - name: Get Commit Messages
+        id: commit_messages
+        run: |
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD)
+          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
+
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
         uses: actions/create-release@v1
@@ -152,5 +155,8 @@ jobs:
           release_name: Release ${{ steps.versioning.outputs.updated_version }}
           body: |
             Release ${{ steps.versioning.outputs.updated_version }}
+
+            Changes since last release:
+            ${{ steps.commit_messages.outputs.commit_messages }}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
