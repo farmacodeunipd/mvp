@@ -44,19 +44,19 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          commit_message=$(git log --format=%B -n 1 HEAD)
+          commit_message=$(git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1))
           echo "Commit Message: $commit_message"
 
-          if git log --format=%B -n 1 HEAD | grep -q "version-major"; then
+          if git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-major"; then
             echo "Version Major Detected"
             ((MAJOR+=1))
             MID=0
             MINOR=0
-          elif git log --format=%B -n 1 HEAD | grep -q "version-mid"; then
+          elif git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-mid"; then
             echo "Version Mid Detected"
             ((MID+=1))
             MINOR=0
-          elif git log --format=%B -n 1 HEAD | grep -q "version-minor"; then
+          elif git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-minor"; then
             echo "Version Minor Detected"
             ((MINOR+=1))
           fi

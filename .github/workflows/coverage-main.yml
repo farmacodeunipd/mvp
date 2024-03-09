@@ -1,4 +1,4 @@
-name: Docker Image Release
+name: Codecoverage
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-and-release:
+  codecoverage:
     runs-on: ubuntu-latest
 
     steps:
