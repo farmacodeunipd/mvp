@@ -30,7 +30,8 @@ jobs:
         id: versioning
         run: |
           if [[ $(git tag) ]]; then
-            LAST_TAG=$(git describe --tags --abbrev=0)
+            LAST_TAG=$(git tag --sort=-v:refname | head -n1)
+            echo "::set-output name=last_tag::$LAST_TAG"
           else
             LAST_TAG="v0.0.0"
             git tag $LAST_TAG
@@ -44,16 +45,18 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          if git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-major"; then
+          echo $(git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD))
+
+          if git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-major"; then
             echo "Version Major Detected"
             ((MAJOR+=1))
             MID=0
             MINOR=0
-          elif git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-mid"; then
+          elif git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-mid"; then
             echo "Version Mid Detected"
             ((MID+=1))
             MINOR=0
-          elif git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-minor"; then
+          elif git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-minor"; then
             echo "Version Minor Detected"
             ((MINOR+=1))
           fi
@@ -141,11 +144,11 @@ jobs:
             echo "::set-output name=release_exists::false"
           fi
 
-      - name: Get Commit Messages
+      - name: Get Commit Messages Since Last Release
         id: commit_messages
         run: |
-          LAST_MERGE_COMMIT=$(git log --pretty=format:%H --merges -1)
-          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_MERGE_COMMIT..HEAD --no-merges)
+          LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
           echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
       - name: Create GitHub Release
@@ -157,7 +160,7 @@ jobs:
           body: |
             Release ${{ steps.versioning.outputs.updated_version }}
 
-            Changes since last release:
+            Changes since last release (commit messages):
             ${{ steps.commit_messages.outputs.commit_messages }}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
