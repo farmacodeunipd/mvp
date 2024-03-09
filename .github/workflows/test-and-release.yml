@@ -144,7 +144,8 @@ jobs:
       - name: Get Commit Messages
         id: commit_messages
         run: |
-          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD)
+          LAST_MERGE_COMMIT=$(git log --pretty=format:%H --merges -1)
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_MERGE_COMMIT..HEAD --no-merges)
           echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
       - name: Create GitHub Release
