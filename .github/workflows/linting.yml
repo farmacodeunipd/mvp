@@ -1,24 +1,37 @@
-name: Python application
+name: Python and React/JS application
 
 on:
   push:
+    branches:
+      - develop
     paths:
       - '**.py'
+      - '**.js'
+      - '**.jsx'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Python
-      uses: actions/checkout@v4
-    - name: Set up Python 3.11.5
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11.5"
-    - name: Lint with Ruff
-      run: |
-        pip install ruff
-        ruff check . --fix
-        ruff format .
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11.5
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11.5"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff
+          npm install eslint eslint-plugin-react
+          npx eslint . --fix
+
+      - name: Lint with Ruff (Python)
+        run: |
+          ruff check . --fix
+          ruff format .
+
+      - name: Lint with ESLint (React/JS)
+        run: |
+          npx eslint . --fix
