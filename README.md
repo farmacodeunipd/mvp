@@ -31,6 +31,7 @@ Maggiori informazioni sono disponibili al link: [Codecov repo](https://app.codec
 ![Coverage grah](https://codecov.io/gh/farmacodeunipd/mvp/graphs/sunburst.svg?token=CP0VPR2TT5)
 
 #### Descrizione
+
 Il cechio centrale rappresenta il progetto nella sua totalità, spostandosi verso l'esterno ci sono le directory, e infine, i singoli file. La grandezza e il colore di ogni "slice" (o spicchio) rappresenta rispettivamente il numero di statements e il coverage.
 
 ## Developers only
