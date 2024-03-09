@@ -142,11 +142,11 @@ jobs:
             echo "::set-output name=release_exists::false"
           fi
 
-      - name: Get Commit Messages
+      - name: Get Commit Messages Since Last Release
         id: commit_messages
         run: |
-          LAST_MERGE_COMMIT=$(git log --pretty=format:%H --merges -1)
-          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_MERGE_COMMIT..HEAD --no-merges)
+          LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
           echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
       - name: Create GitHub Release
@@ -158,7 +158,7 @@ jobs:
           body: |
             Release ${{ steps.versioning.outputs.updated_version }}
 
-            Changes since last release:
+            Changes since last release (commit messages):
             ${{ steps.commit_messages.outputs.commit_messages }}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
