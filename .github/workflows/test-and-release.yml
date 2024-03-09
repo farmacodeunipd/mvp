@@ -45,7 +45,7 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          echo git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1)
+          echo $(git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1))
 
           if git log --format=%B -n 1 $(git rev-list -n 2 --first-parent HEAD | tail -1) | grep -q "version-major"; then
             echo "Version Major Detected"
