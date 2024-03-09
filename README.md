@@ -37,6 +37,7 @@ Il cechio centrale rappresenta il progetto nella sua totalità, spostandosi vers
 ## Developers only
 
 In questa sezione sono reperibili informazioni utili agli sviluppatori del software.
+
 ### GitHub Action workflow walkthrough
 
 ```yaml
@@ -254,3 +255,4 @@ Una volta che il container e tutte le sue immagini hanno concluso il loro avvio,
     ```bash
         docker exec mvp-express-1 npm test
     ``` 
+
