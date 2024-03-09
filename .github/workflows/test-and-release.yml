@@ -30,7 +30,8 @@ jobs:
         id: versioning
         run: |
           if [[ $(git tag) ]]; then
-            LAST_TAG=$(git describe --tags --abbrev=0)
+            LAST_TAG=$(git tag --sort=-v:refname | head -n1)
+            echo "::set-output name=last_tag::$LAST_TAG"
           else
             LAST_TAG="v0.0.0"
             git tag $LAST_TAG
