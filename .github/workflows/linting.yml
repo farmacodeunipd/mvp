@@ -1,0 +1,24 @@
+name: Python application
+
+on:
+  push:
+    paths:
+      - '**.py'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Python
+      uses: actions/checkout@v4
+    - name: Set up Python 3.11.5
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11.5"
+    - name: Lint with Ruff
+      run: |
+        pip install ruff
+        ruff check . --fix
+        ruff format .
