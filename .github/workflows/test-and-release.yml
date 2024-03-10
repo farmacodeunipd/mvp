@@ -31,8 +31,8 @@ jobs:
         run: |
           LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
           COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
-          echo "$COMMIT_MESSAGES" > commit_messages.txt
-          echo "::set-output name=commit_messages_file::commit_messages.txt"
+          echo "$COMMIT_MESSAGES"
+          echo "::set-output name=commit_messages::\"$COMMIT_MESSAGES\""
 
       - name: Get Version
         id: versioning
@@ -151,7 +151,7 @@ jobs:
             echo "Release does not exist for version ${VERSION}"
             echo "::set-output name=release_exists::false"
           fi
-          
+    
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
         uses: actions/create-release@v1
@@ -162,24 +162,23 @@ jobs:
             Release ${{ steps.versioning.outputs.updated_version }}
 
             Changes since last release (commit messages):
-            $(cat ${{ steps.commit_messages.outputs.commit_messages_file }})
+            ${{ steps.commit_messages.outputs.commit_messages }}
 
             Coverage:       
             Python API Coverage Report:
             ```
-            $(cat ./coverage-python-api.xml)
+            $(< ./coverage-python-api.xml)
             ```
 
             React Application Coverage Report:
             ```
-            $(cat ./coverage-react.json)
+            $(< ./coverage-react.json)
             ```
 
             Express Coverage Report:
             ```
-            $(cat ./coverage-express.json)
+            $(< ./coverage-express.json)
             ```
-            
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
