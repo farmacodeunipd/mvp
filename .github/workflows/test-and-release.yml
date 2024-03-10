@@ -122,20 +122,11 @@ jobs:
           docker images
           IMAGES=("mvp_db" "mvp_python-api" "mvp_react-app" "mvp_express")
           for IMAGE in "${IMAGES[@]}"; do
-            # Controllo se l'immagine è stata modificata confrontando l'hash SHA locale con quello remoto
-            LOCAL_SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)
-            REMOTE_SHA=$(docker run --rm docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }} sha256sum /)
+            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
             
-            if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-              # L'immagine è stata modificata, la etichetto e la pusho
-              docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
-              docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
-              
-              docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
-              docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
-            else
-              echo "L'immagine $IMAGE non è stata modificata. Salto il push."
-            fi
+            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
+            docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
           done
           
       - name: Check if release already exists
