@@ -35,7 +35,7 @@ jobs:
           COMMIT_MESSAGES="${COMMIT_MESSAGES//$'\n'/'%0A'}"
           COMMIT_MESSAGES="${COMMIT_MESSAGES//$'\r'/'%0D'}"
           echo "$COMMIT_MESSAGES"
-          echo "::set-output name=commit_messages::'$COMMIT_MESSAGES'"
+          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
       - name: Get Version
         id: versioning
