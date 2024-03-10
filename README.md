@@ -43,14 +43,13 @@ In questa sezione sono reperibili informazioni utili agli sviluppatori del softw
 ```yaml
 name: Docker Image Release
 
-
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  release-and-test:
+  test-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -74,7 +73,8 @@ jobs:
         id: versioning
         run: |
           if [[ $(git tag) ]]; then
-            LAST_TAG=$(git describe --tags --abbrev=0)
+            LAST_TAG=$(git tag --sort=-v:refname | head -n1)
+            echo "::set-output name=last_tag::$LAST_TAG"
           else
             LAST_TAG="v0.0.0"
             git tag $LAST_TAG
@@ -88,16 +88,18 @@ jobs:
           MID="${VERSION_PARTS[1]}"
           MINOR="${VERSION_PARTS[2]}"
 
-          if git log --format=%B -n 1 $GITHUB_SHA | grep -q "version-major"; then
+          echo $(git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD))
+
+          if git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-major"; then
             echo "Version Major Detected"
             ((MAJOR+=1))
             MID=0
             MINOR=0
-          elif git log --format=%B -n 1 $GITHUB_SHA | grep -q "version-mid"; then
+          elif git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-mid"; then
             echo "Version Mid Detected"
             ((MID+=1))
             MINOR=0
-          elif git log --format=%B -n 1 $GITHUB_SHA | grep -q "version-minor"; then
+          elif git log --format=%B -n 1 $(git rev-list --no-merges -n 1 HEAD) | grep -q "version-minor"; then
             echo "Version Minor Detected"
             ((MINOR+=1))
           fi
@@ -120,24 +122,19 @@ jobs:
       - name: Run tests and stop if they do not pass
         run: |
           ci_env=$(bash <(curl -s https://codecov.io/env))
-          docker exec $ci_env poc_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose
-          docker exec $ci_env poc_react-app_1 npm test
-          docker exec $ci_env poc_express_1 npm test
-
-      - name: Check test status
-        run: |
-          if [ ${{ steps.test.outcome }} == 'failure' ]; then
-            echo "Tests failed, aborting the workflow."
-            exit 1
-          else
-            echo "Tests passed, continuing with the workflow."
-          fi
+          docker exec $ci_env mvp_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose
+          docker exec $ci_env mvp_react-app_1 npm test
+          docker exec $ci_env mvp_express_1 npm test
+        continue-on-error: false
 
       - name: Copy coverage reports
         run: |
-          docker cp poc_python-api_1:/tests/coverage.xml ./coverage-python-api.xml
-          docker cp poc_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
-          docker cp poc_express_1:/express/coverage/coverage-final.json ./coverage-express.json
+          docker cp mvp_python-api_1:/tests/coverage.xml ./coverage-python-api.xml
+          docker cp mvp_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
+          docker cp mvp_express_1:/express/coverage/coverage-final.json ./coverage-express.json
+
+      - name: Stop and remove Docker containers
+        run: docker-compose down
 
       - name: Upload Python API coverage report to Codecov
         uses: codecov/codecov-action@v4.0.1
@@ -166,29 +163,45 @@ jobs:
       - name: Push Docker images
         run: |
           docker images
-          IMAGES=("poc_db" "poc_python-api" "poc_react-app" "poc_express")
+          IMAGES=("mvp_db" "mvp_python-api" "mvp_react-app" "mvp_express")
           for IMAGE in "${IMAGES[@]}"; do
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:${{ steps.versioning.outputs.updated_version }}
-            docker push docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+            # Controllo se l'immagine è stata modificata confrontando l'hash SHA locale con quello remoto
+            LOCAL_SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $IMAGE)
+            REMOTE_SHA=$(docker run --rm docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }} sha256sum /)
             
-            docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:latest
-            docker push docker.pkg.github.com/farmacodeunipd/poc/$IMAGE:latest
+            if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+              # L'immagine è stata modificata, la etichetto e la pusho
+              docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+              docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:${{ steps.versioning.outputs.updated_version }}
+              
+              docker tag $IMAGE docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
+              docker push docker.pkg.github.com/farmacodeunipd/mvp/$IMAGE:latest
+            else
+              echo "L'immagine $IMAGE non è stata modificata. Salto il push."
+            fi
           done
-
-      - name: Stop and remove Docker containers
-        run: docker-compose down
-
+          
       - name: Check if release already exists
         id: check_release
         run: |
           VERSION="${{ steps.versioning.outputs.updated_version }}"
-          if curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/poc/releases/tags/${VERSION}; then
+          echo "Checking release for version ${VERSION}"
+          response=$(curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/repos/farmacodeunipd/mvp/releases/tags/${VERSION})
+          echo "Response code: $response"
+          if [[ $response -eq 200 ]]; then
             echo "Release already exists for version ${VERSION}"
             echo "::set-output name=release_exists::true"
           else
             echo "Release does not exist for version ${VERSION}"
             echo "::set-output name=release_exists::false"
           fi
+
+      - name: Get Commit Messages Since Last Release
+        id: commit_messages
+        run: |
+          LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
+          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
 
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
@@ -198,6 +211,9 @@ jobs:
           release_name: Release ${{ steps.versioning.outputs.updated_version }}
           body: |
             Release ${{ steps.versioning.outputs.updated_version }}
+
+            Changes since last release (commit messages):
+            ${{ steps.commit_messages.outputs.commit_messages }}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
