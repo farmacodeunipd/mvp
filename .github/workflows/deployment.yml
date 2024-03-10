@@ -1,0 +1,35 @@
+# work in progess
+name: Deploy to VM
+
+on:
+  workflow_dispatch:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # Define the list of Docker images to deploy
+            images=(
+              "ghcr.io/farmacodeunipd/mvp/mvp_db:latest"
+              "ghcr.io/farmacodeunipd/mvp/mvp_python-api:latest"
+              "ghcr.io/farmacodeunipd/mvp/mvp_react-app:latest"
+              "ghcr.io/farmacodeunipd/mvp/mvp_express:latest"
+            )
+
+            # Loop through the list and deploy each Docker image
+            for image in "${images[@]}"; do
+              docker pull "$image"
+              container_name=$(echo "$image" | cut -d'/' -f3 | cut -d':' -f1)
+              docker run -d --name "$container_name" "$image"
+            done
