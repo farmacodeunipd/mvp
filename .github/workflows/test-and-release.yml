@@ -31,8 +31,11 @@ jobs:
         run: |
           LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
           COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
+          COMMIT_MESSAGES="${COMMIT_MESSAGES//'%'/'%25'}"
+          COMMIT_MESSAGES="${COMMIT_MESSAGES//$'\n'/'%0A'}"
+          COMMIT_MESSAGES="${COMMIT_MESSAGES//$'\r'/'%0D'}"
           echo "$COMMIT_MESSAGES"
-          echo "::set-output name=commit_messages::\"$COMMIT_MESSAGES\""
+          echo "::set-output name=commit_messages::'$COMMIT_MESSAGES'"
 
       - name: Get Version
         id: versioning
@@ -163,22 +166,6 @@ jobs:
 
             Changes since last release (commit messages):
             ${{ steps.commit_messages.outputs.commit_messages }}
-
-            Coverage:       
-            Python API Coverage Report:
-            ```
-            $(< ./coverage-python-api.xml)
-            ```
-
-            React Application Coverage Report:
-            ```
-            $(< ./coverage-react.json)
-            ```
-
-            Express Coverage Report:
-            ```
-            $(< ./coverage-express.json)
-            ```
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
