@@ -26,6 +26,14 @@ jobs:
       - name: Fetch Tags
         run: git fetch --tags
 
+      - name: Get Commit Messages Since Last Release
+        id: commit_messages
+        run: |
+          LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
+          echo "$COMMIT_MESSAGES"
+          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
+
       - name: Get Version
         id: versioning
         run: |
@@ -143,14 +151,7 @@ jobs:
             echo "Release does not exist for version ${VERSION}"
             echo "::set-output name=release_exists::false"
           fi
-
-      - name: Get Commit Messages Since Last Release
-        id: commit_messages
-        run: |
-          LAST_RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-          COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
-          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
-
+          
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
         uses: actions/create-release@v1
