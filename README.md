@@ -4,6 +4,13 @@
 
 ![GitHub Release](https://img.shields.io/github/v/release/farmacodeunipd/mvp)
 
+Il versionamento del prodotto è eseguito in modo automatico tramite l'uso di GitHub Action realizzate appositamente. Ogni versione è corredata da una breve descrizione stilata anch'essa in modo automatico trasformando i messaggi di commit registrati durante lo sviluppo di quella determinata versione, in un vero e proprio registro delle modifiche (contenente ad esempio l'aggiunta di nuove feature, la risoluzione di problematiche e/o migliorie e modifiche più generiche).
+
+Il numero di versione è suddiviso in tre digit: (nel formato v.x.y.z)
+- x: questo digit rappresenta una nuova versione (major) e viene incrementato a discrezione degli sviluppatori una volta che lo ritengano necessario e ragionevole;
+- y: rappresenta l'aggiunta di una nuova feature principale o la modifica/correzione di un intera componente del prodotto (mid);
+- z: rappresenta la correzione di un bug o il miglioramento di una feature già esistente (minor).
+
 ## Docker
 
 L'integrazione delle varie componenti del prodotto è gestito interamente tramite l'uso di alcuni container docker realizzati ad hoc. L'utilizzo di docker facilità inoltre il rilascio del software, sul repository sono infatti disponibili tutte le versione delle [immagini](https://github.com/farmacodeunipd?tab=packages&repo_name=mvp) per poter ricreare i container in qualsiasi ambiente. Il progetto si suddivide in 4 container differenti:
@@ -14,6 +21,10 @@ L'integrazione delle varie componenti del prodotto è gestito interamente tramit
 - **react-app (container adibito all'hosting del client web)**.
 
 ## Testing
+Per quanto rigurda l'analisi statica del codice sono stati integrati strumenti automatici quali:
+
+- **[Ruff](https://docs.astral.sh/ruff/) (per il codice realizzato in python)**
+- **[ESLint](https://eslint.org/) (per il codice realizzato in js e react)**
 
 Per la realizzazione e integrazione dei test (dinamici) automatici sono stati individuati e scelti questi due servizi:
 
@@ -34,11 +45,69 @@ Maggiori informazioni sono disponibili al link: [Codecov repo](https://app.codec
 
 Il cechio centrale rappresenta il progetto nella sua totalità, spostandosi verso l'esterno ci sono le directory, e infine, i singoli file. La grandezza e il colore di ogni "slice" (o spicchio) rappresenta rispettivamente il numero di statements e il coverage.
 
-## Developers only
+## GitHub Action
 
-In questa sezione sono reperibili informazioni utili agli sviluppatori del software.
+### Workflow walkthrough
 
-### GitHub Action workflow walkthrough
+**Develop branch**:
+
+- **linting.yml**
+
+```yaml
+name: Python and React/JS application
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.jsx'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11.5
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11.5"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff
+          npm install eslint eslint-plugin-react
+          npx eslint . --fix
+
+      - name: Lint with Ruff (Python)
+        run: |
+          ruff check . --fix
+          ruff format .
+
+      - name: Lint with ESLint (React/JS)
+        run: |
+          npx eslint . --fix
+
+```
+**Overview**:
+
+**Trigger:** 
+Il workflow è configurato per essere attivato ogni volta che viene effettuato un push sul ramo "develop" e quando vengono apportate modifiche ai file con estensione .py, .js o .jsx.
+
+**Steps:**
+- Checkout del codice: Questo passaggio utilizza l'azione actions/checkout@v4 per ottenere una copia del repository.
+- Configurazione di Python 3.11.5: Viene utilizzata l'azione actions/setup-python@v4 per configurare l'ambiente Python con la versione 3.11.5.
+- Installazione delle dipendenze: In questo passaggio vengono installati i pacchetti necessari sia per Python che per JavaScript. Per Python, viene utilizzato pip install ruff per installare Ruff, mentre per JavaScript vengono utilizzati npm install eslint eslint-plugin-react per installare ESLint e il plugin per React. Successivamente, viene eseguito npx eslint . --fix per correggere eventuali problemi di stile nel codice JavaScript.
+- Analisi statica con Ruff (Python): Viene eseguita un'analisi statica del codice Python utilizzando Ruff. I comandi ruff check . --fix e ruff format . vengono utilizzati per controllare e formattare il codice Python.
+- Analisi statica con ESLint (React/JS): Infine, viene eseguita un'analisi statica del codice React/JS utilizzando ESLint tramite il comando npx eslint . --fix. Questo passaggio controlla e corregge eventuali problemi di stile nel codice JavaScript e React.
+
+In sintesi, questo workflow si occupa di controllare la qualità del codice Python e JavaScript/React attraverso analisi statiche e correzioni automatiche dei problemi di stile.
+
+- **test-and-release.yml**
 
 ```yaml
 name: Docker Image Release
@@ -220,9 +289,8 @@ jobs:
 ```
 
 **Overview**:
-- Trigger: Il workflow viene attivato ad ogni push sul ramo principale (main).
 
-- Lavori (Jobs): Il workflow consiste in un unico lavoro chiamato "release-and-test", che viene eseguito su un ambiente Ubuntu latest.
+**Trigger:** Il workflow viene attivato ad ogni pull request aperta verso il ramo principale, main.
 
 **Steps**:
 - Imposta l'utente Git: Configura l'utente Git globale utilizzando il nome utente e l'email forniti.
@@ -238,10 +306,171 @@ jobs:
 - Carica le immagini Docker: Etichetta le immagini Docker con la versione aggiornata e le carica nel registro Docker di GitHub Packages.
 - Interrompi e rimuovi i container Docker: Interrompe e rimuove i container Docker creati da Docker Compose.
 - Controlla se il rilascio esiste già: Verifica se esiste già un rilascio per la versione aggiornata su GitHub.
+- Crea la descrizio del rilascio: Reperisce tutti i messaggi di commit avvenuti tra la precedente versione e la creazione di quella corrente, per allegarli come descrizione del rilascio.
 - Crea il rilascio GitHub: Crea un nuovo rilascio su GitHub se non esiste già per la versione aggiornata.
-- Esecuzione Condizionale: Il passaggio per creare un rilascio su GitHub viene eseguito in modo condizionale solo se un rilascio per la versione aggiornata non esiste già.
+
 
 Questo workflow automatizza il versioning, i test e il processo di rilascio delle immagini Docker, garantendo rilasci consistenti e affidabili per il progetto.
+
+**Main branch**:
+
+- **coverage-main.yml**
+```yml
+name: Codecoverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  codecoverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Git user
+        run: |
+          git config --global user.name "farmacodeunipd"
+          git config --global user.email "farmacode.swe.unipd@gmail.com"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set up Docker Compose
+        run: docker-compose up -d
+
+      - name: Run tests and stop if they do not pass
+        run: |
+          ci_env=$(bash <(curl -s https://codecov.io/env))
+          docker exec $ci_env mvp_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose
+          docker exec $ci_env mvp_react-app_1 npm test
+          docker exec $ci_env mvp_express_1 npm test
+        continue-on-error: false
+
+      - name: Copy coverage reports
+        run: |
+          docker cp mvp_python-api_1:/tests/coverage.xml ./coverage-python-api.xml
+          docker cp mvp_react-app_1:/client/coverage/coverage-final.json ./coverage-react.json
+          docker cp mvp_express_1:/express/coverage/coverage-final.json ./coverage-express.json
+
+      - name: Stop and remove Docker containers
+        run: docker-compose down
+
+      - name: Upload Python API coverage report to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage-python-api.xml
+          flags: python-api
+          name: codecov-python-api
+
+      - name: Upload React application coverage report to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage-react.json
+          flags: react-app
+          name: codecov-react-app
+
+      - name: Upload Express coverage report to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage-express.json
+          flags: express
+          name: codecov-express
+```
+**Overview**:
+
+**Trigger:** Il workflow viene attivato ad ogni push sul ramo principale, main.
+
+**Steps:**
+- Set Git user: Configura il nome e l'email dell'utente Git per le operazioni successive.
+- Checkout repository: Ottiene una copia del repository.
+- Set up Docker Buildx: Configura Docker Buildx, uno strumento per la compilazione di immagini Docker multi-architettura.
+- Set up Docker Compose: Avvia i container Docker necessari per l'esecuzione dei test.
+- Run tests and stop if they do not pass: Esegue i test per ciascun componente dell'applicazione (Python, React, Express) all'interno dei rispettivi container Docker. Se i test non superano, l'esecuzione del workflow si interrompe.
+- Copy coverage reports: Copia i report di copertura generati all'interno dei container Docker nei file locali del repository.
+- Stop and remove Docker containers: Interrompe e rimuove i container Docker utilizzati per l'esecuzione dei test.
+- Upload Python API coverage report to Codecov: Carica il report di copertura del codice per l'API Python su Codecov, utilizzando il token di accesso fornito come variabile segreta nel repository.
+- Upload React application coverage report to Codecov: Carica il report di copertura del codice per l'applicazione React su Codecov, utilizzando il token di accesso fornito come variabile segreta nel repository.
+- Upload Express coverage report to Codecov: Carica il report di copertura del codice per l'applicazione Express su Codecov, utilizzando il token di accesso fornito come variabile segreta nel repository.
+
+Includere la generazione di report anche per il branch principale (main) è fondamentale poiché fornisce un valore significativo. Ogni volta che viene aperta una pull request, Codecov potrà analizzare e confrontare le coperture del codice tra il branch in sviluppo e il branch principale. Questo fornisce dati preziosi che aiutano a valutare l'impatto delle modifiche proposte e a garantire che il codice integrato mantenga o migliori la copertura del codice già presente nel branch principale. Questo processo contribuisce a mantenere elevati standard di qualità del software e favorisce una migliore comprensione delle modifiche introdotte.
+
+## Developers only
+
+In questa sezione sono reperibili informazioni utili agli sviluppatori del software.
+
+### Development process
+
+**Sviluppo:**
+
+Premessa: è di fondamentale importanza eseguire un pull dal repository remoto e un checkout sul branch develop prima di procedere con lo sviluppo:
+
+Una volta all'interno del branch develop si potrà procedere con la modifica dei sorgenti. Ogni commit rappresenta uno step utile alla creazione di una nuova release.
+
+**Versionamento:**
+
+Premessa: se si vuole creare una nuova release e quindi modificare il numero di versione bisogna includere nel proprio messaggio di commit (l'ultimo prima di aver aperto la pull request) l'apposita sintassi:
+
+- "... version-major" andrà a modificare il digit più significativo (es: v0.0.0 -> v.1.0.0);
+
+- "... version-mid" andrà a modificare il digit di mezzo (es: v0.0.0 -> v.0.1.0);
+
+- "... version-minor" andrà a modificare il digit meno significativo (es: v0.0.0 -> v.0.0.1);
+
+Quando si vuole creare una nuova release basta aprire una pull request verso il branch main. Una volta terminati i check della action, la nuova release verrà creata in automatico.
+
+**Esempio:**
+
+Release attuale v1.0.0
+
+Sviluppo:
+
+Prima di tutto si fa un pull del repository remoto e ci si posiziona sul branch di sviluppo
+
+```bash
+git pull
+git checkout develop
+```
+
+Modifica al codice/sorgenti 1 ...
+
+```bash
+git add .
+git commit -m " Modificato ..."
+git push
+```
+
+Modifica al codice/sorgenti 2 ...
+
+```bash
+git add .
+git commit -m " Implementato ..."
+```
+
+Modifica al codice/sorgenti 3 ... (con l'intenzione poi di voler creare una nuova versione)
+
+```bash
+git add .
+git commit -m " Corretto ... version-mid"
+git push
+```
+
+Pull request:
+Una volta aperta la pull request, la action incaricata eseguirà i vari check e procederà in caso di esito positivo, con la creazione della nuova release:
+
+Release attuale v1.1.0 
+Descrizione :
+- " Modificato ..."
+- " Implementanto ..."
+- " Corretto ... version-mid"
 
 ### Local testing
 Per eseguire i test localmente nelle propria macchina basta seguire le seguenti istruzioni:
