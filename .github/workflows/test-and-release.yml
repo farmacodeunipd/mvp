@@ -166,7 +166,6 @@ jobs:
 
             Changes since last release (commit messages):
             ${{ steps.commit_messages.outputs.commit_messages }}
-
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
