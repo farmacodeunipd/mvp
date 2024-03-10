@@ -162,23 +162,23 @@ jobs:
             Release ${{ steps.versioning.outputs.updated_version }}
 
             Changes since last release (commit messages):
-            ${{ steps.commit_messages.outputs.commit_messages_file }}
+            $(cat ${{ steps.commit_messages.outputs.commit_messages_file }})
 
-            Coverage:
-            Python API coverage report:
-            ```xml
-            ${{ steps.upload_python_coverage.outputs.coverage_report }}
+            Coverage:       
+            Python API Coverage Report:
+            ```
+            $(cat ./coverage-python-api.xml)
             ```
 
-            React application coverage report:
-            ```json
-            ${{ steps.upload_react_coverage.outputs.coverage_report }}
+            React Application Coverage Report:
+            ```
+            $(cat ./coverage-react.json)
             ```
 
-            Express coverage report:
-            ```json
-            ${{ steps.upload_express_coverage.outputs.coverage_report }}
+            Express Coverage Report:
+            ```
+            $(cat ./coverage-express.json)
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-          
+
