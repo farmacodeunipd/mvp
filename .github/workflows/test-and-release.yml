@@ -151,7 +151,6 @@ jobs:
           COMMIT_MESSAGES=$(git log --pretty=format:"- %s" $LAST_RELEASE_TAG..HEAD --no-merges)
           echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
           
-
       - name: Create GitHub Release
         if: steps.check_release.outputs.release_exists != 'true'
         uses: actions/create-release@v1
