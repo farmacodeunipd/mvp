@@ -183,3 +183,5 @@ jobs:
           asset_path: coverage-artifacts.zip
           asset_name: coverage-artifacts
           asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}

@@ -455,11 +455,18 @@ git add .
 git commit -m " Implementato ..."
 ```
 
-Modifica al codice/sorgenti 3 ... (con l'intenzione poi di voler creare una nuova versione)
+Modifica al codice/sorgenti 3 ...
 
 ```bash
 git add .
-git commit -m " Corretto ... version-mid"
+git commit -m " Corretto ..."
+git push
+```
+Commit per la creazione di una nuova release
+
+```bash
+git add .
+git commit --allow-empty -m " version-mid "
 git push
 ```
 
@@ -468,9 +475,10 @@ Una volta aperta la pull request, la action incaricata eseguirà i vari check e 
 
 Release attuale v1.1.0 
 Descrizione :
+- " version-mid "
+- " Corretto ..."
 - " Modificato ..."
 - " Implementanto ..."
-- " Corretto ... version-mid"
 
 ### Local testing
 Per eseguire i test localmente nelle propria macchina basta seguire le seguenti istruzioni:
