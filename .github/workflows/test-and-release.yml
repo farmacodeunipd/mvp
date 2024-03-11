@@ -168,7 +168,7 @@ jobs:
             Changes since last release (commit messages):
             ${{ steps.commit_messages.outputs.commit_messages }}
 
-            Coverage reports are included within the zip.
+            Coverage reports are included within the assets.
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
