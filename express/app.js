@@ -35,13 +35,48 @@ app.get("/", (req, res) => {
     res.send("Server is running!");
 });
 
+app.get("/login/:use", async (req, res) => {
+    const uteUse = req.params.use;
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT use_ute, pas_ute, amm_ute FROM ute WHERE use_ute = ?",
+            [uteUse]
+        );
+        if (results.length === 0) {
+            res.status(404).json({
+                error: "Utente non trovato",
+            });
+        } else {
+            res.json([results[0]]);
+        }
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella utenti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella utenti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 app.get("/users", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT cod_cli, rag_soc FROM anacli LIMIT 500");
+        const results = await queryDatabase(
+            connection,
+            "SELECT cod_cli, rag_soc FROM anacli LIMIT 500"
+        );
         res.json(results);
     } catch (error) {
-        console.error("Errore durante il recupero dei dati dalla tabella users:", error);
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella users:",
+            error
+        );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella users",
         });
@@ -54,7 +89,11 @@ app.get("/users/:id", async (req, res) => {
     const userID = req.params.id;
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT cod_cli, rag_soc FROM anacli WHERE cod_cli = ?", [userID]);
+        const results = await queryDatabase(
+            connection,
+            "SELECT cod_cli, rag_soc FROM anacli WHERE cod_cli = ?",
+            [userID]
+        );
         if (results.length === 0) {
             res.status(404).json({
                 error: "User non trovato",
@@ -63,7 +102,10 @@ app.get("/users/:id", async (req, res) => {
             res.json([results[0]]);
         }
     } catch (error) {
-        console.error("Errore durante il recupero dei dati dalla tabella clienti:", error);
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella clienti:",
+            error
+        );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella clienti",
         });
@@ -75,10 +117,16 @@ app.get("/users/:id", async (req, res) => {
 app.get("/items", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT cod_art, des_art FROM anaart LIMIT 500");
+        const results = await queryDatabase(
+            connection,
+            "SELECT cod_art, des_art FROM anaart LIMIT 500"
+        );
         res.json(results);
     } catch (error) {
-        console.error("Errore durante il recupero dei dati dalla tabella prodotti:", error);
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella prodotti",
         });
@@ -91,7 +139,11 @@ app.get("/items/:id", async (req, res) => {
     const itemID = req.params.id;
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT cod_art, des_art FROM anaart WHERE cod_art = ?", [itemID]);
+        const results = await queryDatabase(
+            connection,
+            "SELECT cod_art, des_art FROM anaart WHERE cod_art = ?",
+            [itemID]
+        );
         if (results.length === 0) {
             res.status(404).json({
                 error: "Item non trovato",
@@ -100,7 +152,10 @@ app.get("/items/:id", async (req, res) => {
             res.json([results[0]]);
         }
     } catch (error) {
-        console.error("Errore durante il recupero dei dati dalla tabella prodotti:", error);
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella prodotti",
         });
@@ -121,7 +176,7 @@ function queryDatabase(connection, query, params = []) {
     });
 }
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
     app.listen(port, () => {
         console.log(`Server Express in esecuzione sulla porta ${port}`);
     });
