@@ -69,7 +69,7 @@ app.get("/users", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT cod_cli, rag_soc FROM anacli LIMIT 500"
+            "SELECT cod_cli, rag_soc FROM anacli"
         );
         res.json(results);
     } catch (error) {
@@ -119,7 +119,7 @@ app.get("/items", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT cod_art, des_art FROM anaart LIMIT 500"
+            "SELECT cod_art, des_art FROM anaart"
         );
         res.json(results);
     } catch (error) {
