@@ -86,9 +86,16 @@ function Login() {
                                 {errLogin}
                             </label>
                         )}
-                        <form className="space-y-6" onSubmit={proceedLogin}>
+                        <form
+                            className="space-y-6"
+                            onSubmit={proceedLogin}
+                            data-testid="login-form"
+                        >
                             <div>
-                                <label className="block text-md font-medium leading-6 text-gray-900 dark:text-white">
+                                <label
+                                    htmlFor="username"
+                                    className="block text-md font-medium leading-6 text-gray-900 dark:text-white"
+                                >
                                     Username
                                 </label>
                                 <div className="mt-2">
