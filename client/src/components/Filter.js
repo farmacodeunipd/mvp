@@ -45,10 +45,13 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             }}
                             options={searchObject} 
                             placeholder="Seleziona topic..." 
-                            optionLabel="name" 
-                            className="relative w-full rounded-lg bg-gray-100 dark:bg-gray-900 dark:text-white py-2 pl-3 pr-10 text-left shadow-lg ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-700 sm:text-sm"
-                            panelClassName="z-30 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-100 dark:bg-gray-900 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm custom-scrollbar"
-                        />
+                            optionLabel="name"
+                            className="relative w-full rounded-lg bg-gray-100 dark:bg-gray-900 dark:text-white py-2 pl-3 pr-3 pr-10 text-left shadow-lg ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-700 sm:text-sm"
+                            panelClassName="border-1 border-gray-500 py-4 pl-3 pr-3 overflow-auto rounded-md bg-gray-100 dark:bg-gray-900 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
+                            itemTemplate={(option) => (
+                                <div className="py-1 pr-1 border-y-1 border-gray-900 bg-gray-100 hover:bg-gray-300">{option.name}</div>
+                            )}
+                        /> 
                     </div>
                     {/* FILTRO CLIENTI o PRODOTTI */}
                     {selectedSearchObject.id !== 1 && (
@@ -62,7 +65,11 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                 optionLabel={selectedSearchObject.id === 2 ? "rag_soc" : "des_art"} 
                                 placeholder={selectedSearchObject.id === 2 ? "Seleziona cliente..." : "Seleziona prodotto..."} 
                                 disabled={selectedSearchObject.id === 1} 
-                                className="relative w-full cursor-pointer rounded-lg bg-gray-100 dark:bg-gray-900 dark:text-white py-2 pl-3 pr-10 text-left shadow-lg ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-700 sm:text-sm"
+                                className="relative w-full cursor-pointer rounded-lg bg-gray-100 dark:bg-gray-900 dark:text-white py-2 pl-3 pr-3 pr-10 text-left shadow-lg ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-700 sm:text-sm"
+                                panelClassName="border-1 border-gray-500 py-4 pl-3 pr-3 overflow-auto rounded-md bg-gray-100 dark:bg-gray-900 dark:text-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
+                                itemTemplate={(option) => (
+                                    <div className="py-1 border-y-1 border-gray-900 bg-gray-100 hover:bg-gray-300">{selectedSearchObject.id === 2 ? option.rag_soc : option.des_art}</div>
+                                )}
                             />
                         </div>
                     )}
@@ -73,8 +80,12 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             onChange={(e) => setSelectedTop(e.value)} 
                             options={tops} 
                             placeholder="Seleziona N..." 
-                            optionLabel="name" 
-                            className="w-full"
+                            optionLabel="name"
+                            className="relative w-full cursor-pointer rounded-lg bg-gray-100 dark:bg-gray-900 dark:text-white py-2 pl-3 pr-3 pr-10 text-left shadow-lg ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-700 sm:text-sm"
+                            panelClassName="border-1 border-gray-500 py-4 pl-3 pr-3 overflow-auto rounded-md bg-gray-100 dark:bg-gray-900 dark:text-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
+                            itemTemplate={(option) => (
+                                <div className="py-1 pr-1 border-y-1 border-gray-900 bg-gray-100 hover:bg-gray-300">{option.name}</div>
+                            )}
                         />
                     </div>
                     {/* BOTTONE INVIO */}
