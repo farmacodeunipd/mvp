@@ -25,7 +25,6 @@ jobs:
         run: |
           pip install ruff
           npm install eslint eslint-plugin-react
-          npx eslint . --fix
 
       - name: Lint with Ruff (Python)
         run: |
@@ -34,4 +33,4 @@ jobs:
 
       - name: Lint with ESLint (React/JS)
         run: |
-          npx eslint . --fix
+          npx eslint . --ext .js,.jsx --fix
