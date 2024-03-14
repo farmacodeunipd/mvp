@@ -164,6 +164,31 @@ app.get("/items/:id", async (req, res) => {
     }
 });
 
+const ITEMS_PER_PAGE = 8; // Numero di elementi per pagina
+
+app.get("/prova", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const page = parseInt(req.query.page) || 1; // Otteniamo il numero di pagina dalla query string, se non specificato, usiamo la pagina 1
+        const offset = (page - 1) * ITEMS_PER_PAGE; // Calcoliamo l'offset per la query
+        const results = await queryDatabase(
+            connection,
+            `SELECT cod_art, des_art FROM anaart LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}`
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella prodotti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
         connection.query(query, params, (error, results, fields) => {
@@ -181,5 +206,7 @@ if (process.env.NODE_ENV !== "test") {
         console.log(`Server Express in esecuzione sulla porta ${port}`);
     });
 }
+
+
 
 module.exports = app; // Export the app for testing purposes
