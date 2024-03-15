@@ -185,6 +185,27 @@ app.get("/categoriaProdotti", async (req, res) => {
     }
 });
 
+app.get("/categoriaClienti", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella prodotti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
         connection.query(query, params, (error, results, fields) => {

@@ -1,93 +1,65 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { DataScroller } from 'primereact/datascroller';
+import { DataTable } from 'primereact/datatable';
+import { Column } from "primereact/column";
+import { InputText } from 'primereact/inputtext';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import Footer from '../components/Footer';
 
 const expressUrl = process.env.EXPRESS_API_URL || 'localhost:3080';
 
 function CatProd() {
     const [results, setResults] = useState([]);
-    const [pageNumber, setPageNumber] = useState(1);
-    const [loading, setLoading] = useState(false);
-    
-    {/*
-    useEffect(() => {
-        getItems();
-    }, []);
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        'des_art': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    });
 
-    async function getItems() {
-        const response = await axios.get(`http://${expressUrl}/items`);
-        setResults(response.data);
-    }
-    */}
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
 
-    {/*
-    const loadData = useCallback(async () => {
-        try {
-            const response = await axios.get(`http://${expressUrl}/prova?page=${pageNumber}`);
-            // Aggiungiamo i nuovi dati solo se ci sono elementi nella risposta
-            if (response.data.length > 0) {
-                setResults((prev) => [...prev, ...response.data]);
-                // Incrementiamo il numero di pagina per la prossima richiesta
-                setPageNumber(prevPageNumber => prevPageNumber + 1);
-            }
-        } catch (error) {
-            console.error("Error loading data:", error);
-        }
-    }, [pageNumber]); // Aggiungiamo pageNumber come dipendenza per assicurarci che la funzione venga ricreata quando cambia
-    */}
+        _filters['global'].value = value;
 
-    {/*
-    const loadData = useCallback(async () => {
-        const response = await axios.get(`http://${expressUrl}/items`);
-        setResults((prev) => [...prev, ...response.data]);
-    }, []);
-    */}
-
-    //modifica chatGPT
-    useEffect(() => {
-        fetchData();
-    }, [pageNumber]);
-
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`http://${expressUrl}/prova?page=${pageNumber}`);
-            setResults(prev => [...prev, ...response.data]);
-        } catch (error) {
-            console.error("Errore nel recupero dei dati:", error);
-        } finally {
-            setLoading(false);
-        }
+        setFilters(_filters);
+        setGlobalFilterValue(value);
     };
 
-    const itemTemplate = (data) =>{
+    const renderHeader = () => {
         return (
-            <div key={data.cod_art}>
-                <p className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
-                    {data.cod_art}
-                </p>
-                <p className="whitespace-nowrap px-3 py-4 text-sm text-gray-500  dark:text-gray-200">
-                    {data.des_art ? data.des_art : "-- NON TROVATO --"}
-                </p>
+            <div className="flex justify-content-end">
+                <span className="p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
+                </span>
             </div>
-        )
-    }
+        );
+    };
+
+    useEffect(() => {
+        axios.get(`http://${expressUrl}/categoriaProdotti`)
+        .then((res)=>setResults(res.data));
+    }, []);
+
+    const header = renderHeader();
+
+    const tableHeight = `${window.innerHeight-86-64-48-72-24}px`;
 
     return (
         <>        
             <div className="custom-scrollbar shadow-lg ring-1 ring-black ring-opacity-5 md:mx-0 rounded-3xl">
-                <DataScroller 
-                    value={results} 
-                    itemTemplate={itemTemplate} r
-                    rows={8} // Numero di elementi da visualizzare contemporaneamente
-                    inline
-                    scrollHeight="500px"
-                    buffer={0.4} // Percentuale di buffer per il caricamento anticipato
-                    onLazyLoad={fetchData} // Callback per il caricamento lazy
-                    loading={loading} // Indicatore di caricamento
-                    header="Lista dei Prodotti"
-                />
+                <DataTable value={results} paginatorTemplate="FirstPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    dataKey="cod_art" paginator emptyMessage="NO DATA FOUND" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} posts"
+                    rows={25} rowsPerPageOptions={[25, 50, 75, 100]} globalFilterFields={['des_art']} 
+                    header={header} filters={filters} scrollHeight={tableHeight}>
+                        <Column field="cod_art" header="Codice Articolo"/>
+                        <Column field="des_art" filterField="des_art" header="Descrizione Articolo"/>
+                        <Column field="cod_linea_comm" header="Codice Linea Commerciale"/>
+                        <Column field="cod_sett_comm" header="Codice Settore Commerciale"/>
+                        <Column field="cod_fam_comm" header="Codice Famiglia Commerciale"/>
+                        <Column field="cod_sott_comm" header="Codice SottoFamiglia Commerciale"/>
+                </DataTable>
             </div>
             <Footer/>
         </>
