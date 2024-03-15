@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataScroller } from 'primereact/datascroller';
 import Footer from '../components/Footer';
@@ -7,6 +7,9 @@ const expressUrl = process.env.EXPRESS_API_URL || 'localhost:3080';
 
 function CatProd() {
     const [results, setResults] = useState([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [loading, setLoading] = useState(false);
+    
     {/*
     useEffect(() => {
         getItems();
@@ -17,9 +20,8 @@ function CatProd() {
         setResults(response.data);
     }
     */}
-    
-    const [pageNumber, setPageNumber] = useState(1); // Iniziamo con la prima pagina
 
+    {/*
     const loadData = useCallback(async () => {
         try {
             const response = await axios.get(`http://${expressUrl}/prova?page=${pageNumber}`);
@@ -33,8 +35,7 @@ function CatProd() {
             console.error("Error loading data:", error);
         }
     }, [pageNumber]); // Aggiungiamo pageNumber come dipendenza per assicurarci che la funzione venga ricreata quando cambia
-
-
+    */}
 
     {/*
     const loadData = useCallback(async () => {
@@ -42,6 +43,24 @@ function CatProd() {
         setResults((prev) => [...prev, ...response.data]);
     }, []);
     */}
+
+    //modifica chatGPT
+    useEffect(() => {
+        fetchData();
+    }, [pageNumber]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://${expressUrl}/prova?page=${pageNumber}`);
+            setResults(prev => [...prev, ...response.data]);
+        } catch (error) {
+            console.error("Errore nel recupero dei dati:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const itemTemplate = (data) =>{
         return (
             <div key={data.cod_art}>
@@ -57,8 +76,18 @@ function CatProd() {
 
     return (
         <>        
-            <div className="custom-scrollbar shadow-lg ring-1 ring-black ring-opacity-5 md:mx-0 rounded-3xl h-full">
-                <DataScroller value={results} itemTemplate={itemTemplate} rows={8} inline={true} scrollHeight="500px" lazy={true} onLazyLoad={loadData} header="lista prodotti"/>
+            <div className="custom-scrollbar shadow-lg ring-1 ring-black ring-opacity-5 md:mx-0 rounded-3xl">
+                <DataScroller 
+                    value={results} 
+                    itemTemplate={itemTemplate} r
+                    rows={8} // Numero di elementi da visualizzare contemporaneamente
+                    inline
+                    scrollHeight="500px"
+                    buffer={0.4} // Percentuale di buffer per il caricamento anticipato
+                    onLazyLoad={fetchData} // Callback per il caricamento lazy
+                    loading={loading} // Indicatore di caricamento
+                    header="Lista dei Prodotti"
+                />
             </div>
             <Footer/>
         </>

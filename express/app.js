@@ -164,16 +164,12 @@ app.get("/items/:id", async (req, res) => {
     }
 });
 
-const ITEMS_PER_PAGE = 8; // Numero di elementi per pagina
-
-app.get("/prova", async (req, res) => {
+app.get("/categoriaProdotti", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const page = parseInt(req.query.page) || 1; // Otteniamo il numero di pagina dalla query string, se non specificato, usiamo la pagina 1
-        const offset = (page - 1) * ITEMS_PER_PAGE; // Calcoliamo l'offset per la query
         const results = await queryDatabase(
             connection,
-            `SELECT cod_art, des_art FROM anaart LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}`
+            "SELECT * FROM anaart ORDER BY cod_art"
         );
         res.json(results);
     } catch (error) {
