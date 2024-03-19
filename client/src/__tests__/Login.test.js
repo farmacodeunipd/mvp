@@ -70,11 +70,6 @@ test("test successful login", async () => {
         </BrowserRouter>
     );
 
-    act(() => {
-        userEvent.type(screen.getByLabelText("Username"), "a");
-        userEvent.type(screen.getByLabelText("Password"), "a");
-    });
-
     // act(() => {
     //     userEvent.click(screen.getByText("Accedi"));
     // });
@@ -82,10 +77,12 @@ test("test successful login", async () => {
     // expect(axios.get).toHaveBeenCalledWith("http://localhost:3080/login/a");
 
     await act(async () => {
+        userEvent.type(screen.getByLabelText("Username"), "a");
+        userEvent.type(screen.getByLabelText("Password"), "a");
         userEvent.click(screen.getByText("Accedi"));
         await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith(
-                "http://localhost:3080/login/a"
+                "http://express:3080/login/a"
             );
         });
     });
