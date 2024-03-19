@@ -69,7 +69,7 @@ app.get("/users", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT cod_cli, rag_soc FROM anacli LIMIT 500"
+            "SELECT cod_cli, rag_soc FROM anacli"
         );
         res.json(results);
     } catch (error) {
@@ -119,7 +119,7 @@ app.get("/items", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT cod_art, des_art FROM anaart LIMIT 500"
+            "SELECT cod_art, des_art FROM anaart"
         );
         res.json(results);
     } catch (error) {
@@ -164,6 +164,48 @@ app.get("/items/:id", async (req, res) => {
     }
 });
 
+app.get("/categoriaProdotti", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM anaart ORDER BY cod_art"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella prodotti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/categoriaClienti", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella prodotti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
         connection.query(query, params, (error, results, fields) => {
@@ -181,5 +223,7 @@ if (process.env.NODE_ENV !== "test") {
         console.log(`Server Express in esecuzione sulla porta ${port}`);
     });
 }
+
+
 
 module.exports = app; // Export the app for testing purposes

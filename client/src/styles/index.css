@@ -3,26 +3,21 @@
 @tailwind utilities;
 
 html {
-    @apply overflow-hidden;
+    @apply overflow-hidden bg-gray-200;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-    @apply w-1 h-1;
+.custom-empty-message td[data-pc-section="bodycell"] {
+    @apply !text-black;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-400 dark:bg-gray-400 rounded-lg;
+.custom-paginator div[data-pc-name="dropdown"] {
+    @apply !w-24 !ml-2;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
+.custom-paginator div[data-pc-name="dropdown"] span[data-pc-section="input"] {
+    @apply !pl-3 !py-1;
 }
 
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #96989b #1e1e1e;
-}
-
-.custom-scrollbar:hover {
-    scrollbar-color: #333 #96989b;
+.custom-paginator div[data-pc-name="dropdown"] div[data-pc-section="trigger"] {
+    @apply !w-6;
 }

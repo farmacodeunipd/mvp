@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { StarIcon } from "@heroicons/react/20/solid";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Rating } from "primereact/rating";
+import { classNames } from "primereact/utils";
 
-const expressUrl = process.env.EXPRESS_API_URL || 'localhost:3080';
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(" ");
-}
+const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
 async function getUser(id) {
     const response = await axios.get(`http://${expressUrl}/users/${id}`);
@@ -19,86 +18,116 @@ async function getItem(id) {
 }
 
 function Results({ data, selectObject }) {
-    const [names, setNames] = useState([]);
+    const [additionalData, setAdditionalData] = useState({});
+
     useEffect(() => {
         const fetchData = async () => {
-            const promises = data.map(async (object) => {
-                let value;
-                if (selectObject.id === 2) {
-                    value = await getItem(object.id);
-                } else if (selectObject.id === 3) {
-                    value = await getUser(object.id);
-                } else {
-                    console.log("errore");
-                    value = "";
+            const additionalDataMap = {};
+            for (const item of data) {
+                let name;
+                if (selectObject === "user") {
+                    name = await getItem(item.id);
+                } else if (selectObject === "item") {
+                    name = await getUser(item.id);
                 }
-                return value;
-            });
-
-            const resolvedValues = await Promise.all(promises);
-
-            setNames(resolvedValues);
+                additionalDataMap[item.id] = name;
+            }
+            setAdditionalData(additionalDataMap);
         };
         fetchData();
     }, [data, selectObject]);
 
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-between items-center">
+                <p className="text-2xl text-black">
+                    {selectObject === "user"
+                        ? "Prodotti raccomandati"
+                        : "Clienti raccomandati"}
+                </p>
+            </div>
+        );
+    };
+
+    const header = renderHeader();
+
+    const tableHeight = `${
+        window.innerHeight - 4 - 92 - 4 - 52 - 125 - 4 - 24 - 4
+    }px`;
+
+    const ptDataTable = {
+        root: {
+            className: "bg-gray-200",
+        },
+        header: {
+            className: "rounded-t-3xl bg-gray-200 py-2 px-2",
+        },
+        thead: {
+            className: "sticky top-0 z-50",
+        },
+        tbody: {
+            className: "custom-empty-message",
+        },
+    };
+
+    const ptColumn = {
+        headerCell: {
+            className: "bg-gray-200 !text-black",
+        },
+        bodyCell: {
+            className: "!text-black",
+        },
+    };
+
+    const ptRating = {
+        item: {
+            className: "!shadow-none",
+        },
+        onIcon: {
+            className: "!w-4 !h-4",
+        },
+        offIcon: {
+            className: "!w-4 !h-4 hover:!text-gray-700",
+        },
+    };
+
     return (
         <>
-            <div className="overflow-y-auto custom-scrollbar shadow-lg ring-1 ring-black ring-opacity-5 md:mx-0 rounded-3xl">
-                <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-950">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th
-                                scope="col"
-                                className="py-3.5 pl-4 pr-3 text-left text-base font-semibold text-gray-900 dark:text-white sm:pl-6"
-                            >
-                                Id
-                            </th>
-                            <th
-                                scope="col"
-                                className="px-3 py-3.5 text-left text-base font-semibold text-gray-900 dark:text-white"
-                            >
-                                Nome
-                            </th>
-                            <th
-                                scope="col"
-                                className="hidden px-3 py-3.5 text-left text-base font-semibold text-gray-900 dark:text-white lg:table-cell"
-                            >
-                                Valore
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-900 bg-white dark:bg-gray-600">
-                        {data.map((data, index) => (
-                            <tr key={data.id}>
-                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
-                                    {data.id}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500  dark:text-gray-200">
-                                    {names[index]
-                                        ? names[index]
-                                        : "-- NON TROVATO --"}
-                                </td>
-                                <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500  dark:text-gray-200 lg:table-cell">
-                                    {/* {data.value} */}
-                                    <div className="flex items-center">
-                                        {[1, 2, 3, 4, 5].map((rating) => (
-                                            <StarIcon
-                                                key={rating}
-                                                className={classNames(
-                                                    data.value >= rating
-                                                        ? "text-gray-800 dark:text-gray-900"
-                                                        : "text-gray-300 dark:text-gray-200",
-                                                    "h-5 w-5 flex-shrink-0"
-                                                )}
-                                            ></StarIcon>
-                                        ))}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="h-full flex rounded-3xl bg-geay-200 border border-gray-300">
+                <DataTable
+                    className="w-full rounded-3xl"
+                    pt={ptDataTable}
+                    size="small"
+                    value={data}
+                    dataKey={data.id}
+                    emptyMessage="NO DATA FOUND"
+                    rows={20}
+                    header={header}
+                    scrollHeight={tableHeight}
+                >
+                    <Column field="id" header="ID" pt={ptColumn} />
+                    <Column
+                        field={(rowData) => additionalData[rowData.id]}
+                        header={
+                            selectObject === "user"
+                                ? "Descrizione prodotto"
+                                : "Cliente"
+                        }
+                        pt={ptColumn}
+                    />
+                    <Column
+                        header="Raccomandazione"
+                        body={(rowData) => (
+                            <Rating
+                                value={rowData.value}
+                                readOnly
+                                cancel={false}
+                                pt={ptRating}
+                            />
+                        )}
+                        pt={ptColumn}
+                    />
+                </DataTable>
             </div>
         </>
     );
