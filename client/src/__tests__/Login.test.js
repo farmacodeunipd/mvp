@@ -9,6 +9,14 @@ import Login from "../pages/login";
 
 jest.mock("axios");
 
+const originalConsoleError = console.error;
+const jsDomCssError = "Error: Could not parse CSS stylesheet";
+console.error = (...params) => {
+    if (!params.find((p) => p.toString().includes(jsDomCssError))) {
+        originalConsoleError(...params);
+    }
+};
+
 test("render footer components in Login", () => {
     render(
         <BrowserRouter>

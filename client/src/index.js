@@ -1,37 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "primeicons/primeicons.css";
+import { PrimeReactProvider } from "primereact/api";
+import Tailwind from "primereact/passthrough/tailwind";
+import "primeflex/primeflex.css";
+import "primereact/resources/primereact.min.css";
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+
+import App from "./App";
+
 import "./styles/index.css";
-import "./styles/tailwind_ligth.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./pages/Layout";
-import Home from "./pages/Home";
-import Profilo from "./pages/Profilo";
-import CatProd from "./pages/CatProd";
-import CatCli from "./pages/CatCli";
-import Login from "./pages/login";
-import CategoriaProd from "./pages/categoriaProdotti"
-
-
-export default function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="profilo" element={<Profilo />} />
-                    <Route path="catprod" element={<CatProd />} />
-                    <Route path="catcli" element={<CatCli />} />
-                </Route>
-                <Route path="/login" element={<Login />} />
-                <Route path="/categoriaProdotti" element={<CategoriaProd />} />
-            </Routes>
-        </BrowserRouter>
-    );
-}
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <React.StrictMode>
-        <App />
+        <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
+            <App />
+        </PrimeReactProvider>
     </React.StrictMode>
 );
