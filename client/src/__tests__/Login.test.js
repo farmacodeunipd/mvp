@@ -17,6 +17,8 @@ console.error = (...params) => {
     }
 };
 
+const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
+
 test("render footer components in Login", () => {
     render(
         <BrowserRouter>
@@ -70,19 +72,13 @@ test("test successful login", async () => {
         </BrowserRouter>
     );
 
-    // act(() => {
-    //     userEvent.click(screen.getByText("Accedi"));
-    // });
-
-    // expect(axios.get).toHaveBeenCalledWith("http://localhost:3080/login/a");
-
     await act(async () => {
         userEvent.type(screen.getByLabelText("Username"), "a");
         userEvent.type(screen.getByLabelText("Password"), "a");
         userEvent.click(screen.getByText("Accedi"));
         await waitFor(() => {
             expect(axios.get).toHaveBeenCalledWith(
-                "http://express:3080/login/a"
+                `http://${expressUrl}/login/a`
             );
         });
     });
