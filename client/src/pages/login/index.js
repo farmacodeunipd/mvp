@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import bcrypt from "bcryptjs";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
@@ -33,7 +34,9 @@ function Login() {
                 if (response.status !== 200) {
                     setErrLogin("Errore! Inserisci un username valido");
                 } else {
-                    if (response.data[0].pas_ute === password) {
+                    if (
+                        bcrypt.compareSync(password, response.data[0].pas_ute)
+                    ) {
                         sessionStorage.setItem("username", username);
                         sessionStorage.setItem(
                             "amministratore",
@@ -131,6 +134,7 @@ function Login() {
                                         setPassword(e.target.value);
                                         setErrPassword("");
                                     }}
+                                    autoComplete="off"
                                 />
                             </div>
                             {errPassword && (

@@ -206,6 +206,102 @@ app.get("/categoriaClienti", async (req, res) => {
     }
 });
 
+app.get("/userana/:use", async (req, res) => {
+    const userID = req.params.use;
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT nom_ute, cog_ute, dat_ute, use_ute, mai_ute, pas_ute FROM ute WHERE use_ute = ?",
+            [userID]
+        );
+        if (results.length === 0) {
+            res.status(404).json({
+                error: "User non trovato",
+            });
+        } else {
+            results[0].dat_ute = results[0].dat_ute.toISOString().split("T")[0];
+            res.json([results[0]]);
+        }
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella clienti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella clienti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/userana/:use/email", async (req, res) => {
+    const userID = req.params.use;
+    const newEmail = req.body.newEmail;
+
+    if (newEmail === null || newEmail === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il nuovo indirizzo email",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "UPDATE ute SET mai_ute = ? WHERE use_ute = ?",
+            [newEmail, userID]
+        );
+        res.status(200).json({
+            message: "Indirizzo email aggiornato con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante l'aggiornamento dell'indirizzo email nella tabella utenti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante l'aggiornamento dell'indirizzo email nella tabella utenti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/userana/:use/password", async (req, res) => {
+    const userID = req.params.use;
+    const newPassword = req.body.newPassword;
+
+    if (newPassword === null || newPassword === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire la nuova password",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "UPDATE ute SET pas_ute = ? WHERE use_ute = ?",
+            [newPassword, userID]
+        );
+        res.status(200).json({
+            message: "Password aggiornata con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante l'aggiornamento della password nella tabella utenti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante l'aggiornamento della password nella tabella utenti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
         connection.query(query, params, (error, results, fields) => {
@@ -223,7 +319,5 @@ if (process.env.NODE_ENV !== "test") {
         console.log(`Server Express in esecuzione sulla porta ${port}`);
     });
 }
-
-
 
 module.exports = app; // Export the app for testing purposes
