@@ -3,7 +3,6 @@ import axios from "axios";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Rating } from "primereact/rating";
-import { classNames } from "primereact/utils";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
