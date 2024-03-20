@@ -71,8 +71,8 @@ CREATE TABLE anaart(
 );
 
 INSERT INTO ute VALUES 
-("Mario", "Rossi", "1994-09-10", "mario.rossi@ergon.it", "a", "a", TRUE),
-("Luca", "Verdi", "1994-09-10", "luca.verdi@ergon.it", "b", "b", FALSE);
+("Mario", "Rossi", "1994-09-10", "mario.rossi@ergon.it", "a", "$2a$10$LDpvuJQOfj9b1.fvjeW5Bu/C7BJlGMCtEh0j4o2N62Za.4Uz/0h72", TRUE),
+("Luca", "Verdi", "1994-09-10", "luca.verdi@ergon.it", "b", "$2a$10$qL79rWWWfjcVXy05h7RV/eOSa1dCVddv4vfK3hV/Dd58G1xMl199G", FALSE);
 
 INSERT INTO prov VALUES
 (".", "ESTERO"),

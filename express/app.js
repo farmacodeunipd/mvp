@@ -206,6 +206,35 @@ app.get("/categoriaClienti", async (req, res) => {
     }
 });
 
+app.get("/userana/:use", async (req, res) => {
+    const userID = req.params.use;
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT nom_ute, cog_ute, FORMAT(dat_ute, '%d-%m-%Y') AS dat_ute, mai_ute, pas_ute FROM ute WHERE use_ute = ?",
+            [userID]
+        );
+        if (results.length === 0) {
+            res.status(404).json({
+                error: "User non trovato",
+            });
+        } else {
+            res.json([results[0]]);
+        }
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella clienti:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella clienti",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
         connection.query(query, params, (error, results, fields) => {
@@ -223,7 +252,5 @@ if (process.env.NODE_ENV !== "test") {
         console.log(`Server Express in esecuzione sulla porta ${port}`);
     });
 }
-
-
 
 module.exports = app; // Export the app for testing purposes
