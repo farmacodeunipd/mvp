@@ -21,3 +21,32 @@ html {
 .custom-paginator div[data-pc-name="dropdown"] div[data-pc-section="trigger"] {
     @apply !w-6;
 }
+
+.custom-filter div[data-pc-section="root"] span[data-pc-section="input"] {
+    @apply !p-2 !duration-0;
+}
+
+.custom-filter div[data-pc-section="root"] div[data-pc-section="trigger"] {
+    @apply !w-12;
+}
+
+.custom-filter input[data-pc-section="root"] {
+    @apply !p-2;
+}
+
+.custom-checkbox div[data-pc-section="root"],
+.custom-checkbox div[data-pc-section="root"] div[data-pc-section="input"] {
+    @apply !w-6 !h-6;
+}
+
+.custom-checkbox div[data-pc-section="root"] {
+    @apply !border-0;
+}
+
+.custom-checkbox div[data-pc-section="root"] div[data-pc-section="input"] svg {
+    @apply !w-4 !h-4;
+}
+
+.custom-filter-button button[data-pc-section="root"] {
+    @apply !py-2 !px-3;
+}
