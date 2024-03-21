@@ -192,7 +192,15 @@ app.get("/categoriaClienti", async (req, res) => {
             connection,
             "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
         );
-        res.json(results);
+        const formattedResults = results.map((result) => ({
+            cod_cli: result.cod_cli,
+            rag_soc: result.rag_soc,
+            prov: {
+                cod_prov: result.cod_prov,
+                des_prov: result.des_prov,
+            },
+        }));
+        res.json(formattedResults);
     } catch (error) {
         console.error(
             "Errore durante il recupero dei dati dalla tabella prodotti:",
@@ -206,6 +214,23 @@ app.get("/categoriaClienti", async (req, res) => {
     }
 });
 
+app.get("/clienti/provincia", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(connection, "SELECT * FROM prov");
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella provincia:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella provincia",
+        });
+    } finally {
+        connection.end();
+    }
+});
 app.get("/userana/:use", async (req, res) => {
     const userID = req.params.use;
     const connection = await connectToDB();
