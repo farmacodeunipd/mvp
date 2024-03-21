@@ -25,7 +25,9 @@ function Profilo() {
 
     const [userData, setUserData] = useState(null);
     const [newEmail, setNewEmail] = useState("");
+    const [errNewEmail, setErrNewEmail] = useState("");
     const [newPassword, setNewPassword] = useState("");
+    const [errNewPassword, setErrNewPassword] = useState("");
 
     async function getUserData(username) {
         const response = await axios.get(
@@ -39,6 +41,7 @@ function Profilo() {
     const [editModePassword, setEditModePassword] = useState(false);
 
     async function saveNewEmail() {
+        setErrNewEmail("");
         try {
             await axios.put(
                 `http://${expressUrl}/userana/${userData.use_ute}/email`,
@@ -48,11 +51,28 @@ function Profilo() {
             getUserData(userData.use_ute);
         } catch (error) {
             console.error("Errore durante il salvataggio dell'email:", error);
-            // Gestisci l'errore qui
+
+            if (error.response && error.response.status === 400) {
+                setErrNewEmail("Il campo email non può essere vuoto.");
+            } else if (error.response && error.response.status === 500) {
+                setErrNewEmail(
+                    "Errore! Ricontrolla l'email inserita, potrebbe essere gia inserita nei nostri sistemi."
+                );
+            } else {
+                setErrNewEmail(
+                    "Errore! Prova a ricontrollare l'email insertita."
+                );
+            }
         }
     }
 
     async function saveNewPassword() {
+        setErrNewPassword("");
+        if (newPassword === null || newPassword === "") {
+            setErrNewPassword("Il campo password non può essere vuoto.");
+            return;
+        }
+
         try {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -67,7 +87,14 @@ function Profilo() {
                 "Errore durante l'aggiornamento della password:",
                 error
             );
-            // Gestisci l'errore qui
+
+            if (error.response && error.response.status === 400) {
+                setErrNewPassword("Il campo password non può essere vuoto.");
+            } else if (error.response && error.response.status === 500) {
+                setErrNewPassword("Errore! Ricontrolla la password inserita.");
+            } else {
+                setErrNewPassword("Errore! Ricontrolla la password inserita.");
+            }
         }
     }
 
@@ -142,6 +169,13 @@ function Profilo() {
                     </div>
                     {userData ? (
                         <div>
+                            {errNewEmail ? (
+                                <p className="text-red-500">{errNewEmail}</p>
+                            ) : null}
+
+                            {errNewPassword ? (
+                                <p className="text-red-500">{errNewPassword}</p>
+                            ) : null}
                             <Divider pt={ptDivider} />
                             <div className="flex items-center">
                                 <p className="w-2/5 text-md text-black font-medium">
@@ -231,6 +265,7 @@ function Profilo() {
                                         onClick={() => {
                                             if (editModeEmail) {
                                                 setNewEmail(userData.mai_ute);
+                                                setErrNewEmail("");
                                             }
                                             setEditModeEmail(!editModeEmail);
                                         }}
@@ -287,6 +322,7 @@ function Profilo() {
                                         onClick={() => {
                                             if (editModePassword) {
                                                 setNewPassword("");
+                                                setErrNewPassword("");
                                             }
                                             setEditModePassword(
                                                 !editModePassword
