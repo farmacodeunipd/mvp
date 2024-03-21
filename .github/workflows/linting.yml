@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruff
-          npm install eslint eslint-plugin-react
+          npm install eslint eslint-plugin-react eslint-config-react-app --save-dev
 
       - name: Lint with Ruff (Python)
         run: |
