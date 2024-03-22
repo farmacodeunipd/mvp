@@ -5,6 +5,8 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FilterMatchMode } from "primereact/api";
+import { MultiSelect } from "primereact/multiselect";
+import { Button } from "primereact/button";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -21,12 +23,12 @@ function Prodotti() {
     });
 
     const [results, setResults] = useState([]);
+    const [lineecomm, setLineecomm] = useState([]);
+    const [settoricomm, setSettoricomm] = useState([]);
+    const [famigliecomm, setFamigliecomm] = useState([]);
+    const [sottofamigliecomm, setSottofamigliecomm] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState("");
-    const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        cod_art: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        des_art: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    });
+    const [filters, setFilters] = useState(null);
 
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
@@ -38,28 +40,172 @@ function Prodotti() {
         setGlobalFilterValue(value);
     };
 
+    const initFilters = () => {
+        setFilters({
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            cod_art: { value: null, matchMode: FilterMatchMode.EQUALS },
+            des_art: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            lineecomm: { value: null, matchMode: FilterMatchMode.IN },
+            settoricomm: { value: null, matchMode: FilterMatchMode.IN },
+            famigliecomm: { value: null, matchMode: FilterMatchMode.IN },
+            sottofamigliecomm: { value: null, matchMode: FilterMatchMode.IN },
+        });
+        setGlobalFilterValue("");
+    };
+
+    const clearFilter = () => {
+        initFilters();
+    };
+
     useEffect(() => {
         axios
-            .get(`http://${expressUrl}/categoriaProdotti`)
+            .get(`http://${expressUrl}/prodotti`)
             .then((res) => setResults(res.data));
+        axios
+            .get(`http://${expressUrl}/prodotti/lineecommerciali`)
+            .then((res) => setLineecomm(res.data));
+        axios
+            .get(`http://${expressUrl}/prodotti/settoricommerciali`)
+            .then((res) => setSettoricomm(res.data));
+        axios
+            .get(`http://${expressUrl}/prodotti/famigliecommerciali`)
+            .then((res) => setFamigliecomm(res.data));
+        axios
+            .get(`http://${expressUrl}/prodotti/sottofamigliecommerciali`)
+            .then((res) => setSottofamigliecomm(res.data));
     }, []);
+
+    const ptButton = {
+        root: {
+            className: "!py-2 !px-4 !text-sm",
+        },
+    };
 
     const renderHeader = () => {
         return (
             <div className="flex justify-between items-center">
                 <p className="text-2xl text-black">Prodotti</p>
-                <InputText
-                    className="p-1 px-2 ring-1 ring-black/10"
-                    size="small"
-                    value={globalFilterValue}
-                    onChange={onGlobalFilterChange}
-                    placeholder="Ricerca..."
-                />
+                <div className="flex items-center gap-2">
+                    <Button
+                        type="button"
+                        icon="pi pi-filter-slash"
+                        label="Cancella"
+                        pt={ptButton}
+                        outlined
+                        onClick={clearFilter}
+                    />
+                    <InputText
+                        className="!p-2 ring-1 ring-black/10"
+                        value={globalFilterValue}
+                        onChange={onGlobalFilterChange}
+                        placeholder="Ricerca..."
+                    />
+                </div>
             </div>
         );
     };
 
     const header = renderHeader();
+
+    const lineecommFilterTemplate = (options) => {
+        return (
+            <MultiSelect
+                value={options.value}
+                options={lineecomm}
+                itemTemplate={lineecommItemTemplate}
+                onChange={(e) => options.filterCallback(e.value)}
+                optionLabel="linea_comm"
+                placeholder="Tutti"
+                maxSelectedLabels={1}
+                pt={ptMultiSelect}
+            />
+        );
+    };
+
+    const lineecommItemTemplate = (option) => {
+        return (
+            <div className="flex align-items-center gap-2">
+                <span>
+                    {option.linea_comm} ({option.cod_linea_comm})
+                </span>
+            </div>
+        );
+    };
+
+    const settoricommFilterTemplate = (options) => {
+        return (
+            <MultiSelect
+                value={options.value}
+                options={settoricomm}
+                itemTemplate={settoricommItemTemplate}
+                onChange={(e) => options.filterCallback(e.value)}
+                optionLabel="sett_comm"
+                placeholder="Tutti"
+                maxSelectedLabels={1}
+                pt={ptMultiSelect}
+            />
+        );
+    };
+
+    const settoricommItemTemplate = (option) => {
+        return (
+            <div className="flex align-items-center gap-2">
+                <span>
+                    {option.sett_comm} ({option.cod_sett_comm})
+                </span>
+            </div>
+        );
+    };
+
+    const famigliecommFilterTemplate = (options) => {
+        return (
+            <MultiSelect
+                value={options.value}
+                options={famigliecomm}
+                itemTemplate={famigliecommItemTemplate}
+                onChange={(e) => options.filterCallback(e.value)}
+                optionLabel="fam_comm"
+                placeholder="Tutti"
+                maxSelectedLabels={1}
+                pt={ptMultiSelect}
+            />
+        );
+    };
+
+    const famigliecommItemTemplate = (option) => {
+        return (
+            <div className="flex align-items-center gap-2">
+                <span>
+                    {option.fam_comm} ({option.cod_fam_comm})
+                </span>
+            </div>
+        );
+    };
+
+    const sottofamigliecommFilterTemplate = (options) => {
+        return (
+            <MultiSelect
+                value={options.value}
+                options={sottofamigliecomm}
+                itemTemplate={sottofamigliecommItemTemplate}
+                onChange={(e) => options.filterCallback(e.value)}
+                optionLabel="sott_comm"
+                placeholder="Tutti"
+                maxSelectedLabels={1}
+                pt={ptMultiSelect}
+            />
+        );
+    };
+
+    const sottofamigliecommItemTemplate = (option) => {
+        return (
+            <div className="flex align-items-center gap-2">
+                <span>
+                    {option.sott_comm} ({option.cod_sott_comm})
+                </span>
+            </div>
+        );
+    };
 
     const tableHeight = `${
         window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4
@@ -79,10 +225,61 @@ function Prodotti() {
 
     const ptColumn = {
         headerCell: {
-            className: "bg-gray-200 !text-black",
+            className: "bg-gray-200 !text-black !p-2",
         },
         bodyCell: {
             className: "!text-black",
+        },
+        filterOverlay: {
+            className: "!bg-gray-100",
+        },
+        filterMenuButton: {
+            className: "!w-8 !h-8 !bg-gray-800 !text-white",
+        },
+        filterConstraint: {
+            className: "!p-2 custom-filter",
+        },
+        filterButtonbar: {
+            className: "!p-2 custom-filter-button",
+        },
+    };
+
+    const ptMultiSelect = {
+        input: {
+            className: "!p-2 !duration-0",
+        },
+        label: {
+            className: "!px-2 !py-2",
+        },
+        trigger: {
+            className: "!w-12",
+        },
+        triggerIcon: {
+            className: "text-md",
+        },
+        panel: {
+            className: "!duration-0 !transition-none",
+        },
+        headerCheckboxContainer: {
+            className: "custom-checkbox",
+        },
+        headerCheckbox: {
+            className: "!border-0",
+        },
+        closeButton: {
+            className: "!w-6 !h-6",
+        },
+        item: {
+            className: "!p-2 flex",
+        },
+        checkboxContainer: {
+            className: "!w-6 !h-6",
+        },
+        checkbox: {
+            className: "!w-6 !h-6",
+        },
+        checkboxIcon: {
+            className: "!w-4 !h-4",
         },
     };
 
@@ -96,6 +293,7 @@ function Prodotti() {
                         pt={ptDataTable}
                         paginatorClassName="custom-paginator !rounded-b-3xl"
                         size="small"
+                        showGridlines
                         value={results}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         dataKey="cod_art"
@@ -112,33 +310,52 @@ function Prodotti() {
                         <Column
                             field="cod_art"
                             header="Codice Articolo"
+                            filter
+                            filterPlaceholder="Cerca per codice articolo"
                             pt={ptColumn}
                         />
                         <Column
                             field="des_art"
-                            filterField="des_art"
                             header="Descrizione Articolo"
+                            filter
+                            filterPlaceholder="Cerca per descrione articolo"
                             pt={ptColumn}
                         />
                         <Column
-                            field="cod_linea_comm"
+                            field="lineecomm.cod_linea_comm"
                             header="LC"
                             pt={ptColumn}
+                            filterField="lineecomm"
+                            showFilterMatchModes={false}
+                            filter
+                            filterElement={lineecommFilterTemplate}
                         />
                         <Column
-                            field="cod_sett_comm"
+                            field="settoricomm.cod_sett_comm"
                             header="SC"
                             pt={ptColumn}
+                            filterField="settoricomm"
+                            showFilterMatchModes={false}
+                            filter
+                            filterElement={settoricommFilterTemplate}
                         />
                         <Column
-                            field="cod_fam_comm"
+                            field="famigliecomm.cod_fam_comm"
                             header="FC"
                             pt={ptColumn}
+                            filterField="famigliecomm"
+                            showFilterMatchModes={false}
+                            filter
+                            filterElement={famigliecommFilterTemplate}
                         />
                         <Column
-                            field="cod_sott_comm"
+                            field="sottofamigliecomm.cod_sott_comm"
                             header="SFC"
                             pt={ptColumn}
+                            filterField="sottofamigliecomm"
+                            showFilterMatchModes={false}
+                            filter
+                            filterElement={sottofamigliecommFilterTemplate}
                         />
                     </DataTable>
                 </div>
