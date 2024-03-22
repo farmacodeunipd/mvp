@@ -53,10 +53,10 @@ function Clienti() {
 
     useEffect(() => {
         axios
-            .get(`http://${expressUrl}/categoriaClienti`)
+            .get(`http://${expressUrl}/clienti`)
             .then((res) => setResults(res.data));
         axios
-            .get(`http://${expressUrl}/clienti/provincia`)
+            .get(`http://${expressUrl}/clienti/province`)
             .then((res) => setProv(res.data));
         initFilters();
     }, []);
@@ -213,7 +213,7 @@ function Clienti() {
                         pt={ptDataTable}
                         paginatorClassName="custom-paginator !rounded-b-3xl"
                         size="small"
-                        // showGridlines
+                        showGridlines
                         value={results}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         dataKey="cod_cli"
@@ -223,13 +223,13 @@ function Clienti() {
                         rows={25}
                         rowsPerPageOptions={[25, 50, 75, 100]}
                         globalFilterFields={[
+                            "cod_cli",
                             "rag_soc",
                             "prov.des_prov",
                             "prov.cod_prov",
                         ]}
                         header={header}
                         filters={filters}
-                        // filterDisplay="row"
                         scrollHeight={tableHeight}
                     >
                         <Column

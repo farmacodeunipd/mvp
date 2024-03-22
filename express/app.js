@@ -164,14 +164,34 @@ app.get("/items/:id", async (req, res) => {
     }
 });
 
-app.get("/categoriaProdotti", async (req, res) => {
+app.get("/prodotti", async (req, res) => {
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT * FROM anaart ORDER BY cod_art"
+            "SELECT * FROM anaart LEFT JOIN linee_comm ON anaart.cod_linea_comm = linee_comm.cod_linea_comm LEFT JOIN settori_comm ON anaart.cod_sett_comm = settori_comm.cod_sett_comm LEFT JOIN famiglie_comm ON anaart.cod_fam_comm = famiglie_comm.cod_fam_comm LEFT JOIN sottofamiglie_comm ON anaart.cod_sott_comm = sottofamiglie_comm.cod_sott_comm ORDER BY cod_art"
         );
-        res.json(results);
+        const formattedResults = results.map((result) => ({
+            cod_art: result.cod_art,
+            des_art: result.des_art,
+            lineecomm: {
+                cod_linea_comm: result.cod_linea_comm,
+                linea_comm: result.linea_comm,
+            },
+            settoricomm: {
+                cod_sett_comm: result.cod_sett_comm,
+                sett_comm: result.sett_comm,
+            },
+            famigliecomm: {
+                cod_fam_comm: result.cod_fam_comm,
+                fam_comm: result.fam_comm,
+            },
+            sottofamigliecomm: {
+                cod_sott_comm: result.cod_sott_comm,
+                sott_comm: result.sott_comm,
+            },
+        }));
+        res.json(formattedResults);
     } catch (error) {
         console.error(
             "Errore durante il recupero dei dati dalla tabella prodotti:",
@@ -185,7 +205,91 @@ app.get("/categoriaProdotti", async (req, res) => {
     }
 });
 
-app.get("/categoriaClienti", async (req, res) => {
+app.get("/prodotti/lineecommerciali", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM linee_comm"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella linee commerciali:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella linee commerciali",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/prodotti/settoricommerciali", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM settori_comm"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella linee commerciali:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella linee commerciali",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/prodotti/famigliecommerciali", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM famiglie_comm"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella famiglie commerciali:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella famiglie commerciali",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/prodotti/sottofamigliecommerciali", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM sottofamiglie_comm"
+        );
+        res.json(results);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella sottofamiglie commerciali:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella sottofamiglie commerciali",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/clienti", async (req, res) => {
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -214,23 +318,24 @@ app.get("/categoriaClienti", async (req, res) => {
     }
 });
 
-app.get("/clienti/provincia", async (req, res) => {
+app.get("/clienti/province", async (req, res) => {
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(connection, "SELECT * FROM prov");
         res.json(results);
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella provincia:",
+            "Errore durante il recupero dei dati dalla tabella province:",
             error
         );
         res.status(500).json({
-            error: "Errore durante il recupero dei dati dalla tabella provincia",
+            error: "Errore durante il recupero dei dati dalla tabella province",
         });
     } finally {
         connection.end();
     }
 });
+
 app.get("/userana/:use", async (req, res) => {
     const userID = req.params.use;
     const connection = await connectToDB();
