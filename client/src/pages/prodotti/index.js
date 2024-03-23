@@ -7,6 +7,8 @@ import { InputText } from "primereact/inputtext";
 import { FilterMatchMode } from "primereact/api";
 import { MultiSelect } from "primereact/multiselect";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+import { Divider } from "primereact/divider";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -207,8 +209,19 @@ function Prodotti() {
         );
     };
 
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [dialogProduct, setDialogProduct] = useState(null);
+    const [visible, setVisible] = useState(false);
+
+    const onRowSelect = (e) => {
+        console.log("Selezionato --> " + e.data.cod_art);
+        console.log("--> " + selectedProduct);
+        setVisible(true);
+        setDialogProduct(e.data);
+    };
+
     const tableHeight = `${
-        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4
+        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
     }px`;
 
     const ptDataTable = {
@@ -220,6 +233,10 @@ function Prodotti() {
         },
         tbody: {
             className: "custom-empty-message",
+        },
+        bodyRow: {
+            className:
+                "focus:!outline-none !bg-white hover:!bg-gray-100 !duration-0",
         },
     };
 
@@ -283,6 +300,27 @@ function Prodotti() {
         },
     };
 
+    const ptDialog = {
+        header: {
+            className: "!p-6",
+        },
+        closeButton: {
+            className: "!w-8 !h-8",
+        },
+        closeButtonIcon: {
+            className: "!w-4 !h-4",
+        },
+        content: {
+            className: "!px-6 !pb-8",
+        },
+    };
+
+    const ptDivider = {
+        root: {
+            className: "!my-4 before:!border-gray-300",
+        },
+    };
+
     return (
         <>
             <div className="h-screen p-2 flex flex-col gap-2">
@@ -306,6 +344,11 @@ function Prodotti() {
                         header={header}
                         filters={filters}
                         scrollHeight={tableHeight}
+                        selectionMode="single"
+                        selection={selectedProduct}
+                        onSelectionChange={(e) => setSelectedProduct(e.value)}
+                        onRowSelect={onRowSelect}
+                        metaKeySelection={false}
                     >
                         <Column
                             field="cod_art"
@@ -358,6 +401,126 @@ function Prodotti() {
                             filterElement={sottofamigliecommFilterTemplate}
                         />
                     </DataTable>
+                    {dialogProduct ? (
+                        <Dialog
+                            header={
+                                "Dettaglio prodotto " + dialogProduct.cod_art
+                            }
+                            visible={visible}
+                            pt={ptDialog}
+                            breakpoints={{ "960px": "75vw", "641px": "100vw" }}
+                            onHide={() => setVisible(false)}
+                        >
+                            <Divider pt={ptDivider} />
+                            <div className="flex items-center">
+                                <p className="w-2/5 text-md text-black font-medium">
+                                    Codice articolo:
+                                </p>
+                                <p>{dialogProduct.cod_art}</p>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div className="flex items-center">
+                                <p className="w-2/5 text-md text-black font-medium">
+                                    Descrizione articolo:
+                                </p>
+                                <p>{dialogProduct.des_art}</p>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div>
+                                <p className="w-2/5 text-md text-black font-medium mb-2">
+                                    Linea commerciale
+                                </p>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Codice linea commerciale:
+                                    </p>
+                                    <p>
+                                        {dialogProduct.lineecomm.cod_linea_comm}
+                                    </p>
+                                </div>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Descrizione linea commerciale:
+                                    </p>
+                                    <p>{dialogProduct.lineecomm.linea_comm}</p>
+                                </div>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div>
+                                <p className="w-2/5 text-md text-black font-medium mb-2">
+                                    Settore commerciale
+                                </p>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Codice settore commerciale:
+                                    </p>
+                                    <p>
+                                        {
+                                            dialogProduct.settoricomm
+                                                .cod_sett_comm
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Descrizione settore commerciale:
+                                    </p>
+                                    <p>{dialogProduct.settoricomm.sett_comm}</p>
+                                </div>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div>
+                                <p className="w-2/5 text-md text-black font-medium mb-2">
+                                    Famiglia commerciale
+                                </p>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Codice famiglia commerciale:
+                                    </p>
+                                    <p>
+                                        {
+                                            dialogProduct.famigliecomm
+                                                .cod_fam_comm
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Descrizione famiglia commerciale:
+                                    </p>
+                                    <p>{dialogProduct.famigliecomm.fam_comm}</p>
+                                </div>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div>
+                                <p className="w-2/5 text-md text-black font-medium mb-2">
+                                    Sottofamiglia commerciale
+                                </p>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Codice sottofamiglia commerciale:
+                                    </p>
+                                    <p>
+                                        {
+                                            dialogProduct.sottofamigliecomm
+                                                .cod_sott_comm
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex items-center">
+                                    <p className="w-2/5 text-md text-black font-medium">
+                                        Descrizione sottofamiglia commerciale:
+                                    </p>
+                                    <p>
+                                        {
+                                            dialogProduct.sottofamigliecomm
+                                                .sott_comm
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </Dialog>
+                    ) : null}
                 </div>
                 <Footer />
             </div>
