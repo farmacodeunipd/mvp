@@ -128,7 +128,7 @@ function Clienti() {
     };
 
     const tableHeight = `${
-        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4
+        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
     }px`;
 
     const ptDataTable = {
