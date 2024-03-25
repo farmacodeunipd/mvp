@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const app = express();
 const port = 3080;
+const hostname = process.env.DB_HOSTNAME || "localhost";
 
 app.use(cors());
 app.use(express.json());
@@ -12,7 +13,7 @@ app.use(express.json());
 function connectToDB() {
     return new Promise((resolve, reject) => {
         const connection = mysql.createConnection({
-            host: "db",
+            host: hostname,
             user: "myuser",
             password: "mypassword",
             database: "mydatabase",
