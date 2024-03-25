@@ -242,8 +242,6 @@ function Prodotti() {
     const [visible, setVisible] = useState(false);
 
     const onRowSelect = (e) => {
-        console.log("Selezionato --> " + e.data.cod_art);
-        console.log("--> " + selectedProduct);
         setVisible(true);
         setDialogProduct(e.data);
     };
@@ -329,8 +327,11 @@ function Prodotti() {
     };
 
     const ptDialog = {
+        root: {
+            className: "!rounded-3xl",
+        },
         header: {
-            className: "!p-6",
+            className: "!p-6 !rounded-t-3xl",
         },
         closeButton: {
             className: "!w-8 !h-8",
@@ -339,7 +340,7 @@ function Prodotti() {
             className: "!w-4 !h-4",
         },
         content: {
-            className: "!px-6 !pb-8",
+            className: "custom-height !px-6 !pb-8 !rounded-b-3xl",
         },
     };
 
