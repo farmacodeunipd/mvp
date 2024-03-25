@@ -22,7 +22,7 @@ function Prodotti() {
         if (username === "" || username === null) {
             navigate("/login");
         }
-    });
+    }, [navigate]);
 
     const [results, setResults] = useState([]);
     const [lineecomm, setLineecomm] = useState([]);
@@ -62,19 +62,46 @@ function Prodotti() {
     useEffect(() => {
         axios
             .get(`http://${expressUrl}/prodotti`)
-            .then((res) => setResults(res.data));
+            .then((res) => setResults(res.data))
+            .catch((error) =>
+                console.error("Errore nella chiamata prodotti:", error)
+            );
         axios
             .get(`http://${expressUrl}/prodotti/lineecommerciali`)
-            .then((res) => setLineecomm(res.data));
+            .then((res) => setLineecomm(res.data))
+            .catch((error) =>
+                console.error(
+                    "Errore nella chiamata prodotti/lineecommerciali:",
+                    error
+                )
+            );
         axios
             .get(`http://${expressUrl}/prodotti/settoricommerciali`)
-            .then((res) => setSettoricomm(res.data));
+            .then((res) => setSettoricomm(res.data))
+            .catch((error) =>
+                console.error(
+                    "Errore nella chiamata prodotti/settoricommerciali:",
+                    error
+                )
+            );
         axios
             .get(`http://${expressUrl}/prodotti/famigliecommerciali`)
-            .then((res) => setFamigliecomm(res.data));
+            .then((res) => setFamigliecomm(res.data))
+            .catch((error) =>
+                console.error(
+                    "Errore nella chiamata prodotti/famigliecommerciali:",
+                    error
+                )
+            );
         axios
             .get(`http://${expressUrl}/prodotti/sottofamigliecommerciali`)
-            .then((res) => setSottofamigliecomm(res.data));
+            .then((res) => setSottofamigliecomm(res.data))
+            .catch((error) =>
+                console.error(
+                    "Errore nella chiamata prodotti/sottofamigliecommerciali:",
+                    error
+                )
+            );
     }, []);
 
     const ptButton = {
