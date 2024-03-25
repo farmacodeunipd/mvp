@@ -26,5 +26,6 @@ yarn-error.log*
 /algo/__pycache__
 /algo/.pytest_cache
 /express/node_modules
+/express/coverage
 /client/node_modules
 /client/coverage
