@@ -20,7 +20,7 @@ function Clienti() {
         if (username === "" || username === null) {
             navigate("/login");
         }
-    });
+    }, [navigate]);
 
     const [results, setResults] = useState([]);
     const [prov, setProv] = useState([]);
@@ -54,10 +54,16 @@ function Clienti() {
     useEffect(() => {
         axios
             .get(`http://${expressUrl}/clienti`)
-            .then((res) => setResults(res.data));
+            .then((res) => setResults(res.data))
+            .catch((error) =>
+                console.error("Errore nella chiamata clienti:", error)
+            );
         axios
             .get(`http://${expressUrl}/clienti/province`)
-            .then((res) => setProv(res.data));
+            .then((res) => setProv(res.data))
+            .catch((error) =>
+                console.error("Errore nella chiamata province:", error)
+            );
         initFilters();
     }, []);
 
