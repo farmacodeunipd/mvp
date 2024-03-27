@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import axios from "axios";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Rating } from "primereact/rating";
 
-const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
+const expressUrl = process.env.EXPRESS_API_URL || "http://localhost:3080"; // Add 'http://' to the URL
 
 async function getUser(id) {
-    const response = await axios.get(`http://${expressUrl}/users/${id}`);
-    return response.data[0].rag_soc;
+    const response = await axios.get(`${expressUrl}/users/${id}`); // Use 'expressUrl'
+    return response.data[0]?.rag_soc; // Use optional chaining to avoid errors
 }
 
 async function getItem(id) {
-    const response = await axios.get(`http://${expressUrl}/items/${id}`);
-    return response.data[0].des_art;
+    const response = await axios.get(`${expressUrl}/items/${id}`); // Use 'expressUrl'
+    return response.data[0]?.des_art; // Use optional chaining to avoid errors
 }
 
 function Results({ data, selectObject }) {
@@ -92,13 +93,13 @@ function Results({ data, selectObject }) {
 
     return (
         <>
-            <div className="h-full flex rounded-3xl bg-geay-200 border border-gray-300">
+            <div className="h-full flex rounded-3xl bg-gray-200 border border-gray-300">
                 <DataTable
                     className="w-full rounded-3xl"
                     pt={ptDataTable}
                     size="small"
                     value={data}
-                    dataKey={data.id}
+                    dataKey="id" // Use string 'id' instead of data.id
                     emptyMessage="NO DATA FOUND"
                     rows={20}
                     header={header}
@@ -131,5 +132,11 @@ function Results({ data, selectObject }) {
         </>
     );
 }
+
+// PropTypes validation
+Results.propTypes = {
+    data: PropTypes.array.isRequired,
+    selectObject: PropTypes.string.isRequired,
+};
 
 export default Results;

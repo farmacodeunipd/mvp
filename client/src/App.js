@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Ricerca from "./pages/ricerca";
 import Login from "./pages/login";

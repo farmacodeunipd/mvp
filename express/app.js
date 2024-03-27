@@ -435,7 +435,7 @@ app.put("/userana/:use/password", async (req, res) => {
 
 function queryDatabase(connection, query, params = []) {
     return new Promise((resolve, reject) => {
-        connection.query(query, params, (error, results, fields) => {
+        connection.query(query, params, (error, results) => {
             if (error) {
                 reject(error);
             } else {
