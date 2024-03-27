@@ -225,8 +225,8 @@ function Clienti() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         dataKey="cod_cli"
                         paginator
-                        emptyMessage="NO DATA FOUND"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} posts"
+                        emptyMessage="NESSUN RISULTATO TROVATO"
+                        currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record"
                         rows={25}
                         rowsPerPageOptions={[25, 50, 75, 100]}
                         globalFilterFields={[
@@ -258,7 +258,6 @@ function Clienti() {
                             header="Provincia"
                             pt={ptColumn}
                             filterField="prov"
-                            // showFilterMenu={false}
                             showFilterMatchModes={false}
                             filter
                             filterElement={provFilterTemplate}

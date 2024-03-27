@@ -103,6 +103,7 @@ function Prodotti() {
                     error
                 )
             );
+        initFilters();
     }, []);
 
     const ptButton = {
@@ -365,8 +366,8 @@ function Prodotti() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         dataKey="cod_art"
                         paginator
-                        emptyMessage="NO DATA FOUND"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} posts"
+                        emptyMessage="NESSUN RISULTATO TROVATO"
+                        currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record"
                         rows={25}
                         rowsPerPageOptions={[25, 50, 75, 100]}
                         globalFilterFields={["cod_art", "des_art"]}
