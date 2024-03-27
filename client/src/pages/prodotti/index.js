@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -102,6 +103,7 @@ function Prodotti() {
                     error
                 )
             );
+        initFilters();
     }, []);
 
     const ptButton = {
@@ -241,8 +243,6 @@ function Prodotti() {
     const [visible, setVisible] = useState(false);
 
     const onRowSelect = (e) => {
-        console.log("Selezionato --> " + e.data.cod_art);
-        console.log("--> " + selectedProduct);
         setVisible(true);
         setDialogProduct(e.data);
     };
@@ -328,8 +328,11 @@ function Prodotti() {
     };
 
     const ptDialog = {
+        root: {
+            className: "!rounded-3xl",
+        },
         header: {
-            className: "!p-6",
+            className: "!p-6 !rounded-t-3xl",
         },
         closeButton: {
             className: "!w-8 !h-8",
@@ -338,7 +341,7 @@ function Prodotti() {
             className: "!w-4 !h-4",
         },
         content: {
-            className: "!px-6 !pb-8",
+            className: "custom-height !px-6 !pb-8 !rounded-b-3xl",
         },
     };
 
@@ -363,8 +366,8 @@ function Prodotti() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         dataKey="cod_art"
                         paginator
-                        emptyMessage="NO DATA FOUND"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} posts"
+                        emptyMessage="NESSUN RISULTATO TROVATO"
+                        currentPageReportTemplate="Mostrando {first} a {last} di {totalRecords} record"
                         rows={25}
                         rowsPerPageOptions={[25, 50, 75, 100]}
                         globalFilterFields={["cod_art", "des_art"]}

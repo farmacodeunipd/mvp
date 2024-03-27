@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -157,7 +158,7 @@ function Profilo() {
         <>
             <div className="h-screen p-2 flex flex-col gap-2">
                 <Header />
-                <div className="h-full flex flex-col gap-4 rounded-3xl p-4 bg-white border border-gray-300">
+                <div className="overflow-y-auto h-full flex flex-col gap-4 rounded-3xl p-4 bg-white border border-gray-300">
                     <div className="">
                         <h1 className="text-black text-2xl font-semibold">
                             Profilo utente

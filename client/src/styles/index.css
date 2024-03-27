@@ -6,6 +6,22 @@ html {
     @apply overflow-hidden bg-gray-200;
 }
 
+::-webkit-scrollbar {
+    @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-400;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+}
+
 .custom-empty-message td[data-pc-section="bodycell"] {
     @apply !text-black;
 }
@@ -49,4 +65,8 @@ html {
 
 .custom-filter-button button[data-pc-section="root"] {
     @apply !py-2 !px-3;
+}
+
+.custom-height {
+    height: calc(100vh / 10 * 9 - 80px);
 }
