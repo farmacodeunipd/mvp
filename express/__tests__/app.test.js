@@ -1,6 +1,7 @@
 const request = require("supertest");
 const app = require("../app");
 
+
 describe("GET /", () => {
     it('responds with "Server is running!"', async () => {
         const response = await request(app).get("/");
@@ -119,6 +120,37 @@ describe("GET /items/:id", () => {
     });
 });
 
+describe("GET /prodotti", () => {
+    it("responds with JSON containing a list of prodotti", async () => {
+        const response = await request(app).get("/prodotti");
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    cod_art: expect.any(String),
+                    des_art: expect.any(String),
+                    lineecomm: {
+                        cod_linea_comm: expect.any(String),
+                        linea_comm: expect.any(String),
+                    },
+                    settoricomm: {
+                        cod_sett_comm: expect.any(String),
+                        sett_comm: expect.any(String),
+                    },
+                    famigliecomm: {
+                        cod_fam_comm: expect.any(String),
+                        fam_comm: expect.any(String),
+                    },
+                    sottofamigliecomm: {
+                        cod_sott_comm: expect.any(String),
+                        sott_comm: expect.any(String),
+                    },
+                }),
+            ])
+        );
+    });
+});
+
 describe("GET /prodotti/lineecommerciali", () => {
     it("responds with JSON containing a list of linee commerciali", async () => {
         const response = await request(app).get("/prodotti/lineecommerciali");
@@ -173,6 +205,25 @@ describe("GET /prodotti/sottofamigliecommerciali", () => {
                 expect.objectContaining({
                     cod_sott_comm: expect.any(String),
                     sott_comm: expect.any(String),
+                }),
+            ])
+        );
+    });
+});
+
+describe("GET /clienti", () => {
+    it("responds with JSON containing a list of clienti", async () => {
+        const response = await request(app).get("/clienti");
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    cod_cli: expect.any(Number),
+                    prov: {
+                        cod_prov: expect.any(String),
+                        des_prov: expect.any(String),
+                    },
+                    rag_soc: expect.any(String),
                 }),
             ])
         );
