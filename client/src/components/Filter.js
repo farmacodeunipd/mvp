@@ -1,18 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
+import React from "react";
+import PropTypes from "prop-types";
+import { useState } from "react";
+import { Dropdown } from "primereact/dropdown";
+import { Button } from "primereact/button";
 
 const searchObject = [
-    { name: 'Clienti', value: 'user' },
-    { name: 'Prodotti', value: 'item' },
+    { name: "Clienti", value: "user" },
+    { name: "Prodotti", value: "item" },
 ];
 
 const tops = [
-    { name: 'Top 5', value: '5' },
-    { name: 'Top 10', value: '10' },
-    { name: 'Top 20', value: '20' },
+    { name: "Top 5", value: "5" },
+    { name: "Top 10", value: "10" },
+    { name: "Top 20", value: "20" },
 ];
 
 function Filter({ onFetchResults, users, items, onObjectChange }) {
@@ -23,7 +23,10 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
 
     function proceedFetch(e) {
         e.preventDefault();
-        const id = selectedSearchObject === 'user' ? selectedUser.cod_cli : selectedItem.cod_art;
+        const id =
+            selectedSearchObject === "user"
+                ? selectedUser.cod_cli
+                : selectedItem.cod_art;
         onFetchResults(selectedSearchObject, id, selectedTop);
     }
 
@@ -31,7 +34,11 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         if (option) {
             return (
                 <div className="flex align-items-center">
-                    <div>{selectedSearchObject === 'user' ? option.rag_soc : option.des_art}</div>
+                    <div>
+                        {selectedSearchObject === "user"
+                            ? option.rag_soc
+                            : option.des_art}
+                    </div>
                 </div>
             );
         }
@@ -42,7 +49,11 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     const userItemOptionTemplate = (option) => {
         return (
             <div className="flex align-items-center">
-                <div>{selectedSearchObject === 'user' ? option.rag_soc : option.des_art}</div>
+                <div>
+                    {selectedSearchObject === "user"
+                        ? option.rag_soc
+                        : option.des_art}
+                </div>
             </div>
         );
     };
@@ -51,10 +62,10 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         if (!selectedSearchObject || !selectedTop) {
             return true;
         }
-        if (selectedSearchObject === 'user') {
+        if (selectedSearchObject === "user") {
             return selectedUser === null;
         }
-        if (selectedSearchObject === 'item') {
+        if (selectedSearchObject === "item") {
             return selectedItem === null;
         }
         return true;
@@ -62,34 +73,34 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
 
     const ptDropdown = {
         input: {
-            className: '!p-2 !duration-0',
+            className: "!p-2 !duration-0",
         },
         trigger: {
-            className: '!w-12',
+            className: "!w-12",
         },
         panel: {
-            className: '!duration-0 !transition-none',
+            className: "!duration-0 !transition-none",
         },
         list: {
-            className: '!py-1',
+            className: "!py-1",
         },
         item: {
-            className: '!p-2',
+            className: "!p-2",
         },
         header: {
-            className: '!p-2',
+            className: "!p-2",
         },
         filterInput: {
-            className: '!pl-8 !pr-2 !py-2',
+            className: "!pl-8 !pr-2 !py-2",
         },
         filterIcon: {
-            className: '!mx-2',
+            className: "!mx-2",
         },
     };
 
     const ptButton = {
         root: {
-            className: '!py-2 !px-4',
+            className: "!py-2 !px-4",
         },
     };
 
@@ -112,29 +123,47 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             placeholder="Seleziona topic"
                             className="w-full md:!w-44 !duration-0"
                             pt={ptDropdown}
+                            data-testid="topic"
                         />
                     </div>
                     <div className="">
                         {selectedSearchObject ? (
                             <Dropdown
-                                value={selectedSearchObject === 'user' ? selectedUser : selectedItem}
+                                value={
+                                    selectedSearchObject === "user"
+                                        ? selectedUser
+                                        : selectedItem
+                                }
                                 onChange={(e) =>
-                                    selectedSearchObject === 'user'
+                                    selectedSearchObject === "user"
                                         ? setSelectedUser(e.value)
                                         : setSelectedItem(e.value)
                                 }
-                                options={selectedSearchObject === 'user' ? users : items}
-                                optionLabel={selectedSearchObject === 'user' ? 'rag_soc' : 'des_art'}
+                                options={
+                                    selectedSearchObject === "user"
+                                        ? users
+                                        : items
+                                }
+                                optionLabel={
+                                    selectedSearchObject === "user"
+                                        ? "rag_soc"
+                                        : "des_art"
+                                }
                                 placeholder={
-                                    selectedSearchObject === 'user' ? 'Seleziona un cliente' : 'Seleziona un prodotto'
+                                    selectedSearchObject === "user"
+                                        ? "Seleziona un cliente"
+                                        : "Seleziona un prodotto"
                                 }
                                 filter
                                 pt={ptDropdown}
                                 valueTemplate={selectedUserItemTemplate}
                                 itemTemplate={userItemOptionTemplate}
                                 className={`w-full ${
-                                    selectedSearchObject === 'user' ? 'md:!w-96' : 'md:!w-96'
+                                    selectedSearchObject === "user"
+                                        ? "md:!w-96"
+                                        : "md:!w-96"
                                 }`}
+                                data-testid="users-items"
                             />
                         ) : null}
                     </div>
@@ -147,6 +176,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             placeholder="Seleziona N"
                             className="w-full md:!w-40 !duration-0"
                             pt={ptDropdown}
+                            data-testid="top"
                         />
                     </div>
                     <div>
@@ -154,6 +184,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             label="Ricerca"
                             pt={ptButton}
                             disabled={isButtonDisabled()}
+                            data-testid="ricerca-button"
                         ></Button>
                     </div>
                 </form>
