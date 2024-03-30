@@ -191,6 +191,7 @@ app.get("/prodotti", async (req, res) => {
                 cod_sott_comm: result.cod_sott_comm,
                 sott_comm: result.sott_comm,
             },
+            img_path: result.image_path,
         }));
         res.json(formattedResults);
     } catch (error) {

@@ -3,7 +3,7 @@ import csv
 # Define the paths
 csv_file_path = './db/dataset/anaart.csv'
 output_csv_file_path = './db/dataset/anaart_new.csv'
-image_folder = '/dataset/imgs/'  # Assuming all images are in this folder
+image_folder = '../../assets/products_images/'  # Assuming all images are in this folder
 
 # Open the original CSV file for reading and the modified CSV file for writing
 with open(csv_file_path, 'r', newline='') as csv_file, open(output_csv_file_path, 'w', newline='') as output_csv_file:
