@@ -295,7 +295,7 @@ app.get("/clienti", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
+            "SELECT * FROM anacli JOIN tabprov ON anacli.cod_prov = tabprov.cod_prov ORDER BY cod_cli"
         );
         const formattedResults = results.map((result) => ({
             cod_cli: result.cod_cli,
@@ -322,7 +322,7 @@ app.get("/clienti", async (req, res) => {
 app.get("/clienti/province", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM prov");
+        const results = await queryDatabase(connection, "SELECT * FROM tabprov");
         res.json(results);
     } catch (error) {
         console.error(

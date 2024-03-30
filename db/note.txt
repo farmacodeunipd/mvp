@@ -1,0 +1,6 @@
+Il nuovo dataset per i prodotti viene caricato correttamente, bisogna renderizzare le img in react. Solo che non sono sicuro al 100% del path, non potendo fare prove.
+In caso basta modificare lo script.py con il path corretto, e ri eseguire il medesimo script.
+
+Il path per ogni immagine è ora: /dataset/imgs/cod_art.jpg
+
+Potrebbe dover venire modificato in "./db//dataset/imgs/cod_art.jpg" o in altro modo affinchè le immagini vengano effettivamente trovate.
