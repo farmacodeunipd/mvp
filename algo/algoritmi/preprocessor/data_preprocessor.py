@@ -3,13 +3,10 @@ import pandas as pd
 import numpy as np
 import csv
 import os
+import mysql.connector
 
 class Preprocessor(ABC):
     tables_to_export = []
-    
-    @abstractmethod
-    def retrieve_file(self, cursor, table_name, csv_path):
-        pass
     
     def retrieve_file(self, cursor, table_name, csv_path):
         cursor.execute(f"SELECT * FROM {table_name}")
@@ -25,7 +22,11 @@ class Preprocessor(ABC):
             print(f"Table '{table_name}' exported to '{csv_file}'")
         else:
             print(f"No data found in table '{table_name}'")
-
+            
+    @abstractmethod
+    def process_file(self, input_file_og, input_file_fb, output_file):
+        pass
+    
 class SVD_Preprocessor(Preprocessor):
     tables_to_export = ['ordclidet_feedback', 'ordclidet']
     
@@ -90,4 +91,19 @@ class PreprocessorContext:
         self.preprocessor = preprocessor
 
     def process_file(self, input_file_og, input_file_fb, output_file):
-        self.preprocessor.process_file(input_file_og, input_file_fb, output_file)
+        with mysql.connector.connect(
+                host='db',
+                user='myuser',
+                password='mypassword',
+                database='mydatabase',
+                port='3306'
+            ) as conn:
+            cursor = conn.cursor()
+            csv_folder = 'algoritmi/preprocessor/exported_csv'
+            if not os.path.exists(csv_folder):
+                os.makedirs(csv_folder)
+            
+            for table_name in self.preprocessor.tables_to_export:
+                self.preprocessor.retrieve_file(cursor, table_name, csv_folder)
+            
+            self.preprocessor.process_file(input_file_og, input_file_fb, output_file)
