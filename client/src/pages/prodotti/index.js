@@ -17,7 +17,7 @@ const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
 function Prodotti() {
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         let username = sessionStorage.getItem("username");
         if (username === "" || username === null) {
@@ -459,7 +459,7 @@ function Prodotti() {
                                 <p className="w-2/5 text-md text-black font-medium mb-2">
                                     Immagine articolo
                                 </p>
-                                <img src={dialogProduct.img_path} alt={dialogProduct.img_path} />
+                                <img src={dialogProduct.img_path} alt={dialogProduct.des_art} />
                             </div>
                             <Divider pt={ptDivider} />
                             <div>

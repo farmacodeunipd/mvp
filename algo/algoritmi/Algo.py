@@ -27,7 +27,7 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def topN_1ItemNUser(self, item_info, n=5):
+    def topN_1ItemNUser(self, item_id, n=5):
         pass
     
 class ModelContext:
@@ -52,5 +52,5 @@ class ModelContext:
     def topN_1UserNItem(self, user_id, n=5):
         return self.model_info.topN_1UserNItem(user_id, n)
 
-    def topN_1ItemNUser(self, item_info, n=5):
-        return self.model_info.topN_1ItemNUser(item_info, n)
+    def topN_1ItemNUser(self, item_id, n=5):
+        return self.model_info.topN_1ItemNUser(item_id, n)

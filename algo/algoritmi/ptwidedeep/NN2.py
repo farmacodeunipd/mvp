@@ -124,7 +124,7 @@ class NN_Model(BaseModel):
         
         converted_ratings = ratings_float2int(user_rating_predictions, float_ratingMax = max(user_rating_predictions))
         
-        user_ratings = list(zip(users_df['cod_art'], converted_ratings))
+        user_ratings = list(zip(users_df['cod_cli'], converted_ratings))
 
         top_n_users = sorted(user_ratings, key=lambda x: x[1], reverse = True)[:n]
         

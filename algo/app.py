@@ -42,7 +42,7 @@ def search_endpoint(object, id, n):
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
         elif object == "item":
             dictionary = model_context.topN_1ItemNUser(int(id), int(n))
-            result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
+            result_list = [{"id": str(iid), "value": int(est)} for iid, est in dictionary]
         else:
             return jsonify({'error': "Wrong object. Select user or item"}), 500
 

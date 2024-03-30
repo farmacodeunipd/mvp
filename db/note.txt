@@ -1,2 +1,0 @@
-le immagini si trovano dentro la cartella client/src/assets/products_imgs
-I path vengono già passati correttamente, ma non capisco/so come importare le immagini
