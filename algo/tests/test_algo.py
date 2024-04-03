@@ -1,5 +1,6 @@
 import pytest
 import requests
+import os
 #forse è bene testare anche il preprocessor?
 from algoritmi.preprocessor.data_preprocessor import NN_Preprocessor
 
@@ -24,7 +25,8 @@ def test_top5_1UserNItem():
 
 @pytest.fixture
 def api_url():
-    return "http://localhost:4000"
+    hostname = os.getenv("ALGO_API_URL", "localhost")
+    return "http://" + hostname + ":4000"
 
 def test_api_response(api_url):
     response = requests.get(api_url + "/search/user/120/5")
