@@ -29,7 +29,7 @@ services:
         depends_on:
             - db
         environment:
-            - ALGO_URL=python-api:4000
+            - ALGO_URL=python-api
 
     express:
         build:
