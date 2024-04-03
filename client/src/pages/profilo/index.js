@@ -251,6 +251,7 @@ function Profilo() {
                                             pt={ptButton}
                                             label="Salva"
                                             onClick={saveNewEmail}
+                                            data-testid="save-email-button"
                                         />
                                     ) : null}
                                     <Button
@@ -270,6 +271,7 @@ function Profilo() {
                                             }
                                             setEditModeEmail(!editModeEmail);
                                         }}
+                                        data-testid="edit-email-button"
                                     />
                                 </div>
                             </div>

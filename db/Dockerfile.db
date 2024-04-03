@@ -13,6 +13,12 @@ ENV MYSQL_USER=myuser
 ENV MYSQL_PASSWORD=mypassword
 ENV MYSQL_TCP_PORT=3306
 
+# Copy the csv
+COPY . .
+
+# Copy the MySQL configuration file with --secure-file-priv option
+COPY ./my.cnf /etc/mysql/my.cnf
+
 # Copy the SQL initialization script into the Docker image
 COPY ./db.sql /docker-entrypoint-initdb.d/db.sql
 

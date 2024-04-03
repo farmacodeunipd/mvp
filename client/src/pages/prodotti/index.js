@@ -247,9 +247,8 @@ function Prodotti() {
         setDialogProduct(e.data);
     };
 
-    const tableHeight = `${
-        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
-    }px`;
+    const tableHeight = `${window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
+        }px`;
 
     const ptDataTable = {
         header: {
@@ -454,6 +453,13 @@ function Prodotti() {
                                     Descrizione articolo:
                                 </p>
                                 <p>{dialogProduct.des_art}</p>
+                            </div>
+                            <Divider pt={ptDivider} />
+                            <div>
+                                <p className="w-2/5 text-md text-black font-medium mb-2">
+                                    Immagine articolo
+                                </p>
+                                <img src={dialogProduct.img_path} alt={dialogProduct.des_art} />
                             </div>
                             <Divider pt={ptDivider} />
                             <div>

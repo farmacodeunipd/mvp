@@ -1,7 +1,6 @@
 const request = require("supertest");
 const app = require("../app");
 
-
 describe("GET /", () => {
     it('responds with "Server is running!"', async () => {
         const response = await request(app).get("/");
@@ -245,27 +244,23 @@ describe("GET /clienti/province", () => {
     });
 });
 
-/* FIXXARE OUTPUT
+
 describe("GET /userana/:use", () => {
     it("responds with JSON containing a single user anagrafica", async () => {
         const userID = "a";
         const response = await request(app).get(`/userana/${userID}`);
         expect(response.status).toBe(200);
-        expect(response.body).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    nom_ute: expect.any(String),
-                    cog_ute: expect.any(String),
-                    dat_ute: expect.any(String),
-                    use_ute: expect.any(String),
-                    mai_use: expect.any(String),
-                    pas_ute: expect.any(String),
-                }),
-            ])
-        );
+        expect(response.body[0]).toMatchObject({
+            nom_ute: expect.any(String),
+            cog_ute: expect.any(String),
+            dat_ute: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),  // Match YYYY-MM-DD format
+            use_ute: expect.any(String),
+            mai_ute: expect.any(String),
+            pas_ute: expect.any(String),
+          });
     });
 });
-*/
+
 
 describe("PUT /userana/:use/email", () => {
     it("responds with JSON containing a success message when updating email", async () => {

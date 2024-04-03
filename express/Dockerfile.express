@@ -30,4 +30,4 @@ COPY . .
 EXPOSE 3080
 
 # Command to run the application
-CMD ["./wait-for-it.sh", "-t", "45", "db:3306", "--", "node", "app.js"]
+CMD ["./wait-for-it.sh", "-t", "100", "db:3306", "--", "node", "app.js"]

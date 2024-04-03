@@ -5,10 +5,10 @@ FROM python:3.9-slim
 WORKDIR /algo
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y build-essential
+RUN apt-get update && apt-get install -y build-essential libgl1-mesa-glx libglib2.0-0 openssh-client
 
 # Install Flask, Flask-CORS, pandas, scikit-surprise, pytest, and requests
-RUN pip install --no-cache-dir flask flask-cors pandas scikit-surprise pytest requests pytest-cov codecov
+RUN pip install --no-cache-dir flask flask-cors pandas scikit-surprise pytest requests pytest-cov codecov mysql-connector-python torch pytorch_widedeep scipy==1.12.0
 
 # Add the directory containing ai_classes.py to PYTHONPATH
 ENV PYTHONPATH="/algo/:$PYTHONPATH"
@@ -19,5 +19,11 @@ COPY . .
 # Expose port 4000 for the Flask application
 EXPOSE 4000
 
-# Run the Flask application
-CMD ["python", "app.py"]
+# Add a script to wait for SSH connectivity
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /algo/wait-for-ssh.sh
+
+# Set execute permissions for the script
+RUN chmod +x /algo/wait-for-ssh.sh
+
+# Run the wait-for-ssh script before running the Flask application
+CMD ["./wait-for-ssh.sh", "-t", "100", "db:3306", "--", "python", "app.py"]
