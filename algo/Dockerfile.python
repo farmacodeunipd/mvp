@@ -8,7 +8,7 @@ WORKDIR /algo
 RUN apt-get update && apt-get install -y build-essential libgl1-mesa-glx libglib2.0-0 openssh-client
 
 # Install Flask, Flask-CORS, pandas, scikit-surprise, pytest, and requests
-RUN pip install --no-cache-dir flask flask-cors pandas scikit-surprise pytest requests pytest-cov codecov mysql-connector-python torch pytorch_widedeep
+RUN pip install --no-cache-dir flask flask-cors pandas scikit-surprise pytest requests pytest-cov codecov mysql-connector-python torch pytorch_widedeep scipy==1.12.0
 
 # Add the directory containing ai_classes.py to PYTHONPATH
 ENV PYTHONPATH="/algo/:$PYTHONPATH"
