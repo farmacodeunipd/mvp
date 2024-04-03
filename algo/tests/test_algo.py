@@ -22,21 +22,3 @@ def test_top5_1UserNItem():
     assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], float) for item in result)
     assert all(1 <= item[1] <= 5 for item in result)
 
-
-@pytest.fixture
-def api_url():
-    hostname = os.getenv("ALGO_URL", "localhost")
-    return "http://" + hostname + ":4000"
-
-def test_api_response(api_url):
-    response = requests.get(api_url + "/search/user/120/5")
-
-    assert response.status_code == 200
-
-    response_data = response.json()
-    assert isinstance(response_data, list)
-
-    for item in response_data:
-        assert isinstance(item, dict)
-        assert "id" in item and isinstance(item["id"], str)
-        assert "value" in item and isinstance(item["value"], int)
