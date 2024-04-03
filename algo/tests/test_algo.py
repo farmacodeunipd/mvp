@@ -25,7 +25,7 @@ def test_top5_1UserNItem():
 
 @pytest.fixture
 def api_url():
-    hostname = os.getenv("ALGO_API_URL", "localhost")
+    hostname = os.getenv("ALGO_URL", "localhost")
     return "http://" + hostname + ":4000"
 
 def test_api_response(api_url):
