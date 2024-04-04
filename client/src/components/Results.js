@@ -4,6 +4,9 @@ import axios from "axios";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Rating } from "primereact/rating";
+import { Button } from 'primereact/button';
+import { ConfirmDialog } from 'primereact/confirmdialog'; 
+import { confirmDialog } from 'primereact/confirmdialog'; 
 
 const expressUrl = process.env.EXPRESS_API_URL || "http://localhost:3080"; // Add 'http://' to the URL
 
@@ -37,6 +40,30 @@ function Results({ data, selectObject }) {
         fetchData();
     }, [data, selectObject]);
 
+    //const user = sessionStorage.getItem("username");
+
+
+    //FINESTRE DI AVVISO
+    const confirm1 = () => {
+        confirmDialog({
+            message: 'Sicuro di voler inserire un feedback positivo?',
+            header: 'Conferma',
+            icon: 'pi pi-exclamation-triangle',
+            defaultFocus: 'accept',
+        });
+        
+    };
+    
+    const confirm2 = () => {
+        confirmDialog({
+            message: 'Sicuro di voler inserire un feedback negativo?',
+            header: 'Conferma',
+            icon: 'pi pi-exclamation-triangle',
+            defaultFocus: 'accept',
+        });
+        
+    }
+
     const renderHeader = () => {
         return (
             <div className="flex justify-between items-center">
@@ -48,6 +75,18 @@ function Results({ data, selectObject }) {
             </div>
         );
     };
+
+    //BOTTONI FEEDBACK
+    const renderFeedbackButton = () => (
+        <>
+            <div>
+                <Button onClick={confirm1} icon="pi pi-thumbs-up" className="mr-10" />
+                <Button onClick={confirm2} icon="pi pi-thumbs-down" />
+            </div>
+        </>
+    );
+
+    const button = renderFeedbackButton();
 
     const header = renderHeader();
 
@@ -127,7 +166,14 @@ function Results({ data, selectObject }) {
                         )}
                         pt={ptColumn}
                     />
+                    <Column 
+                        field="feedback" 
+                        header="Feedback" 
+                        pt={ptColumn} 
+                        body={button}
+                    />
                 </DataTable>
+                <ConfirmDialog />
             </div>
         </>
     );

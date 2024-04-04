@@ -91,6 +91,26 @@ CREATE TABLE ordclidet_feedback(
     FOREIGN KEY(cod_art) REFERENCES anaart(cod_art) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE cronologia(
+    id int AUTO_INCREMENT,
+    user varchar(64) NOT NULL,
+    topic varchar(10) NOT NULL,
+    cod_ric varchar(13) NOT NULL,
+    sel_top varchar(2) NOT NULL,
+    dat_cro datetime DEFAULT NOW(),
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE feedback(
+    id int AUTO_INCREMENT,
+    dat_fed datetime DEFAULT NOW(),
+    user varchar(64) NOT NULL,
+    cod_rac varchar(10) NOT NULL,
+    cli_pro varchar(64) NOT NULL,
+    feed float NOT NULL,
+    PRIMARY KEY(id)
+);
+
 INSERT INTO ute VALUES 
 ("Mario", "Rossi", "1994-09-10", "mario.rossi@ergon.it", "a", "$2a$10$LDpvuJQOfj9b1.fvjeW5Bu/C7BJlGMCtEh0j4o2N62Za.4Uz/0h72", TRUE),
 ("Luca", "Verdi", "1994-09-10", "luca.verdi@ergon.it", "b", "$2a$10$qL79rWWWfjcVXy05h7RV/eOSa1dCVddv4vfK3hV/Dd58G1xMl199G", FALSE);

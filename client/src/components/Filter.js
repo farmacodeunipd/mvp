@@ -1,13 +1,21 @@
 import React from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 
+const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
+
 const searchObject = [
     { name: "Clienti", value: "user" },
     { name: "Prodotti", value: "item" },
 ];
+
+const algo = [
+    { name: "SVD", value: "svd"},
+    { name: "NN", value: "nn"},
+]
 
 const tops = [
     { name: "Top 5", value: "5" },
@@ -20,6 +28,9 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedTop, setSelectedTop] = useState(null);
+    const [selectedAlgo, setSelectedAlgo] = useState(null);
+
+    const user = sessionStorage.getItem("username");
 
     function proceedFetch(e) {
         e.preventDefault();
@@ -28,6 +39,16 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                 ? selectedUser.cod_cli
                 : selectedItem.cod_art;
         onFetchResults(selectedSearchObject, id, selectedTop);
+
+        const topic = selectedSearchObject;
+        const cod_ric = id;
+        const top_sel = selectedTop;
+
+        axios
+            .put(`http://${expressUrl}/cronologia/new`, {user, topic, cod_ric, top_sel})
+            .catch((error) =>
+                console.error("Errore nell'inserimento", error)
+            );
     }
 
     const selectedUserItemTemplate = (option, props) => {
@@ -111,6 +132,18 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                     className="flex flex-col justify-center md:flex-row md:justify-around md:items-center space-y-2 md:space-y-0"
                     onSubmit={proceedFetch}
                 >
+                    <div className="">
+                        <Dropdown
+                            value={selectedAlgo}
+                            onChange={(e) => setSelectedAlgo(e.value)}
+                            options={algo}
+                            optionLabel="name"
+                            placeholder="Seleziona algoritmo"
+                            className="w-full md:!w-40 !duration-0"
+                            pt={ptDropdown}
+                            data-testid="algo"
+                        />
+                    </div>
                     <div className="">
                         <Dropdown
                             value={selectedSearchObject}
