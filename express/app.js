@@ -191,6 +191,7 @@ app.get("/prodotti", async (req, res) => {
                 cod_sott_comm: result.cod_sott_comm,
                 sott_comm: result.sott_comm,
             },
+            img_path: result.image_path,
         }));
         res.json(formattedResults);
     } catch (error) {
@@ -295,7 +296,7 @@ app.get("/clienti", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
+            "SELECT * FROM anacli JOIN tabprov ON anacli.cod_prov = tabprov.cod_prov ORDER BY cod_cli"
         );
         const formattedResults = results.map((result) => ({
             cod_cli: result.cod_cli,
@@ -322,7 +323,7 @@ app.get("/clienti", async (req, res) => {
 app.get("/clienti/province", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM prov");
+        const results = await queryDatabase(connection, "SELECT * FROM tabprov");
         res.json(results);
     } catch (error) {
         console.error(
@@ -331,6 +332,111 @@ app.get("/clienti/province", async (req, res) => {
         );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella province",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/cronologia", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(connection, "SELECT user, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
+        const formattedResults = results.map((result) => ({
+            user: result.user,
+            topic: result.topic,
+            cod_ric: result.cod_ric,
+            top_sel: result.sel_top,
+            id_dat: result.dat_cro.toISOString().split('T')[0],
+        }));
+        res.json(formattedResults);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella cronologia:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella cronologia",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/cronologia/new", async (req, res) => {
+    const utente = req.body.user;
+    const topic = req.body.topic;
+    const codice = req.body.cod_ric;
+    const top = req.body.top_sel;
+
+
+    if (utente === null || utente === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'utente",
+        });
+    }
+
+    if (topic === null || topic === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il topic",
+        });
+    }
+
+    if (codice === null || codice === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (top === null || top === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il top",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "INSERT INTO cronologia (user, topic, cod_ric, sel_top) VALUES (?,?,?,?) ",
+            [utente, topic, codice, top]
+        );
+        res.status(200).json({
+            message: "Inserito con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante L'inserimento:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante L'inserimento",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.get("/feedback", async (req, res) => {
+    const connection = await connectToDB();
+    try {
+        const results = await queryDatabase(connection, "SELECT * FROM ordclidet_feedback ORDER BY dat_fed ASC");
+        const formattedResults = results.map((result) => ({
+            id_dat: result.dat_fed.toISOString().split('T')[0],
+            user: result.user,
+            cod_cli: result.cod_cli,
+            cod_art: result.cod_art,
+            algo: result.algo,
+            val_fed: result.feed,
+        }));
+        res.json(formattedResults);
+    } catch (error) {
+        console.error(
+            "Errore durante il recupero dei dati dalla tabella cronologia:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante il recupero dei dati dalla tabella cronologia",
         });
     } finally {
         connection.end();

@@ -1,23 +1,85 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from ai_classes import Model, FileInfo
+import mysql.connector
+import os
+
+from algoritmi.preprocessor.data_preprocessor import PreprocessorContext, SVD_Preprocessor, NN_Preprocessor
+from algoritmi.surprisedir.Matrix import SVD_FileInfo, SVD_Model
+from algoritmi.ptwidedeep.NN2 import NN_FileInfo, NN_Model
+from algoritmi.Algo import ModelContext
 
 app = Flask(__name__)
 CORS(app)
 
-model = Model(file_info=FileInfo(model_file='trained_model.pkl', file_path="output_file.csv", column_1='cod_cli', column_2='cod_art', column_3='qta_ordinata'))
-model.train_model()
+#Preprocess file SVD
+svd_preprocessor = SVD_Preprocessor()
+preprocessor_context = PreprocessorContext(svd_preprocessor)
+preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
+preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
+#Create SVD model and file info
+svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", feedback_path="./algoritmi/surprisedir/feedback_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+svd_model = SVD_Model(file_info=svd_file_info)
 
-# Endpoint per la comunicazione con l'algoritmo
-@app.route('/search/<object>/<id>/<n>')
-def search_endpoint(object, id, n):
+# Preprocess file NN
+nn_preprocessor = NN_Preprocessor()
+preprocessor_context = PreprocessorContext(nn_preprocessor)
+preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
+preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
+# Create NN model and file info
+nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/ptwidedeep/feedback_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
+
+# Endpoint train
+@app.route('/train/<method>')
+def search_endpoint(method):
     try:
+        if method == "SVD":
+            preprocessor_context = PreprocessorContext(svd_preprocessor)
+            preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
+            preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
+            
+            svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", feedback_path="./algoritmi/surprisedir/feedback_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+            svd_model = SVD_Model(file_info=svd_file_info)
+            
+            os.remove('./algoritmi/surprisedir/trained_model.pkl')
+            model_context = ModelContext(svd_model)
+            model_context.train_model() 
+            
+        elif method == "NN":
+            preprocessor_context = PreprocessorContext(nn_preprocessor)
+            preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
+            preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
+
+            nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/ptwidedeep/feedback_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+            nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
+            
+            os.remove('./algoritmi/ptwidedeep/wd_model.pt')
+            os.remove('./algoritmi/ptwidedeep/model.pt')
+            model_context = ModelContext(nn_model)
+            model_context.train_model() 
+            
+    except Exception as e:
+        # Gestire eventuali errori
+        return jsonify({'error': str(e)}), 500
+
+# Endpoint search
+@app.route('/search/<method>/<object>/<id>/<n>')
+def search_endpoint(method, object, id, n):
+    try:
+        if method == "SVD":
+            #Train model
+            model_context = ModelContext(svd_model)
+            model_context.train_model() 
+        elif method == "NN":
+            #Train model
+            model_context = ModelContext(nn_model)
+            model_context.train_model() 
         if object == "user": 
-            dictionary = model.topN_1UserNItem(int(id), int(n))
+            dictionary = model_context.topN_1UserNItem(int(id), int(n))
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
         elif object == "item":
-            dictionary = model.topN_1ItemNUser(int(id), int(n))
-            result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
+            dictionary = model_context.topN_1ItemNUser(int(id), int(n))
+            result_list = [{"id": str(iid), "value": int(est)} for iid, est in dictionary]
         else:
             return jsonify({'error': "Wrong object. Select user or item"}), 500
 

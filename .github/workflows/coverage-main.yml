@@ -26,6 +26,9 @@ jobs:
       - name: Set up Docker Compose
         run: docker-compose up -d
 
+      - name: Wait for all service to be ready
+        run: sleep 120
+
       - name: Run tests and stop if they do not pass
         run: |
           ci_env=$(bash <(curl -s https://codecov.io/env))

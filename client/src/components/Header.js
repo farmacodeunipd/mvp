@@ -28,7 +28,52 @@ function Header() {
         </Link>
     );
 
-    const items = [
+    const itemsAdmin = [
+        {
+            id: 1,
+            label: "Ricerca",
+            icon: "pi pi-search",
+            link: "/ricerca",
+            template: itemRenderer,
+        },
+        {
+            id: 2,
+            label: "Clienti",
+            icon: "pi pi-users",
+            link: "/clienti",
+            template: itemRenderer,
+        },
+        {
+            id: 3,
+            label: "Prodotti",
+            icon: "pi pi-box",
+            link: "/prodotti",
+            template: itemRenderer,
+        },
+        {
+            id: 4,
+            label: "Cronologia",
+            icon: "pi pi-history",
+            link: "/cronologia",
+            template: itemRenderer,
+        },
+        {
+            id: 5,
+            label: "Feedback",
+            icon: "pi pi-thumbs-up",
+            link: "/feedback",
+            template: itemRenderer,
+        },
+        {
+            id: 6,
+            label: "Profilo",
+            icon: "pi pi-user",
+            link: "/profilo",
+            template: itemRenderer,
+        },
+    ];
+
+    const itemsUser = [
         {
             id: 1,
             label: "Ricerca",
@@ -59,6 +104,7 @@ function Header() {
         },
     ];
 
+    const amministratore = sessionStorage.getItem("amministratore");
     const start = <img src={logo} alt="logo"></img>;
 
     const end = (
@@ -74,7 +120,7 @@ function Header() {
     return (
         <>
             <Menubar
-                model={items}
+                model={amministratore!=1 ? itemsUser : itemsAdmin}
                 start={start}
                 end={end}
                 className="!rounded-3xl bg-white"
