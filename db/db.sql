@@ -97,7 +97,7 @@ CREATE TABLE ordclidet_feedback(
     user varchar(64) NOT NULL,
     cod_cli int,
     cod_art varchar(13) NOT NULL,
-    algo varchar(13),
+    algo varchar(13) NOT NULL,
     rating int NOT NULL DEFAULT 1,
     PRIMARY KEY(id)
 );

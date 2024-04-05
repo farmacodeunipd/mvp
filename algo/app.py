@@ -31,7 +31,7 @@ nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
 
 # Endpoint train
 @app.route('/train/<method>')
-def search_endpoint(method):
+def train_endpoint(method):
     try:
         if method == "SVD":
             preprocessor_context = PreprocessorContext(svd_preprocessor)

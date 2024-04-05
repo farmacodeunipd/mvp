@@ -420,14 +420,12 @@ app.put("/cronologia/new", async (req, res) => {
 app.get("/feedback", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM ordclidet_feedback ORDER BY dat_fed ASC");
+        const results = await queryDatabase(connection, "SELECT dat_fed, user, cod_cli, cod_art FROM ordclidet_feedback ORDER BY dat_fed ASC");
         const formattedResults = results.map((result) => ({
             id_dat: result.dat_fed.toISOString().split('T')[0],
             user: result.user,
             cod_cli: result.cod_cli,
             cod_art: result.cod_art,
-            algo: result.algo,
-            val_fed: result.feed,
         }));
         res.json(formattedResults);
     } catch (error) {
@@ -437,6 +435,113 @@ app.get("/feedback", async (req, res) => {
         );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella cronologia",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/feedback/newUser", async (req, res) => {
+    const utente = req.body.user;
+    const id_art = req.body.id;
+    const id_ute = req.body.idRic;
+    const algo = req.body.algoType;
+
+
+    if (utente === null || utente === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'utente",
+        });
+    }
+
+    if (id_art === null || id_art === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (id_ute === null || id_ute === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "INSERT INTO ordclidet_feedback (user, cod_cli, cod_art, algo) VALUES (?,?,?,?) ",
+            [utente, id_ute, id_art, algo]
+        );
+        res.status(200).json({
+            message: "Inserito con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante L'inserimento:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante L'inserimento",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/feedback/newItem", async (req, res) => {
+    const utente = req.body.user;
+    const id_ute = req.body.id;
+    const id_art = req.body.idRic;
+    const algo = req.body.algoType;
+
+    if (utente === null || utente === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'utente",
+        });
+    }
+
+    if (id_ute === null || id_ute === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (id_art === null || id_art === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "INSERT INTO ordclidet_feedback (user, cod_cli, cod_art, algo) VALUES (?,?,?,?) ",
+            [utente, id_ute, id_art, algo]
+        );
+        res.status(200).json({
+            message: "Inserito con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante L'inserimento:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante L'inserimento",
         });
     } finally {
         connection.end();

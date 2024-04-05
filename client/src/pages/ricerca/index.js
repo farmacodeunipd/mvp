@@ -24,6 +24,8 @@ function Ricerca() {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [selectObject, setSelectedObject] = useState("user");
+    const [idRic, setIdRic] = useState(null);
+    const [algoType, setAlgoType] = useState(null);
 
     function handleObjectChange(type) {
         setSelectedObject(type);
@@ -36,6 +38,9 @@ function Ricerca() {
             `http://${algoUrl}/search/${object}/${id}/${n}`
         );
         console.log("Risposta:", response.data);
+        setIdRic(id.toString());
+        setAlgoType(algo);
+
         setResults(response.data);
         setLoading(false);
     }
@@ -81,6 +86,8 @@ function Ricerca() {
                             <Results
                                 data={results}
                                 selectObject={selectObject}
+                                idRic={idRic}
+                                algoType={algoType}
                             ></Results>
                         )
                     )}
