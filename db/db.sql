@@ -81,16 +81,6 @@ CREATE TABLE ordclidet(
     FOREIGN KEY(cod_art) REFERENCES anaart(cod_art) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE ordclidet_feedback(
-    cod_cli int,
-    cod_art varchar(13),
-    data_ord date,
-    qta_ordinata float,
-    PRIMARY KEY(cod_cli, cod_art, data_ord, qta_ordinata),
-    FOREIGN KEY(cod_cli) REFERENCES anacli(cod_cli) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY(cod_art) REFERENCES anaart(cod_art) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
 CREATE TABLE cronologia(
     id int AUTO_INCREMENT,
     user varchar(64) NOT NULL,
@@ -101,13 +91,14 @@ CREATE TABLE cronologia(
     PRIMARY KEY(id)
 );
 
-CREATE TABLE feedback(
+CREATE TABLE ordclidet_feedback(
     id int AUTO_INCREMENT,
     dat_fed datetime DEFAULT NOW(),
     user varchar(64) NOT NULL,
-    cod_rac varchar(10) NOT NULL,
-    cli_pro varchar(64) NOT NULL,
-    feed float NOT NULL,
+    cod_cli int,
+    cod_art varchar(13) NOT NULL,
+    algo varchar(13),
+    rating int NOT NULL DEFAULT 1,
     PRIMARY KEY(id)
 );
 
@@ -151,7 +142,7 @@ FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA INFILE '/dataset/anaart_new.csv'
+LOAD DATA INFILE '/dataset/anaart.csv'
 INTO TABLE anaart
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
@@ -170,8 +161,8 @@ INTO TABLE ordclidet_feedback
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
-(cod_cli, cod_art, @data_ord, qta_ordinata)
-SET data_ord = STR_TO_DATE(@data_ord, '%d/%m/%Y');
+(id, @dat_fed, user, cod_cli, cod_art, algo, rating)
+SET dat_fed = STR_TO_DATE(@dat_fed, '%d/%m/%Y');
 
 
 

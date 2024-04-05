@@ -191,6 +191,7 @@ app.get("/prodotti", async (req, res) => {
                 cod_sott_comm: result.cod_sott_comm,
                 sott_comm: result.sott_comm,
             },
+            img_path: result.image_path,
         }));
         res.json(formattedResults);
     } catch (error) {
@@ -295,7 +296,7 @@ app.get("/clienti", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT * FROM anacli JOIN prov ON anacli.cod_prov = prov.cod_prov ORDER BY cod_cli"
+            "SELECT * FROM anacli JOIN tabprov ON anacli.cod_prov = tabprov.cod_prov ORDER BY cod_cli"
         );
         const formattedResults = results.map((result) => ({
             cod_cli: result.cod_cli,
@@ -322,7 +323,7 @@ app.get("/clienti", async (req, res) => {
 app.get("/clienti/province", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM prov");
+        const results = await queryDatabase(connection, "SELECT * FROM tabprov");
         res.json(results);
     } catch (error) {
         console.error(
@@ -419,12 +420,13 @@ app.put("/cronologia/new", async (req, res) => {
 app.get("/feedback", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT dat_fed, user, cod_rac, cli_pro, feed FROM feedback ORDER BY dat_fed ASC");
+        const results = await queryDatabase(connection, "SELECT * FROM ordclidet_feedback ORDER BY dat_fed ASC");
         const formattedResults = results.map((result) => ({
             id_dat: result.dat_fed.toISOString().split('T')[0],
             user: result.user,
-            id_rac: result.cod_rac,
-            cod_rac: result.cli_pro,
+            cod_cli: result.cod_cli,
+            cod_art: result.cod_art,
+            algo: result.algo,
             val_fed: result.feed,
         }));
         res.json(formattedResults);

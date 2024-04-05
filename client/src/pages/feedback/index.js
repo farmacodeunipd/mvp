@@ -44,10 +44,9 @@ function Cronologia() {
         setFilters({
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             user: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            id_dat: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            id_rac: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            cod_rac: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            val_feed: { value: null, matchMode: FilterMatchMode.CONTAINS }
+            cod_cli: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            cod_art: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            algo: { value: null, matchMode: FilterMatchMode.CONTAINS },
         });
         setGlobalFilterValue("");
     };
@@ -157,9 +156,9 @@ function Cronologia() {
                         globalFilterFields={[
                             "user",
                             "id_dat",
-                            "id_rac",
-                            "cod_rac",
-                            "val_fed",
+                            "cod_cli",
+                            "cod_art",
+                            "algo",
                         ]}
                         header={header}
                         filters={filters}
@@ -180,32 +179,26 @@ function Cronologia() {
                             pt={ptColumn}
                         />
                         <Column
-                            field="id_rac"
-                            header="ID"
+                            field="cod_cli"
+                            header="ID cliente"
                             filter
-                            filterPlaceholder="Cerca per id"
+                            filterPlaceholder="Cerca per id cliente"
                             pt={ptColumn}
                         />
                         <Column
-                            field="cod_rac"
-                            header="Cliente/Prodotto"
+                            field="cod_art"
+                            header="ID prodotto"
                             filter
-                            filterPlaceholder="Cerca per codice cliente/prodotto"
+                            filterPlaceholder="Cerca per id prodotto"
                             pt={ptColumn}
                         />
                         <Column
-                            header="Feedback"
-                            pt={ptColumn}
-                            field="val_fed"
-                            showFilterMatchModes={false}
+                            field="algo"
+                            header="Algoritmo"
                             filter
-                            filterPlaceholder="Cerca per feedback"
-                            body={(rowData) => {
-                                const feedbackIcon = rowData.val_fed === 5 ? 'pi pi-thumbs-up' : 'pi pi-thumbs-down';
-                                return <i className={feedbackIcon}></i>;
-                            }}
+                            filterPlaceholder="Cerca per algoritmo"
+                            pt={ptColumn}
                         />
-
                     </DataTable>
                 </div>
                 <Footer />

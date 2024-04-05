@@ -1,1 +1,2 @@
-cod_cli,cod_art,data_ord,qta_ordinata
+id, dat_fed, user, cod_cli, cod_art, algo, rating
+1,05/04/2024,a,13,1105090,SVD,1

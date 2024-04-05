@@ -24,23 +24,21 @@ class Preprocessor(ABC):
             print(f"No data found in table '{table_name}'")
             
     @abstractmethod
-    def process_file(self, input_file_og, input_file_fb, output_file):
+    def process_file(self, input_file_og, output_file):
         pass
     
+    @abstractmethod
+    def prepare_feedback(self, input_file_og, output_file):
+        pass
+
 class SVD_Preprocessor(Preprocessor):
     tables_to_export = ['ordclidet_feedback', 'ordclidet']
     
-    def process_file(self, input_file_og, input_file_fb, output_file):
-        df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.')
-        df2 = pd.read_csv(input_file_fb, delimiter=',', thousands=',', decimal='.')
-        
-        if not df2.empty:
-            df = pd.concat([df1, df2], ignore_index=True)
-        else:
-            df = df1.copy()
-
-        # Group by 'cod_cli' and 'cod_art' and sum the 'qta_ordinata' values
-        grouped_df = df.groupby(['cod_cli', 'cod_art'], as_index=False)['qta_ordinata'].sum()
+    def process_file(self, input_file_og, output_file):
+        df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.')        
+        # Group by 'cod_cli' and 'cod_art', summing the 'qta_ordinata' values and considering 'check_value' True if any value is True
+        grouped_df = df1.groupby(['cod_cli', 'cod_art'], as_index=False).agg({'qta_ordinata': 'sum'})
+            
         # Multiply the original quantity by the logarithm
         grouped_df['qta_ordinata'] = np.log10(grouped_df['qta_ordinata'])
         # Cap the final value at 2 & et minimum value at 0.0001
@@ -51,30 +49,41 @@ class SVD_Preprocessor(Preprocessor):
         grouped_df['qta_ordinata'] = grouped_df['qta_ordinata'].astype(str)
         # Rename the column from 'qta_ordinata' to 'rating'
         grouped_df = grouped_df.rename(columns={'qta_ordinata': 'rating'})
-
+        
         # Save the result to the output file
         grouped_df.to_csv(output_file, index=False)
+        
+    def prepare_feedback(self, input_file_og, output_file):
+        df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.') 
+                         
+        # Filter the DataFrame to keep only rows where the 'algo' column equals 'SVD'
+        df_filtered = df1[df1['algo'] == 'SVD']
+        
+        # Drop the unused column from the filtered DataFrame
+        df_filtered.drop(columns=['id'], inplace=True)
+        df_filtered.drop(columns=['dat_fed'], inplace=True)
+        df_filtered.drop(columns=['user'], inplace=True)  
+        
+        # Drop the 'algo' column from the filtered DataFrame
+        df_filtered.drop(columns=['algo'], inplace=True)
+        
+        # Save the filtered DataFrame to a new CSV file
+        df_filtered.to_csv(output_file, index=False)  # index=False to exclude index column from being saved
 
 class NN_Preprocessor(Preprocessor):
     tables_to_export = ['anaart', 'ordclidet_feedback', 'ordclidet', 'anacli']
     
-    def process_file(self, input_file_og, input_file_fb, output_file):
+    def process_file(self, input_file_og, output_file):
         df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.')
-        df2 = pd.read_csv(input_file_fb, delimiter=',', thousands=',', decimal='.')
-        
-        if not df2.empty:
-            df = pd.concat([df1, df2], ignore_index=True)
-        else:
-            df = df1.copy()
 
-        grouped_df = df.groupby(['cod_cli', 'cod_art'], as_index=False)['qta_ordinata'].sum()
+        grouped_df = df1.groupby(['cod_cli', 'cod_art'], as_index=False)['qta_ordinata'].sum()
         grouped_df['qta_ordinata'] = np.log10(grouped_df['qta_ordinata'])
         grouped_df['qta_ordinata'] = np.minimum(grouped_df['qta_ordinata'], 2)
         grouped_df['qta_ordinata'] = np.maximum(grouped_df['qta_ordinata'], 0.0001)
         grouped_df['qta_ordinata'] = grouped_df['qta_ordinata'].round(4)
         grouped_df['qta_ordinata'] = grouped_df['qta_ordinata'].astype(str)
         grouped_df = grouped_df.rename(columns={'qta_ordinata': 'rating'})
-
+        
         # Merge with additional information
         df_additional = pd.read_csv('algoritmi/preprocessor/exported_csv/anaart.csv')
         merged_df = pd.merge(grouped_df, df_additional, how='inner', on='cod_art')
@@ -82,6 +91,23 @@ class NN_Preprocessor(Preprocessor):
         merged_df.drop('cod_sott_comm', axis=1, inplace=True)
         merged_df.sort_values(by=['cod_cli'])
         merged_df.to_csv(output_file, index=False)
+        
+    def prepare_feedback(self, input_file_og, output_file):
+        df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.')     
+         
+        # Filter the DataFrame to keep only rows where the 'algo' column equals 'NN'
+        df_filtered = df1[df1['algo'] == 'NN']
+        
+        # Drop the unused column from the filtered DataFrame
+        df_filtered.drop(columns=['id'], inplace=True)
+        df_filtered.drop(columns=['dat_fed'], inplace=True)
+        df_filtered.drop(columns=['user'], inplace=True)   
+        
+        # Drop the 'algo' column from the filtered DataFrame
+        df_filtered.drop(columns=['algo'], inplace=True)
+        
+        # Save the filtered DataFrame to a new CSV file
+        df_filtered.to_csv(output_file, index=False)  # index=False to exclude index column from being saved
 
 class PreprocessorContext:
     def __init__(self, preprocessor):
@@ -90,7 +116,7 @@ class PreprocessorContext:
     def set_preprocessor(self, preprocessor):
         self.preprocessor = preprocessor
 
-    def process_file(self, input_file_og, input_file_fb, output_file):
+    def process_file(self, input_file_og, output_file):
         with mysql.connector.connect(
                 host='db',
                 user='myuser',
@@ -106,4 +132,7 @@ class PreprocessorContext:
             for table_name in self.preprocessor.tables_to_export:
                 self.preprocessor.retrieve_file(cursor, table_name, csv_folder)
             
-            self.preprocessor.process_file(input_file_og, input_file_fb, output_file)
+            self.preprocessor.process_file(input_file_og, output_file)
+    
+    def prepare_feedback(self, input_file_og, output_file):
+        self.preprocessor.prepare_feedback(input_file_og, output_file)
