@@ -38,14 +38,15 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
             selectedSearchObject === "user"
                 ? selectedUser.cod_cli
                 : selectedItem.cod_art;
-        onFetchResults(selectedSearchObject, id, selectedTop);
+        onFetchResults(selectedAlgo, selectedSearchObject, id, selectedTop);
 
+        const algo = selectedAlgo;
         const topic = selectedSearchObject;
         const cod_ric = id;
         const top_sel = selectedTop;
 
         axios
-            .put(`http://${expressUrl}/cronologia/new`, {user, topic, cod_ric, top_sel})
+            .put(`http://${expressUrl}/cronologia/new`, {user, algo, topic, cod_ric, top_sel})
             .catch((error) =>
                 console.error("Errore nell'inserimento", error)
             );

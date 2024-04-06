@@ -84,6 +84,7 @@ CREATE TABLE ordclidet(
 CREATE TABLE cronologia(
     id int AUTO_INCREMENT,
     user varchar(64) NOT NULL,
+    algo varchar(10) NOT NULL,
     topic varchar(10) NOT NULL,
     cod_ric varchar(13) NOT NULL,
     sel_top varchar(2) NOT NULL,

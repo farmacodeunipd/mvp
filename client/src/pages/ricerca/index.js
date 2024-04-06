@@ -32,10 +32,10 @@ function Ricerca() {
         setResults(null);
     }
 
-    async function fetchResults(object, id, n) {
+    async function fetchResults(algo, object, id, n) {
         setLoading(true);
         const response = await axios.get(
-            `http://${algoUrl}/search/${object}/${id}/${n}`
+            `http://${algoUrl}/search/${algo}/${object}/${id}/${n}`
         );
         console.log("Risposta:", response.data);
         setIdRic(id.toString());

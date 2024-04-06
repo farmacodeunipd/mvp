@@ -341,9 +341,10 @@ app.get("/clienti/province", async (req, res) => {
 app.get("/cronologia", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT user, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
+        const results = await queryDatabase(connection, "SELECT user, algo, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
         const formattedResults = results.map((result) => ({
             user: result.user,
+            algo: result.algo,
             topic: result.topic,
             cod_ric: result.cod_ric,
             top_sel: result.sel_top,
@@ -365,10 +366,17 @@ app.get("/cronologia", async (req, res) => {
 
 app.put("/cronologia/new", async (req, res) => {
     const utente = req.body.user;
+    const algo = req.body.algo;
     const topic = req.body.topic;
     const codice = req.body.cod_ric;
     const top = req.body.top_sel;
 
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
 
     if (utente === null || utente === "") {
         return res.status(400).json({
@@ -398,8 +406,8 @@ app.put("/cronologia/new", async (req, res) => {
     try {
         await queryDatabase(
             connection,
-            "INSERT INTO cronologia (user, topic, cod_ric, sel_top) VALUES (?,?,?,?) ",
-            [utente, topic, codice, top]
+            "INSERT INTO cronologia (user, algo, topic, cod_ric, sel_top) VALUES (?,?,?,?,?) ",
+            [utente, algo, topic, codice, top]
         );
         res.status(200).json({
             message: "Inserito con successo",
@@ -420,12 +428,13 @@ app.put("/cronologia/new", async (req, res) => {
 app.get("/feedback", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT dat_fed, user, cod_cli, cod_art FROM ordclidet_feedback ORDER BY dat_fed ASC");
+        const results = await queryDatabase(connection, "SELECT dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed ASC");
         const formattedResults = results.map((result) => ({
             id_dat: result.dat_fed.toISOString().split('T')[0],
             user: result.user,
             cod_cli: result.cod_cli,
             cod_art: result.cod_art,
+            algo: result.algo,
         }));
         res.json(formattedResults);
     } catch (error) {

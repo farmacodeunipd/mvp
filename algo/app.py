@@ -29,11 +29,13 @@ preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordcl
 nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/ptwidedeep/feedback_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
 nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
 
+model_context = None
+
 # Endpoint train
-@app.route('/train/<method>')
-def train_endpoint(method):
+@app.route('/train/<algo>')
+def train_endpoint(algo):
     try:
-        if method == "SVD":
+        if algo == "SVD":
             preprocessor_context = PreprocessorContext(svd_preprocessor)
             preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
             preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
@@ -45,7 +47,7 @@ def train_endpoint(method):
             model_context = ModelContext(svd_model)
             model_context.train_model() 
             
-        elif method == "NN":
+        elif algo == "NN":
             preprocessor_context = PreprocessorContext(nn_preprocessor)
             preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
             preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
@@ -63,17 +65,17 @@ def train_endpoint(method):
         return jsonify({'error': str(e)}), 500
 
 # Endpoint search
-@app.route('/search/<method>/<object>/<id>/<n>')
-def search_endpoint(method, object, id, n):
+@app.route('/search/<algo>/<object>/<id>/<n>')
+def search_endpoint(algo, object, id, n):
     try:
-        if method == "SVD":
-            #Train model
+        if algo == "SVD":
+            #Select model
             model_context = ModelContext(svd_model)
-            model_context.train_model() 
-        elif method == "NN":
-            #Train model
+        elif algo == "NN":
+            #Select model
             model_context = ModelContext(nn_model)
-            model_context.train_model() 
+            
+        model_context.train_model() 
         if object == "user": 
             dictionary = model_context.topN_1UserNItem(int(id), int(n))
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
