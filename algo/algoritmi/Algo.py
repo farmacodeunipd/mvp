@@ -24,11 +24,7 @@ class BaseModel(ABC):
     
     @abstractmethod
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
-        pass 
-    
-    @abstractmethod
-    def apply_feedback(self, topic, target_id, ratings):
-        pass 
+        pass
     
     @abstractmethod
     def topN_1UserNItem(self, user_id, n=5):
@@ -59,9 +55,6 @@ class ModelContext:
     
     def ratings_float2int(self, float_ratings, float_ratingMax=2, float_ratingMin=0, int_ratingMax=5, int_ratingMin=1):
         return self.model_info.ratings_float2int(float_ratings, float_ratingMax, float_ratingMin, int_ratingMax, int_ratingMin)
-    
-    def apply_feedback(self, topic, target_id, ratings):
-        return self.model_info.apply_feedback(self, topic, target_id, ratings)
 
     def topN_1UserNItem(self, user_id, n=5):
         return self.model_info.topN_1UserNItem(user_id, n)
