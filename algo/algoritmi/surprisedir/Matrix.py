@@ -11,10 +11,9 @@ from algoritmi.Algo import BaseModel
 # classe contenitore che contiene info relative al file ed ai dati
 # (model_file: path del file che memorizza il modello, file_path: nome del file contenente i dati di training, columns: nome delle colonne del file di training, scale: scala di rating (da 0 a 2 perché propria per il logaritmo usato))
 class SVD_FileInfo(BaseFileInfo):
-    def __init__(self, model_file, file_path, feedback_path, column_1, column_2, column_3, scale_min=0, scale_max=2):
+    def __init__(self, model_file, file_path, column_1, column_2, column_3, scale_min=0, scale_max=2):
         super().__init__(model_file)
         self.file_path = file_path
-        self.feedback_path = feedback_path
         self.scale_min = scale_min
         self.scale_max = scale_max
         self.column_1 = column_1

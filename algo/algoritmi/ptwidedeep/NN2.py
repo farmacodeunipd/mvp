@@ -14,13 +14,12 @@ from algoritmi.Algo import BaseFileInfo
 from algoritmi.Algo import BaseModel
 
 class NN_FileInfo(BaseFileInfo):
-    def __init__(self, model_file, model_state_file, wide_preprocessor_file, tab_preprocessor_file, dataset_path, feedback_path, user_dataset_path, item_dataset_path):
+    def __init__(self, model_file, model_state_file, wide_preprocessor_file, tab_preprocessor_file, dataset_path, user_dataset_path, item_dataset_path):
         super().__init__(model_file)
         self.model_state_file = model_state_file
         self.wide_preprocessor_file = wide_preprocessor_file
         self.tab_preprocessor_file = tab_preprocessor_file
         self.dataset_path = dataset_path
-        self.feedback_path = feedback_path
         self.user_dataset_path = user_dataset_path
         self.item_dataset_path = item_dataset_path
 
