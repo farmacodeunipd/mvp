@@ -8,17 +8,12 @@ import os
 from algoritmi.Algo import BaseFileInfo 
 from algoritmi.Algo import BaseModel
 
-def rating_float2int (float_rating, float_ratingMax = 2, int_ratingMax = 5, float_ratingMin = 0, int_ratingMin = 1):
-      return int((float_rating - float_ratingMin) / (float_ratingMax - float_ratingMin) * (int_ratingMax - int_ratingMin)) + int_ratingMin
-
-
 # classe contenitore che contiene info relative al file ed ai dati
 # (model_file: path del file che memorizza il modello, file_path: nome del file contenente i dati di training, columns: nome delle colonne del file di training, scale: scala di rating (da 0 a 2 perché propria per il logaritmo usato))
 class SVD_FileInfo(BaseFileInfo):
-    def __init__(self, model_file, file_path, feedback_path, column_1, column_2, column_3, scale_min=0, scale_max=2):
+    def __init__(self, model_file, file_path, column_1, column_2, column_3, scale_min=0, scale_max=2):
         super().__init__(model_file)
         self.file_path = file_path
-        self.feedback_path = feedback_path
         self.scale_min = scale_min
         self.scale_max = scale_max
         self.column_1 = column_1
@@ -79,29 +74,7 @@ class SVD_Model(BaseModel):
         self.testset = self.trainset.build_anti_testset(fill=None)
         
     def ratings_float2int (self, float_rating, float_ratingMax = 2, int_ratingMax = 5, float_ratingMin = 0, int_ratingMin = 1):
-      return int((float_rating - float_ratingMin) / (float_ratingMax - float_ratingMin) * (int_ratingMax - int_ratingMin)) + int_ratingMin
-
-    def apply_feedback(self, topic, target_id, ratings):
-        feedback_df = pd.DataFrame(pd.read_csv(self.file_info.feedback_path))
-
-        if not feedback_df.empty:
-            if topic == "user":
-                for _, row in feedback_df.iterrows():
-                    item_id = row['cod_art']
-                    if item_id == target_id: 
-                        user_id = row['cod_cli']
-                        if user_id in ratings:
-                            ratings[user_id] = min(self.ratings_float2int(row['rating']), ratings[user_id])
-                        
-            elif topic == "item":
-                for _, row in feedback_df.iterrows():
-                    user_id = row['cod_cli']
-                    if user_id == target_id: 
-                        item_id = row['cod_art']
-                        if item_id in ratings:
-                            ratings[item_id] = min(self.ratings_float2int(row['rating']), ratings[item_id])
-        
-        return ratings
+        return int((float_rating - float_ratingMin) / (float_ratingMax - float_ratingMin) * (int_ratingMax - int_ratingMin)) + int_ratingMin
     
     # metodo che dato ID user (NUMERICO) e n, ritorna n ID item migliori per quell'user
     def topN_1UserNItem(self, user_id, n=5):
@@ -116,7 +89,6 @@ class SVD_Model(BaseModel):
         for uid, iid, true_r, est, _ in predictions:
             top_n[iid] = self.ratings_float2int(est)
             
-        top_n = self.apply_feedback("item", user_id, top_n)
         top_n = sorted(top_n.items(), key=lambda x: x[1], reverse=True)[:n]
         return top_n
     
@@ -133,6 +105,5 @@ class SVD_Model(BaseModel):
         for uid, iid, true_r, est, _ in predictions:
             top_n[uid] = self.ratings_float2int(est)
 
-        top_n = self.apply_feedback("user", item_id, top_n)
         top_n = sorted(top_n.items(), key=lambda x: x[1], reverse=True)[:n]
         return top_n

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog"
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
@@ -29,6 +30,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedTop, setSelectedTop] = useState(null);
     const [selectedAlgo, setSelectedAlgo] = useState(null);
+    const [showProductDialog, setShowProductDialog] = useState(false);
 
     const user = sessionStorage.getItem("username");
 
@@ -38,19 +40,37 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
             selectedSearchObject === "user"
                 ? selectedUser.cod_cli
                 : selectedItem.cod_art;
-        onFetchResults(selectedAlgo, selectedSearchObject, id, selectedTop);
+        onFetchResults(selectedSearchObject, id, selectedTop, selectedAlgo);
 
-        const algo = selectedAlgo;
         const topic = selectedSearchObject;
         const cod_ric = id;
         const top_sel = selectedTop;
 
         axios
-            .put(`http://${expressUrl}/cronologia/new`, {user, algo, topic, cod_ric, top_sel})
+            .put(`http://${expressUrl}/cronologia/new`, {user, topic, cod_ric, top_sel})
             .catch((error) =>
                 console.error("Errore nell'inserimento", error)
             );
     }
+
+    const renderProductDialog = () => {
+        return (
+          <Dialog
+            pt={ptDialog}
+            visible={showProductDialog}
+            style={{ width: '450px' }}
+            header="Sicuro di voler avviare un training?"
+            modal
+            onHide={() => setShowProductDialog(false)}
+          >
+            <div className="flex flex-column">
+              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={() => {
+                                setShowProductDialog(false);
+                              }}/>
+            </div>
+          </Dialog>
+        );
+      };
 
     const selectedUserItemTemplate = (option, props) => {
         if (option) {
@@ -81,7 +101,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     };
 
     const isButtonDisabled = () => {
-        if (!selectedSearchObject || !selectedTop) {
+        if (!selectedSearchObject || !selectedTop || !selectedAlgo) {
             return true;
         }
         if (selectedSearchObject === "user") {
@@ -91,6 +111,24 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
             return selectedItem === null;
         }
         return true;
+    };
+
+    const ptDialog = {
+        root: {
+            className: "!rounded-3xl",
+        },
+        header: {
+            className: "!p-6 !rounded-t-3xl",
+        },
+        closeButton: {
+            className: "!w-8 !h-8",
+        },
+        closeButtonIcon: {
+            className: "!w-4 !h-4",
+        },
+        content: {
+            className: "!px-6 !pb-8 !rounded-b-3xl",
+        },
     };
 
     const ptDropdown = {
@@ -129,99 +167,112 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     return (
         <>
             <div className="p-2 bg-gray-200 rounded-3xl border border-gray-300">
-                <form
-                    className="flex flex-col justify-center md:flex-row md:justify-around md:items-center space-y-2 md:space-y-0"
-                    onSubmit={proceedFetch}
-                >
-                    <div className="">
-                        <Dropdown
-                            value={selectedAlgo}
-                            onChange={(e) => setSelectedAlgo(e.value)}
-                            options={algo}
-                            optionLabel="name"
-                            placeholder="Seleziona algoritmo"
-                            className="w-full md:!w-40 !duration-0"
-                            pt={ptDropdown}
-                            data-testid="algo"
-                        />
-                    </div>
-                    <div className="">
-                        <Dropdown
-                            value={selectedSearchObject}
-                            onChange={(e) => {
-                                setSelectedSearchObject(e.value);
-                                onObjectChange(e.value);
+                <div className="flex">
+                    <div className="flex-grow ml-5">
+                            <Button 
+                                label="Training"
+                                pt={ptButton}
+                                onClick={() => {
+                                setShowProductDialog(true);
                             }}
-                            options={searchObject}
-                            optionLabel="name"
-                            placeholder="Seleziona topic"
-                            className="w-full md:!w-44 !duration-0"
-                            pt={ptDropdown}
-                            data-testid="topic"
-                        />
-                    </div>
-                    <div className="">
-                        {selectedSearchObject ? (
-                            <Dropdown
-                                value={
-                                    selectedSearchObject === "user"
-                                        ? selectedUser
-                                        : selectedItem
-                                }
-                                onChange={(e) =>
-                                    selectedSearchObject === "user"
-                                        ? setSelectedUser(e.value)
-                                        : setSelectedItem(e.value)
-                                }
-                                options={
-                                    selectedSearchObject === "user"
-                                        ? users
-                                        : items
-                                }
-                                optionLabel={
-                                    selectedSearchObject === "user"
-                                        ? "rag_soc"
-                                        : "des_art"
-                                }
-                                placeholder={
-                                    selectedSearchObject === "user"
-                                        ? "Seleziona un cliente"
-                                        : "Seleziona un prodotto"
-                                }
-                                filter
-                                pt={ptDropdown}
-                                valueTemplate={selectedUserItemTemplate}
-                                itemTemplate={userItemOptionTemplate}
-                                className={`w-full ${
-                                    selectedSearchObject === "user"
-                                        ? "md:!w-96"
-                                        : "md:!w-96"
-                                }`}
-                                data-testid="users-items"
+                            
                             />
-                        ) : null}
-                    </div>
-                    <div className="">
-                        <Dropdown
-                            value={selectedTop}
-                            onChange={(e) => setSelectedTop(e.value)}
-                            options={tops}
-                            optionLabel="name"
-                            placeholder="Seleziona N"
-                            className="w-full md:!w-40 !duration-0"
-                            pt={ptDropdown}
-                            data-testid="top"
-                        />
-                    </div>
-                    <div>
-                        <Button
-                            label="Ricerca"
-                            pt={ptButton}
-                            disabled={isButtonDisabled()}
-                            data-testid="ricerca-button"
-                        ></Button>
-                    </div>
-                </form>
+                        {renderProductDialog()}
+                        </div>
+                    <form
+                        className="flex flex-grow justify-center md:flex-row md:justify-around md:items-center space-x-2"
+                        onSubmit={proceedFetch}
+                    >
+                        <div className="flex-grow">
+                            <Dropdown
+                                value={selectedAlgo}
+                                onChange={(e) => setSelectedAlgo(e.value)}
+                                options={algo}
+                                optionLabel="name"
+                                placeholder="Seleziona algoritmo"
+                                className="w-full md:!w-40 !duration-0"
+                                pt={ptDropdown}
+                                data-testid="algo"
+                            />
+                        </div>
+                        <div className="flex-grow">
+                            <Dropdown
+                                value={selectedSearchObject}
+                                onChange={(e) => {
+                                    setSelectedSearchObject(e.value);
+                                    onObjectChange(e.value);
+                                }}
+                                options={searchObject}
+                                optionLabel="name"
+                                placeholder="Seleziona topic"
+                                className="w-full md:!w-44 !duration-0"
+                                pt={ptDropdown}
+                                data-testid="topic"
+                            />
+                        </div>
+                        <div className="flex-grow">
+                            {selectedSearchObject ? (
+                                <Dropdown
+                                    value={
+                                        selectedSearchObject === "user"
+                                            ? selectedUser
+                                            : selectedItem
+                                    }
+                                    onChange={(e) =>
+                                        selectedSearchObject === "user"
+                                            ? setSelectedUser(e.value)
+                                            : setSelectedItem(e.value)
+                                    }
+                                    options={
+                                        selectedSearchObject === "user"
+                                            ? users
+                                            : items
+                                    }
+                                    optionLabel={
+                                        selectedSearchObject === "user"
+                                            ? "rag_soc"
+                                            : "des_art"
+                                    }
+                                    placeholder={
+                                        selectedSearchObject === "user"
+                                            ? "Seleziona un cliente"
+                                            : "Seleziona un prodotto"
+                                    }
+                                    filter
+                                    pt={ptDropdown}
+                                    valueTemplate={selectedUserItemTemplate}
+                                    itemTemplate={userItemOptionTemplate}
+                                    className={`w-full ${
+                                        selectedSearchObject === "user"
+                                            ? "md:!w-96"
+                                            : "md:!w-96"
+                                    }`}
+                                    data-testid="users-items"
+                                />
+                            ) : null}
+                        </div>
+                        <div className="flex-grow">
+                            <Dropdown
+                                value={selectedTop}
+                                onChange={(e) => setSelectedTop(e.value)}
+                                options={tops}
+                                optionLabel="name"
+                                placeholder="Seleziona N"
+                                className="w-full md:!w-40 !duration-0"
+                                pt={ptDropdown}
+                                data-testid="top"
+                            />
+                        </div>
+                        <div className="flex-grow">
+                            <Button
+                                label="Ricerca"
+                                pt={ptButton}
+                                disabled={isButtonDisabled()}
+                                data-testid="ricerca-button"
+                            ></Button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </>
     );
