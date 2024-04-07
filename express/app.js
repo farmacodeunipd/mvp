@@ -557,6 +557,38 @@ app.put("/feedback/newItem", async (req, res) => {
     }
 });
 
+app.put("/feedback/delFeed", async (req, res) => {
+    const id_feed = req.body.id_feed;
+
+    if (id_feed === null || id_feed === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'id",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "DELETE FROM ordclidet_feedback WHERE id = ? ",
+            [id_feed]
+        );
+        res.status(200).json({
+            message: "eliminato con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante l'eliminazione:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante l'eliminazione",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
 app.get("/userana/:use", async (req, res) => {
     const userID = req.params.use;
     const connection = await connectToDB();
