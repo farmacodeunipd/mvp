@@ -5,8 +5,10 @@ import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog"
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
+const algoUrl = process.env.ALGO_API_URL || "localhost:4000";
 
 const searchObject = [
     { name: "Clienti", value: "user" },
@@ -14,8 +16,8 @@ const searchObject = [
 ];
 
 const algo = [
-    { name: "SVD", value: "svd"},
-    { name: "NN", value: "nn"},
+    { name: "SVD", value: "SVD"},
+    { name: "NN", value: "NN"},
 ]
 
 const tops = [
@@ -31,8 +33,10 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     const [selectedTop, setSelectedTop] = useState(null);
     const [selectedAlgo, setSelectedAlgo] = useState(null);
     const [showProductDialog, setShowProductDialog] = useState(false);
+    const [loadingTraining, setLoadingTraining] = useState(false);
 
     const user = sessionStorage.getItem("username");
+    const amministratore = sessionStorage.getItem("amministratore");
 
     function proceedFetch(e) {
         e.preventDefault();
@@ -40,37 +44,57 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
             selectedSearchObject === "user"
                 ? selectedUser.cod_cli
                 : selectedItem.cod_art;
-        onFetchResults(selectedSearchObject, id, selectedTop, selectedAlgo);
+        onFetchResults(selectedAlgo, selectedSearchObject, id, selectedTop);
 
+        const algo = selectedAlgo;
         const topic = selectedSearchObject;
         const cod_ric = id;
         const top_sel = selectedTop;
 
         axios
-            .put(`http://${expressUrl}/cronologia/new`, {user, topic, cod_ric, top_sel})
+            .put(`http://${expressUrl}/cronologia/new`, {user, algo, topic, cod_ric, top_sel})
             .catch((error) =>
                 console.error("Errore nell'inserimento", error)
             );
     }
 
-    const renderProductDialog = () => {
+    const renderProductDialog = (algo) => {
         return (
-          <Dialog
-            pt={ptDialog}
-            visible={showProductDialog}
-            style={{ width: '450px' }}
-            header="Sicuro di voler avviare un training?"
-            modal
-            onHide={() => setShowProductDialog(false)}
-          >
-            <div className="flex flex-column">
-              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={() => {
+            <Dialog
+                pt={{ ptDialog, closeButton: { disabled: loadingTraining } }}
+                visible={showProductDialog}
+                style={{ width: '450px' }}
+                header={`Sicuro di voler avviare un training per l'algoritmo ${algo}? Il processo potrebbe richiedere alcuni minuti.`}
+                modal
+                onHide={() => setShowProductDialog(false)}
+                // da capire come disabilitare la "x" per uscire dal dialog, da metter !loadingTraining
+            >
+                <div className="flex flex-column">
+                    {loadingTraining ? ( // Check if loadingTraining is true
+                    <div className="flex flex-column">
+                        <ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="5" fill="var(--surface-ground)"  pt={{circle: { style: { stroke: 'green', strokeWidth: 3,} }}}/> 
+                        <p>Training ...</p>
+                    </div>
+                    ) : (
+                        <Button // Display the confirmation button when not loading
+                            pt={ptButton}
+                            label="Conferma"
+                            icon="pi pi-check"
+                            onClick={async () => {
+                                setLoadingTraining(true); // Set loading to true when button clicked
+                                const response = await axios.get(
+                                    `http://${algoUrl}/train/${algo}`
+                                );
+                                console.log("Risposta:", response.data);
+                                setLoadingTraining(false); // Set loading to false when training complete
                                 setShowProductDialog(false);
-                              }}/>
-            </div>
-          </Dialog>
+                            }}
+                        />
+                    )}
+                </div>
+            </Dialog>
         );
-      };
+    };
 
     const selectedUserItemTemplate = (option, props) => {
         if (option) {
@@ -100,7 +124,14 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         );
     };
 
-    const isButtonDisabled = () => {
+    const isTrainButtonDisabled = () => {
+        if (!selectedAlgo) {
+            return true;
+        }
+        return false;
+    };
+
+    const isSearchButtonDisabled = () => {
         if (!selectedSearchObject || !selectedTop || !selectedAlgo) {
             return true;
         }
@@ -168,17 +199,6 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         <>
             <div className="p-2 bg-gray-200 rounded-3xl border border-gray-300">
                 <div className="flex">
-                    <div className="flex-grow ml-5">
-                            <Button 
-                                label="Training"
-                                pt={ptButton}
-                                onClick={() => {
-                                setShowProductDialog(true);
-                            }}
-                            
-                            />
-                        {renderProductDialog()}
-                        </div>
                     <form
                         className="flex flex-grow justify-center md:flex-row md:justify-around md:items-center space-x-2"
                         onSubmit={proceedFetch}
@@ -194,6 +214,21 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                 pt={ptDropdown}
                                 data-testid="algo"
                             />
+                        </div>
+                        <div className="flex-grow mx-0">
+                        {amministratore == "1" && (
+                            <Button 
+                            label="Training"
+                            pt={ptButton}
+                            onClick={() => {
+                            setShowProductDialog(true);
+                        }}
+                            type= "button"
+                            disabled={isTrainButtonDisabled()}
+                        />
+                        )}
+
+                        {renderProductDialog(selectedAlgo)}
                         </div>
                         <div className="flex-grow">
                             <Dropdown
@@ -267,7 +302,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             <Button
                                 label="Ricerca"
                                 pt={ptButton}
-                                disabled={isButtonDisabled()}
+                                disabled={isSearchButtonDisabled()}
                                 data-testid="ricerca-button"
                             ></Button>
                         </div>
