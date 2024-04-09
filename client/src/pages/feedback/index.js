@@ -9,6 +9,7 @@ import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { Dialog}  from "primereact/dialog";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
@@ -50,7 +51,6 @@ function Cronologia() {
             cod_cli: { value: null, matchMode: FilterMatchMode.CONTAINS },
             cod_art: { value: null, matchMode: FilterMatchMode.CONTAINS },
             algo: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            id_feed: { value: null, matchMode: FilterMatchMode.CONTAINS },
         });
         setGlobalFilterValue("");
     };
@@ -122,13 +122,13 @@ function Cronologia() {
             onHide={() => setShowProductDialog(false)}
           >
             <div className="flex flex-column">
-              <p className="text-base font-medium mb-2">ID: {selectedProduct?.id_feed}</p>
+            <p className="text-base font-medium mb-2">
+                  ID: {[selectedProduct?.id_feed]}</p>
                 <p className="text-base font-medium mb-2">
-                  Codice articolo: {[selectedProduct?.cod_art]}
-                </p>
+                  Codice articolo: {[selectedProduct?.cod_art]}</p>
                 <p className="text-base font-medium mb-2">Codice cliente: {[selectedProduct?.cod_cli]}</p>
               {/* Add more details about the product as needed */}
-              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={() => {
+              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={ () => {
                                 setShowProductDialog(false);
                                 deleteFeedback(selectedProduct.id_feed)
                                 location.reload();
@@ -237,7 +237,6 @@ function Cronologia() {
                             "cod_cli",
                             "cod_art",
                             "algo",
-                            "id_feed",
                         ]}
                         header={header}
                         filters={filters}
@@ -245,13 +244,6 @@ function Cronologia() {
                         selection={selectedProducts}
                         onSelectionChange= {(e) => setSelectedProducts(e.value)}
                     >
-                        <Column
-                            field="id_feed"
-                            header="ID"
-                            filter
-                            filterPlaceholder="Cerca per ID"
-                            pt={ptColumn}
-                        />
                         <Column
                             field="id_dat"
                             header="Data"

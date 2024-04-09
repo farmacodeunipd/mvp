@@ -428,8 +428,9 @@ app.put("/cronologia/new", async (req, res) => {
 app.get("/feedback", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed ASC");
+        const results = await queryDatabase(connection, "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed DESC");
         const formattedResults = results.map((result) => ({
+            id_feed: result.id,
             id_dat: result.dat_fed.toISOString().split('T')[0],
             user: result.user,
             cod_cli: result.cod_cli,

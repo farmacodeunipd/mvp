@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog"
-import { ProgressSpinner } from 'primereact/progressspinner';
+import { ProgressBar } from 'primereact/progressbar';
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 const algoUrl = process.env.ALGO_API_URL || "localhost:4000";
@@ -16,8 +16,8 @@ const searchObject = [
 ];
 
 const algo = [
-    { name: "SVD", value: "SVD"},
-    { name: "NN", value: "NN"},
+    { name: "SVD", value: "SVD" },
+    { name: "NN", value: "NN" },
 ]
 
 const tops = [
@@ -52,7 +52,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         const top_sel = selectedTop;
 
         axios
-            .put(`http://${expressUrl}/cronologia/new`, {user, algo, topic, cod_ric, top_sel})
+            .put(`http://${expressUrl}/cronologia/new`, { user, algo, topic, cod_ric, top_sel })
             .catch((error) =>
                 console.error("Errore nell'inserimento", error)
             );
@@ -61,20 +61,22 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
     const renderProductDialog = (algo) => {
         return (
             <Dialog
-                pt={{ ptDialog, closeButton: { disabled: loadingTraining } }}
+                pt={ptDialog}
                 visible={showProductDialog}
                 style={{ width: '450px' }}
                 header={`Sicuro di voler avviare un training per l'algoritmo ${algo}? Il processo potrebbe richiedere alcuni minuti.`}
                 modal
                 onHide={() => setShowProductDialog(false)}
-                // da capire come disabilitare la "x" per uscire dal dialog, da metter !loadingTraining
+            // da fixxare
             >
                 <div className="flex flex-column">
                     {loadingTraining ? ( // Check if loadingTraining is true
-                    <div className="flex flex-column">
-                        <ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="5" fill="var(--surface-ground)"  pt={{circle: { style: { stroke: 'green', strokeWidth: 3,} }}}/> 
-                        <p>Training ...</p>
-                    </div>
+                        <div className="flex flex-column">
+                            <div style={{ marginBottom: '20px' }}>
+                                <ProgressBar mode="indeterminate" style={{ height: '6px' }}></ProgressBar>
+                            </div>
+                            <p>Training ...</p>
+                        </div>
                     ) : (
                         <Button // Display the confirmation button when not loading
                             pt={ptButton}
@@ -153,6 +155,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         },
         closeButton: {
             className: "!w-8 !h-8",
+            disabled: loadingTraining
         },
         closeButtonIcon: {
             className: "!w-4 !h-4",
@@ -216,19 +219,19 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                             />
                         </div>
                         <div className="flex-grow mx-0">
-                        {amministratore == "1" && (
-                            <Button 
-                            label="Training"
-                            pt={ptButton}
-                            onClick={() => {
-                            setShowProductDialog(true);
-                        }}
-                            type= "button"
-                            disabled={isTrainButtonDisabled()}
-                        />
-                        )}
+                            {amministratore == "1" && (
+                                <Button
+                                    label="Training"
+                                    pt={ptButton}
+                                    onClick={() => {
+                                        setShowProductDialog(true);
+                                    }}
+                                    type="button"
+                                    disabled={isTrainButtonDisabled()}
+                                />
+                            )}
 
-                        {renderProductDialog(selectedAlgo)}
+                            {renderProductDialog(selectedAlgo)}
                         </div>
                         <div className="flex-grow">
                             <Dropdown
@@ -277,11 +280,10 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                     pt={ptDropdown}
                                     valueTemplate={selectedUserItemTemplate}
                                     itemTemplate={userItemOptionTemplate}
-                                    className={`w-full ${
-                                        selectedSearchObject === "user"
+                                    className={`w-full ${selectedSearchObject === "user"
                                             ? "md:!w-96"
                                             : "md:!w-96"
-                                    }`}
+                                        }`}
                                     data-testid="users-items"
                                 />
                             ) : null}
