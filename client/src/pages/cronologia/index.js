@@ -44,6 +44,7 @@ function Cronologia() {
         setFilters({
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             user: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            algo: { value: null, matchMode: FilterMatchMode.CONTAINS },
             topic: { value: null, matchMode: FilterMatchMode.EQUALS },
             cod_ric: { value: null, matchMode: FilterMatchMode.EQUALS },
             top_sel: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -156,6 +157,7 @@ function Cronologia() {
                         rowsPerPageOptions={[25, 50, 75, 100]}
                         globalFilterFields={[
                             "user",
+                            "algo",
                             "topic",
                             "cod_ric",
                             "top_sel",
@@ -177,6 +179,13 @@ function Cronologia() {
                             header="Utente"
                             filter
                             filterPlaceholder="Cerca per codice cliente"
+                            pt={ptColumn}
+                        />
+                        <Column
+                            field="algo"
+                            header="Algoritmo"
+                            filter
+                            filterPlaceholder="Cerca per algoritmo utilizzato"
                             pt={ptColumn}
                         />
                         <Column
