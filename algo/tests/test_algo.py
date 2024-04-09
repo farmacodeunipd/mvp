@@ -28,7 +28,7 @@ def api_url():
     return "http://" + hostname + ":4000"
 
 def test_api_response_svd(api_url):
-    response = requests.get(api_url + "/search/svd/user/120/5")
+    response = requests.get(api_url + "/search/SVD/user/120/5")
 
     assert response.status_code == 200
 
@@ -42,7 +42,7 @@ def test_api_response_svd(api_url):
         
         
 def test_api_response_nn(api_url):
-    response = requests.get(api_url + "/search/nn/user/120/5")
+    response = requests.get(api_url + "/search/NN/user/120/5")
 
     assert response.status_code == 200
 
