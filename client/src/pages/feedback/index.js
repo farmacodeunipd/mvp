@@ -7,9 +7,9 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { Dialog}  from "primereact/dialog";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 
@@ -99,42 +99,49 @@ function Cronologia() {
         );
     };
 
-    function deleteFeedback(id_feed){
+    function deleteFeedback(id_feed) {
         console.log(id_feed);
         axios
-            .put(`http://${expressUrl}/feedback/delFeed`, {id_feed})
-            .then(response => {
-                console.log(response.data.message); 
+            .put(`http://${expressUrl}/feedback/delFeed`, { id_feed })
+            .then((response) => {
+                console.log(response.data.message);
             })
-            .catch((error) =>
-                console.error("Errore", error)
-            );
+            .catch((error) => console.error("Errore", error));
     }
 
     const renderProductDialog = () => {
         return (
-          <Dialog
-            pt={ptDialog}
-            visible={showProductDialog}
-            style={{ width: '450px' }}
-            header="Eliminare feedback?"
-            modal
-            onHide={() => setShowProductDialog(false)}
-          >
-            <div className="flex flex-column">
-            <p className="text-base font-medium mb-2">
-                  ID: {[selectedProduct?.id_feed]}</p>
-                <p className="text-base font-medium mb-2">
-                  Codice articolo: {[selectedProduct?.cod_art]}</p>
-                <p className="text-base font-medium mb-2">Codice cliente: {[selectedProduct?.cod_cli]}</p>
-              {/* Add more details about the product as needed */}
-              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={ () => {
-                                setShowProductDialog(false);
-                                deleteFeedback(selectedProduct.id_feed)
-                                location.reload();
-                              }}/>
-            </div>
-          </Dialog>
+            <Dialog
+                pt={ptDialog}
+                visible={showProductDialog}
+                style={{ width: "450px" }}
+                header="Eliminare feedback?"
+                modal
+                onHide={() => setShowProductDialog(false)}
+            >
+                <div className="flex flex-column">
+                    <p className="text-base font-medium mb-2">
+                        ID: {[selectedProduct?.id_feed]}
+                    </p>
+                    <p className="text-base font-medium mb-2">
+                        Codice articolo: {[selectedProduct?.cod_art]}
+                    </p>
+                    <p className="text-base font-medium mb-2">
+                        Codice cliente: {[selectedProduct?.cod_cli]}
+                    </p>
+                    {/* Add more details about the product as needed */}
+                    <Button
+                        pt={ptButton}
+                        label="Conferma"
+                        icon="pi pi-check"
+                        onClick={() => {
+                            setShowProductDialog(false);
+                            deleteFeedback(selectedProduct.id_feed);
+                            location.reload();
+                        }}
+                    />
+                </div>
+            </Dialog>
         );
     };
 
@@ -242,7 +249,7 @@ function Cronologia() {
                         filters={filters}
                         scrollHeight={tableHeight}
                         selection={selectedProducts}
-                        onSelectionChange= {(e) => setSelectedProducts(e.value)}
+                        onSelectionChange={(e) => setSelectedProducts(e.value)}
                     >
                         <Column
                             field="id_dat"
@@ -279,23 +286,24 @@ function Cronologia() {
                             filterPlaceholder="Cerca per algoritmo"
                             pt={ptColumn}
                         />
-                        <Column 
-                        field="del_feedback" 
-                        header="Elimina Feedback" 
-                        pt={ptColumn} 
-                        body={(rowData) => (
-                            <Button
-                              pt={ptButtonIcon}
-                              icon="pi pi-trash"
-                              onClick={() => {
-                                setSelectedProduct(rowData);
-                                setShowProductDialog(true);
-                              }}
-                            />
-                        )}
+                        <Column
+                            field="del_feedback"
+                            header="Elimina Feedback"
+                            pt={ptColumn}
+                            body={(rowData) => (
+                                <Button
+                                    pt={ptButtonIcon}
+                                    icon="pi pi-trash"
+                                    onClick={() => {
+                                        setSelectedProduct(rowData);
+                                        setShowProductDialog(true);
+                                    }}
+                                />
+                            )}
                         />
                     </DataTable>
-                    {showProductDialog && renderProductDialog()} {/* Render dialog when needed */}
+                    {showProductDialog && renderProductDialog()}{" "}
+                    {/* Render dialog when needed */}
                 </div>
                 <Footer />
             </div>

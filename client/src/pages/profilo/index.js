@@ -310,6 +310,7 @@ function Profilo() {
                                             pt={ptButton}
                                             label="Salva"
                                             onClick={saveNewPassword}
+                                            data-testid="save-password-button"
                                         />
                                     ) : null}
                                     <Button
@@ -331,6 +332,7 @@ function Profilo() {
                                                 !editModePassword
                                             );
                                         }}
+                                        data-testid="edit-password-button"
                                     />
                                 </div>
                             </div>
