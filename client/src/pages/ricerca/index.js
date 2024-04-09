@@ -24,18 +24,23 @@ function Ricerca() {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [selectObject, setSelectedObject] = useState("user");
+    const [idRic, setIdRic] = useState(null);
+    const [algoType, setAlgoType] = useState(null);
 
     function handleObjectChange(type) {
         setSelectedObject(type);
         setResults(null);
     }
 
-    async function fetchResults(object, id, n) {
+    async function fetchResults(algo, object, id, n) {
         setLoading(true);
         const response = await axios.get(
-            `http://${algoUrl}/search/${object}/${id}/${n}`
+            `http://${algoUrl}/search/${algo}/${object}/${id}/${n}`
         );
         console.log("Risposta:", response.data);
+        setIdRic(id.toString());
+        setAlgoType(algo);
+
         setResults(response.data);
         setLoading(false);
     }
@@ -81,6 +86,8 @@ function Ricerca() {
                             <Results
                                 data={results}
                                 selectObject={selectObject}
+                                idRic={idRic}
+                                algoType={algoType}
                             ></Results>
                         )
                     )}

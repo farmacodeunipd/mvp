@@ -17,7 +17,7 @@ preprocessor_context = PreprocessorContext(svd_preprocessor)
 preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
 preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
 #Create SVD model and file info
-svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", feedback_path="./algoritmi/surprisedir/feedback_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
 svd_model = SVD_Model(file_info=svd_file_info)
 
 # Preprocess file NN
@@ -26,59 +26,65 @@ preprocessor_context = PreprocessorContext(nn_preprocessor)
 preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
 preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
 # Create NN model and file info
-nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/ptwidedeep/feedback_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
 nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
 
+
 # Endpoint train
-@app.route('/train/<method>')
-def search_endpoint(method):
+@app.route('/train/<algo>')
+def train_endpoint(algo):
     try:
-        if method == "SVD":
+        if algo == "SVD":
             preprocessor_context = PreprocessorContext(svd_preprocessor)
             preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
             preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
             
-            svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", feedback_path="./algoritmi/surprisedir/feedback_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+            svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
             svd_model = SVD_Model(file_info=svd_file_info)
             
             os.remove('./algoritmi/surprisedir/trained_model.pkl')
             model_context = ModelContext(svd_model)
             model_context.train_model() 
             
-        elif method == "NN":
+        elif algo == "NN":
             preprocessor_context = PreprocessorContext(nn_preprocessor)
             preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
             preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
 
-            nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/ptwidedeep/feedback_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+            nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
             nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
             
-            os.remove('./algoritmi/ptwidedeep/wd_model.pt')
             os.remove('./algoritmi/ptwidedeep/model.pt')
             model_context = ModelContext(nn_model)
             model_context.train_model() 
+        
+        return jsonify({'message': 'Training successful', 'algo': algo})
             
     except Exception as e:
         # Gestire eventuali errori
         return jsonify({'error': str(e)}), 500
 
 # Endpoint search
-@app.route('/search/<method>/<object>/<id>/<n>')
-def search_endpoint(method, object, id, n):
+@app.route('/search/<algo>/<object>/<id>/<n>')
+def search_endpoint(algo, object, id, n):
     try:
-        if method == "SVD":
-            #Train model
+        if algo == "SVD":
+            #Select model
             model_context = ModelContext(svd_model)
-            model_context.train_model() 
-        elif method == "NN":
-            #Train model
+        elif algo == "NN":
+            #Select model
             model_context = ModelContext(nn_model)
-            model_context.train_model() 
+            
+        model_context.train_model() 
         if object == "user": 
-            dictionary = model_context.topN_1UserNItem(int(id), int(n))
+            # dataframe per user
+            dictionary = model_context.topN_1UserNItem(int(id), int(n)) # + df.length()
+            # togli item in dataframe
+            # fermi ad n
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
         elif object == "item":
             dictionary = model_context.topN_1ItemNUser(int(id), int(n))
+            
             result_list = [{"id": str(iid), "value": int(est)} for iid, est in dictionary]
         else:
             return jsonify({'error': "Wrong object. Select user or item"}), 500

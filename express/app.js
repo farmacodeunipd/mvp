@@ -341,9 +341,10 @@ app.get("/clienti/province", async (req, res) => {
 app.get("/cronologia", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT user, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
+        const results = await queryDatabase(connection, "SELECT user, algo, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
         const formattedResults = results.map((result) => ({
             user: result.user,
+            algo: result.algo,
             topic: result.topic,
             cod_ric: result.cod_ric,
             top_sel: result.sel_top,
@@ -365,10 +366,17 @@ app.get("/cronologia", async (req, res) => {
 
 app.put("/cronologia/new", async (req, res) => {
     const utente = req.body.user;
+    const algo = req.body.algo;
     const topic = req.body.topic;
     const codice = req.body.cod_ric;
     const top = req.body.top_sel;
 
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
 
     if (utente === null || utente === "") {
         return res.status(400).json({
@@ -398,8 +406,8 @@ app.put("/cronologia/new", async (req, res) => {
     try {
         await queryDatabase(
             connection,
-            "INSERT INTO cronologia (user, topic, cod_ric, sel_top) VALUES (?,?,?,?) ",
-            [utente, topic, codice, top]
+            "INSERT INTO cronologia (user, algo, topic, cod_ric, sel_top) VALUES (?,?,?,?,?) ",
+            [utente, algo, topic, codice, top]
         );
         res.status(200).json({
             message: "Inserito con successo",
@@ -420,14 +428,14 @@ app.put("/cronologia/new", async (req, res) => {
 app.get("/feedback", async (req, res) => {
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM ordclidet_feedback ORDER BY dat_fed ASC");
+        const results = await queryDatabase(connection, "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed DESC");
         const formattedResults = results.map((result) => ({
+            id_feed: result.id,
             id_dat: result.dat_fed.toISOString().split('T')[0],
             user: result.user,
             cod_cli: result.cod_cli,
             cod_art: result.cod_art,
             algo: result.algo,
-            val_fed: result.feed,
         }));
         res.json(formattedResults);
     } catch (error) {
@@ -437,6 +445,145 @@ app.get("/feedback", async (req, res) => {
         );
         res.status(500).json({
             error: "Errore durante il recupero dei dati dalla tabella cronologia",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/feedback/newUser", async (req, res) => {
+    const utente = req.body.user;
+    const id_art = req.body.id;
+    const id_ute = req.body.idRic;
+    const algo = req.body.algoType;
+
+
+    if (utente === null || utente === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'utente",
+        });
+    }
+
+    if (id_art === null || id_art === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (id_ute === null || id_ute === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "INSERT INTO ordclidet_feedback (user, cod_cli, cod_art, algo) VALUES (?,?,?,?) ",
+            [utente, id_ute, id_art, algo]
+        );
+        res.status(200).json({
+            message: "Inserito con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante L'inserimento:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante L'inserimento",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/feedback/newItem", async (req, res) => {
+    const utente = req.body.user;
+    const id_ute = req.body.id;
+    const id_art = req.body.idRic;
+    const algo = req.body.algoType;
+
+    if (utente === null || utente === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'utente",
+        });
+    }
+
+    if (id_ute === null || id_ute === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (id_art === null || id_art === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire il codice",
+        });
+    }
+
+    if (algo === null || algo === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'algoritmo",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "INSERT INTO ordclidet_feedback (user, cod_cli, cod_art, algo) VALUES (?,?,?,?) ",
+            [utente, id_ute, id_art, algo]
+        );
+        res.status(200).json({
+            message: "Inserito con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante L'inserimento:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante L'inserimento",
+        });
+    } finally {
+        connection.end();
+    }
+});
+
+app.put("/feedback/delFeed", async (req, res) => {
+    const id_feed = req.body.id_feed;
+
+    if (id_feed === null || id_feed === "") {
+        return res.status(400).json({
+            error: "Errore. Devi fornire l'id",
+        });
+    }
+
+    const connection = await connectToDB();
+    try {
+        await queryDatabase(
+            connection,
+            "DELETE FROM ordclidet_feedback WHERE id = ? ",
+            [id_feed]
+        );
+        res.status(200).json({
+            message: "eliminato con successo",
+        });
+    } catch (error) {
+        console.error(
+            "Errore durante l'eliminazione:",
+            error
+        );
+        res.status(500).json({
+            error: "Errore durante l'eliminazione",
         });
     } finally {
         connection.end();

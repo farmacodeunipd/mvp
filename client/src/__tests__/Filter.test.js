@@ -90,7 +90,7 @@ test("button not disabled", async () => {
     expect(ricercaButton).not.toHaveAttribute('disabled=""');
 });
 
-test("onFetchResult user chiamata correttamente", async () => {
+test("onFetchResult SVD user chiamata correttamente", async () => {
     const mockFetchResults = jest.fn();
     const mockObjectChange = jest.fn();
     const users = [
@@ -110,6 +110,12 @@ test("onFetchResult user chiamata correttamente", async () => {
             onObjectChange={mockObjectChange}
         />
     );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("SVD");
+    const algoOption = screen.getByText("SVD");
+    fireEvent.click(algoOption);
 
     const dropdownTopic = screen.getByTestId("topic");
     fireEvent.click(dropdownTopic);
@@ -132,10 +138,10 @@ test("onFetchResult user chiamata correttamente", async () => {
     const ricercaButton = screen.getByTestId("ricerca-button");
     fireEvent.click(ricercaButton);
 
-    expect(mockFetchResults).toHaveBeenCalledWith("user", 1, "5");
+    expect(mockFetchResults).toHaveBeenCalledWith("SVD", "user", 1, "5");
 });
 
-test("onFetchResult item chiamata correttamente", async () => {
+test("onFetchResult NN user chiamata correttamente", async () => {
     const mockFetchResults = jest.fn();
     const mockObjectChange = jest.fn();
     const users = [
@@ -155,6 +161,63 @@ test("onFetchResult item chiamata correttamente", async () => {
             onObjectChange={mockObjectChange}
         />
     );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("NN");
+    const algoOption = screen.getByText("NN");
+    fireEvent.click(algoOption);
+
+    const dropdownTopic = screen.getByTestId("topic");
+    fireEvent.click(dropdownTopic);
+    await screen.findByText("Clienti");
+    const topicOption = screen.getByText("Clienti");
+    fireEvent.click(topicOption);
+
+    const dropdownTop = screen.getByTestId("top");
+    fireEvent.click(dropdownTop);
+    await screen.findByText("Top 5");
+    const topOption = screen.getByText("Top 5");
+    fireEvent.click(topOption);
+
+    const dropdownUsersItems = screen.getByTestId("users-items");
+    fireEvent.click(dropdownUsersItems);
+    await screen.findByText("Cliente 1");
+    const usersItemsOption = screen.getByText("Cliente 1");
+    fireEvent.click(usersItemsOption);
+
+    const ricercaButton = screen.getByTestId("ricerca-button");
+    fireEvent.click(ricercaButton);
+
+    expect(mockFetchResults).toHaveBeenCalledWith("NN", "user", 1, "5");
+});
+
+test("onFetchResult SVD item chiamata correttamente", async () => {
+    const mockFetchResults = jest.fn();
+    const mockObjectChange = jest.fn();
+    const users = [
+        { cod_cli: 1, rag_soc: "Cliente 1" },
+        { cod_cli: 2, rag_soc: "Cliente 2" },
+    ];
+    const items = [
+        { cod_art: "A123", des_art: "Prodotto 1" },
+        { cod_art: "B456", des_art: "Prodotto 2" },
+    ];
+
+    render(
+        <Filter
+            onFetchResults={mockFetchResults}
+            users={users}
+            items={items}
+            onObjectChange={mockObjectChange}
+        />
+    );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("SVD");
+    const algoOption = screen.getByText("SVD");
+    fireEvent.click(algoOption);
 
     const dropdownTopic = screen.getByTestId("topic");
     fireEvent.click(dropdownTopic);
@@ -177,5 +240,56 @@ test("onFetchResult item chiamata correttamente", async () => {
     const ricercaButton = screen.getByTestId("ricerca-button");
     fireEvent.click(ricercaButton);
 
-    expect(mockFetchResults).toHaveBeenCalledWith("item", "A123", "5");
+    expect(mockFetchResults).toHaveBeenCalledWith("SVD", "item", "A123", "5");
+});
+
+test("onFetchResult NN item chiamata correttamente", async () => {
+    const mockFetchResults = jest.fn();
+    const mockObjectChange = jest.fn();
+    const users = [
+        { cod_cli: 1, rag_soc: "Cliente 1" },
+        { cod_cli: 2, rag_soc: "Cliente 2" },
+    ];
+    const items = [
+        { cod_art: "A123", des_art: "Prodotto 1" },
+        { cod_art: "B456", des_art: "Prodotto 2" },
+    ];
+
+    render(
+        <Filter
+            onFetchResults={mockFetchResults}
+            users={users}
+            items={items}
+            onObjectChange={mockObjectChange}
+        />
+    );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("NN");
+    const algoOption = screen.getByText("NN");
+    fireEvent.click(algoOption);
+
+    const dropdownTopic = screen.getByTestId("topic");
+    fireEvent.click(dropdownTopic);
+    await screen.findByText("Prodotti");
+    const topicOption = screen.getByText("Prodotti");
+    fireEvent.click(topicOption);
+
+    const dropdownTop = screen.getByTestId("top");
+    fireEvent.click(dropdownTop);
+    await screen.findByText("Top 5");
+    const topOption = screen.getByText("Top 5");
+    fireEvent.click(topOption);
+
+    const dropdownUsersItems = screen.getByTestId("users-items");
+    fireEvent.click(dropdownUsersItems);
+    await screen.findByText("Prodotto 1");
+    const usersItemsOption = screen.getByText("Prodotto 1");
+    fireEvent.click(usersItemsOption);
+
+    const ricercaButton = screen.getByTestId("ricerca-button");
+    fireEvent.click(ricercaButton);
+
+    expect(mockFetchResults).toHaveBeenCalledWith("NN", "item", "A123", "5");
 });
