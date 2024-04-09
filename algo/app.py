@@ -21,10 +21,10 @@ svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.p
 svd_model = SVD_Model(file_info=svd_file_info)
 
 # Preprocess file NN
-# nn_preprocessor = NN_Preprocessor()
-# preprocessor_context = PreprocessorContext(nn_preprocessor)
-# preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
-# preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
+nn_preprocessor = NN_Preprocessor()
+preprocessor_context = PreprocessorContext(nn_preprocessor)
+preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
+preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
 # Create NN model and file info
 nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
 nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
