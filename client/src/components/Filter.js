@@ -64,34 +64,40 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                 pt={ptDialog}
                 visible={showProductDialog}
                 style={{ width: '450px' }}
-                header={`Sicuro di voler avviare un training per l'algoritmo ${algo}? Il processo potrebbe richiedere alcuni minuti.`}
+                header={loadingTraining ? 'Loading' : 'Warning'}
                 modal
                 onHide={() => setShowProductDialog(false)}
-            // da fixxare
             >
                 <div className="flex flex-column">
-                    {loadingTraining ? ( // Check if loadingTraining is true
+                    {loadingTraining ? (
                         <div className="flex flex-column">
                             <div style={{ marginBottom: '20px' }}>
                                 <ProgressBar mode="indeterminate" style={{ height: '6px' }}></ProgressBar>
                             </div>
-                            <p>Training ...</p>
+                            <p className="m-0"> Training ...</p>
                         </div>
                     ) : (
-                        <Button // Display the confirmation button when not loading
-                            pt={ptButton}
-                            label="Conferma"
-                            icon="pi pi-check"
-                            onClick={async () => {
-                                setLoadingTraining(true); // Set loading to true when button clicked
-                                const response = await axios.get(
-                                    `http://${algoUrl}/train/${algo}`
-                                );
-                                console.log("Risposta:", response.data);
-                                setLoadingTraining(false); // Set loading to false when training complete
-                                setShowProductDialog(false);
-                            }}
-                        />
+                        <div className="flex flex-column">
+                            <div style={{ marginBottom: '20px' }}>
+                                <p className="m-0">
+                                    Sicuro di voler avviare un training per l&apos;algoritmo {algo}? Il processo potrebbe richiedere alcuni minuti.
+                                </p>
+                            </div>
+                            <Button // Display the confirmation button when not loading
+                                pt={ptButton}
+                                label="Conferma"
+                                icon="pi pi-check"
+                                onClick={async () => {
+                                    setLoadingTraining(true); // Set loading to true when button clicked
+                                    const response = await axios.get(
+                                        `http://${algoUrl}/train/${algo}`
+                                    );
+                                    console.log("Risposta:", response.data);
+                                    setLoadingTraining(false); // Set loading to false when training complete
+                                    setShowProductDialog(false);
+                                }}
+                            />
+                        </div>
                     )}
                 </div>
             </Dialog>
@@ -281,8 +287,8 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                     valueTemplate={selectedUserItemTemplate}
                                     itemTemplate={userItemOptionTemplate}
                                     className={`w-full ${selectedSearchObject === "user"
-                                            ? "md:!w-96"
-                                            : "md:!w-96"
+                                        ? "md:!w-96"
+                                        : "md:!w-96"
                                         }`}
                                     data-testid="users-items"
                                 />
