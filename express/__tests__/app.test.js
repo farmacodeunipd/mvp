@@ -182,7 +182,9 @@ describe("GET /prodotti/settoricommerciali", () => {
 
 describe("GET /prodotti/famigliecommerciali", () => {
     it("responds with JSON containing a list of famiglie commerciali", async () => {
-        const response = await request(app).get("/prodotti/famigliecommerciali");
+        const response = await request(app).get(
+            "/prodotti/famigliecommerciali"
+        );
         expect(response.status).toBe(200);
         expect(response.body).toEqual(
             expect.arrayContaining([
@@ -197,7 +199,9 @@ describe("GET /prodotti/famigliecommerciali", () => {
 
 describe("GET /prodotti/sottofamigliecommerciali", () => {
     it("responds with JSON containing a list of sotto_famiglie commerciali", async () => {
-        const response = await request(app).get("/prodotti/sottofamigliecommerciali");
+        const response = await request(app).get(
+            "/prodotti/sottofamigliecommerciali"
+        );
         expect(response.status).toBe(200);
         expect(response.body).toEqual(
             expect.arrayContaining([
@@ -244,6 +248,325 @@ describe("GET /clienti/province", () => {
     });
 });
 
+describe("GET /cronologia", () => {
+    it("responds with JSON containing a list of cronologia", async () => {
+        const response = await request(app).get("/cronologia");
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    user: expect.any(String),
+                    algo: expect.any(String),
+                    topic: expect.any(String),
+                    cod_ric: expect.any(String),
+                    top_sel: expect.any(String),
+                    id_dat: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+                }),
+            ])
+        );
+    });
+});
+
+describe("PUT /cronologia/new", () => {
+    it("responds with JSON containing a successful message when adding cronologia", async () => {
+        const user = "a";
+        const algo = "NN";
+        const topic = "user";
+        const cod_ric = "1";
+        const top_sel = "5";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                message: "Inserito con successo",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no user", async () => {
+        const user = "";
+        const algo = "NN";
+        const topic = "user";
+        const cod_ric = "1";
+        const top_sel = "5";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'utente",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no algo", async () => {
+        const user = "a";
+        const algo = "";
+        const topic = "user";
+        const cod_ric = "1";
+        const top_sel = "5";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'algoritmo",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no topic", async () => {
+        const user = "a";
+        const algo = "NN";
+        const topic = "";
+        const cod_ric = "1";
+        const top_sel = "5";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il topic",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no cod_ric", async () => {
+        const user = "a";
+        const algo = "NN";
+        const topic = "user";
+        const cod_ric = "";
+        const top_sel = "5";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il codice",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no top_sel", async () => {
+        const user = "a";
+        const algo = "NN";
+        const topic = "user";
+        const cod_ric = "1";
+        const top_sel = "";
+        const response = await request(app)
+            .put("/cronologia/new")
+            .send({ user, algo, topic, cod_ric, top_sel });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il top",
+            })
+        );
+    });
+});
+
+describe("GET /feedback", () => {
+    it("responds with JSON containing a list of feedback", async () => {
+        const response = await request(app).get("/feedback");
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id_feed: expect.any(Number),
+                    id_dat: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+                    user: expect.any(String),
+                    cod_cli: expect.any(Number),
+                    cod_art: expect.any(String),
+                    algo: expect.any(String),
+                }),
+            ])
+        );
+    });
+});
+
+describe("PUT /feedback/newUser", () => {
+    it("responds with JSON containing a successful message when adding feedback newUser", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newUser")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                message: "Inserito con successo",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no user", async () => {
+        const user = "";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newUser")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'utente",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no id", async () => {
+        const user = "a";
+        const id = "";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newUser")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il codice",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no idRic", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newUser")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il codice",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no algoType", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "";
+        const response = await request(app)
+            .put("/feedback/newUser")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'algoritmo",
+            })
+        );
+    });
+});
+
+describe("PUT /feedback/newItem", () => {
+    it("responds with JSON containing a successful message when adding feedback newItem", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newItem")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                message: "Inserito con successo",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no user", async () => {
+        const user = "";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newItem")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'utente",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no id", async () => {
+        const user = "a";
+        const id = "";
+        const idRic = "1";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newItem")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il codice",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no idRic", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "";
+        const algoType = "NN";
+        const response = await request(app)
+            .put("/feedback/newItem")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire il codice",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no algoType", async () => {
+        const user = "a";
+        const id = "1101100";
+        const idRic = "1";
+        const algoType = "";
+        const response = await request(app)
+            .put("/feedback/newItem")
+            .send({ user, id, idRic, algoType });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'algoritmo",
+            })
+        );
+    });
+});
+
+describe("PUT /feedback/delFeed", () => {
+    it("responds with JSON containing a successful message when deleting feedback", async () => {
+        const id_feed = 1;
+        const response = await request(app)
+            .put("/feedback/delFeed")
+            .send({ id_feed });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                message: "eliminato con successo",
+            })
+        );
+    });
+    it("responds with JSON containing the 400 status for no id_feed", async () => {
+        const id_feed = "";
+        const response = await request(app)
+            .put("/feedback/delFeed")
+            .send({ id_feed });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                error: "Errore. Devi fornire l'id",
+            })
+        );
+    });
+});
 
 describe("GET /userana/:use", () => {
     it("responds with JSON containing a single user anagrafica", async () => {
@@ -253,20 +576,21 @@ describe("GET /userana/:use", () => {
         expect(response.body[0]).toMatchObject({
             nom_ute: expect.any(String),
             cog_ute: expect.any(String),
-            dat_ute: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),  // Match YYYY-MM-DD format
+            dat_ute: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/), // Match YYYY-MM-DD format
             use_ute: expect.any(String),
             mai_ute: expect.any(String),
             pas_ute: expect.any(String),
-          });
+        });
     });
 });
-
 
 describe("PUT /userana/:use/email", () => {
     it("responds with JSON containing a success message when updating email", async () => {
         const userID = "a";
         const newEmail = "prova@prova.com";
-        const response = await request(app).put(`/userana/${userID}/email`).send({ newEmail });
+        const response = await request(app)
+            .put(`/userana/${userID}/email`)
+            .send({ newEmail });
         expect(response.status).toBe(200);
         expect(response.body).toEqual(
             expect.objectContaining({
@@ -277,7 +601,9 @@ describe("PUT /userana/:use/email", () => {
     it("responds with JSON containing the 400 status", async () => {
         const userID = "a";
         const newEmail = "";
-        const response = await request(app).put(`/userana/${userID}/email`).send({ newEmail });
+        const response = await request(app)
+            .put(`/userana/${userID}/email`)
+            .send({ newEmail });
         expect(response.status).toBe(400);
         expect(response.body).toEqual(
             expect.objectContaining({
@@ -291,7 +617,9 @@ describe("PUT /userana/:use/password", () => {
     it("responds with JSON containing a success message when updating email", async () => {
         const userID = "a";
         const newPassword = "prova";
-        const response = await request(app).put(`/userana/${userID}/password`).send({ newPassword });
+        const response = await request(app)
+            .put(`/userana/${userID}/password`)
+            .send({ newPassword });
         expect(response.status).toBe(200);
         expect(response.body).toEqual(
             expect.objectContaining({
@@ -302,7 +630,9 @@ describe("PUT /userana/:use/password", () => {
     it("responds with JSON containing the 400 status", async () => {
         const userID = "a";
         const newPassword = "";
-        const response = await request(app).put(`/userana/${userID}/password`).send({ newPassword });
+        const response = await request(app)
+            .put(`/userana/${userID}/password`)
+            .send({ newPassword });
         expect(response.status).toBe(400);
         expect(response.body).toEqual(
             expect.objectContaining({

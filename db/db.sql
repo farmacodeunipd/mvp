@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS ordclidet_feedback;
+DROP TABLE IF EXISTS cronologia;
+DROP TABLE IF EXISTS ordclidet;
 DROP TABLE IF EXISTS anaart;
 DROP TABLE IF EXISTS sottofamiglie_comm;
 DROP TABLE IF EXISTS famiglie_comm;
@@ -106,6 +109,10 @@ CREATE TABLE ordclidet_feedback(
 INSERT INTO ute VALUES 
 ("Mario", "Rossi", "1994-09-10", "mario.rossi@ergon.it", "a", "$2a$10$LDpvuJQOfj9b1.fvjeW5Bu/C7BJlGMCtEh0j4o2N62Za.4Uz/0h72", TRUE),
 ("Luca", "Verdi", "1994-09-10", "luca.verdi@ergon.it", "b", "$2a$10$qL79rWWWfjcVXy05h7RV/eOSa1dCVddv4vfK3hV/Dd58G1xMl199G", FALSE);
+
+INSERT INTO cronologia (user, algo, topic, cod_ric, sel_top) VALUES
+("a", "SVD", "user", "1", "5"),
+("a", "NN", "user", "1", "10");
 
 LOAD DATA INFILE '/dataset/tabprov.csv'
 INTO TABLE tabprov
