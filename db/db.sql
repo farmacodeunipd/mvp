@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS ordclidet_feedback;
+DROP TABLE IF EXISTS cronologia;
+DROP TABLE IF EXISTS ordclidet;
 DROP TABLE IF EXISTS anaart;
 DROP TABLE IF EXISTS sottofamiglie_comm;
 DROP TABLE IF EXISTS famiglie_comm;
