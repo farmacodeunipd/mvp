@@ -21,7 +21,14 @@ class BaseModel(ABC):
     @abstractmethod
     def train_model(self):
         pass
-    
+
+class BaseOperator(ABC):
+    def __init__(self, model):
+        self.modelOp = model
+        
+    def start(self):
+        self.modelOp.train_model()
+        
     @abstractmethod
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
         pass
@@ -33,6 +40,7 @@ class BaseModel(ABC):
     @abstractmethod
     def topN_1ItemNUser(self, item_id, n=5):
         pass
+
     
 class ModelContext:
     def __init__(self, model_info):

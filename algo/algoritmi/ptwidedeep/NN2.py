@@ -12,6 +12,7 @@ import pickle
 
 from algoritmi.Algo import BaseFileInfo
 from algoritmi.Algo import BaseModel
+from algoritmi.Algo import BaseOperator
 
 class NN_FileInfo(BaseFileInfo):
     def __init__(self, model_file, model_state_file, wide_preprocessor_file, tab_preprocessor_file, dataset_path, user_dataset_path, item_dataset_path):
@@ -99,26 +100,34 @@ class NN_Model(BaseModel):
 
         self.save_model()
         
+class NN_Operator(BaseOperator):
+    def __init__(self, modelClass, feedback_path):
+        self.modelOp = modelClass
+        self.feedback_path = feedback_path
+
+    def start(self):
+        self.modelOp.train_model()
+
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
         int_ratings = []
         for prediction in float_ratings:
             int_ratings.append(((prediction - float_ratingMax) / (float_ratingMin - float_ratingMax)) * (int_ratingMax - int_ratingMin) + int_ratingMin)
         return int_ratings
-    
+
     def topN_1ItemNUser(self, item_id, n = 5):
-        users_df = pd.DataFrame(pd.read_csv(self.file_info.user_dataset_path))
+        users_df = pd.DataFrame(pd.read_csv(self.modelOp.file_info.user_dataset_path))
         
         users_df['cod_art'] = item_id
-        item_df = pd.read_csv(self.file_info.item_dataset_path)
+        item_df = pd.read_csv(self.modelOp.file_info.item_dataset_path)
         item_info = item_df[item_df['cod_art'] == item_id]
         users_df['cod_linea_comm'] = item_info['cod_linea_comm'].iloc[0]
         users_df['cod_sett_comm'] = item_info['cod_sett_comm'].iloc[0]
         users_df['cod_fam_comm'] = item_info['cod_fam_comm'].iloc[0]
         
-        X_user_wide = self.wide_preprocessor.transform(users_df)
-        X_user_tab = self.tab_preprocessor.transform(users_df)
+        X_user_wide = self.modelOp.wide_preprocessor.transform(users_df)
+        X_user_tab = self.modelOp.tab_preprocessor.transform(users_df)
         
-        user_rating_predictions = self.trainer.predict(X_wide = X_user_wide, X_tab = X_user_tab, batch_size = self.batch_size)
+        user_rating_predictions = self.modelOp.trainer.predict(X_wide = X_user_wide, X_tab = X_user_tab, batch_size = self.modelOp.batch_size)
 
         user_rating_predictions = abs(user_rating_predictions)
         
@@ -131,14 +140,14 @@ class NN_Model(BaseModel):
         return top_n_users
     
     def topN_1UserNItem(self, user_id, n = 5):
-        products_df = pd.read_csv(self.file_info.item_dataset_path)
+        products_df = pd.read_csv(self.modelOp.file_info.item_dataset_path)
 
         products_df['cod_cli'] = user_id
         
-        X_product_wide = self.wide_preprocessor.transform(products_df)
-        X_product_tab = self.tab_preprocessor.transform(products_df)         
+        X_product_wide = self.modelOp.wide_preprocessor.transform(products_df)
+        X_product_tab = self.modelOp.tab_preprocessor.transform(products_df)         
         
-        product_rating_predictions = self.trainer.predict(X_wide = X_product_wide, X_tab = X_product_tab, batch_size = self.batch_size)
+        product_rating_predictions = self.modelOp.trainer.predict(X_wide = X_product_wide, X_tab = X_product_tab, batch_size = self.modelOp.batch_size)
 
         product_rating_predictions = abs(product_rating_predictions)
         
@@ -149,4 +158,3 @@ class NN_Model(BaseModel):
         top_n_products = sorted(product_ratings, key=lambda x: x[1], reverse = True)[:n] 
         
         return top_n_products
-
