@@ -124,6 +124,7 @@ function Prodotti() {
                         pt={ptButton}
                         outlined
                         onClick={clearFilter}
+                        data-testid="clear-button"
                     />
                     <InputText
                         className="!p-2 ring-1 ring-black/10"
@@ -149,6 +150,7 @@ function Prodotti() {
                 placeholder="Tutti"
                 maxSelectedLabels={1}
                 pt={ptMultiSelect}
+                data-testid="multiselect"
             />
         );
     };
@@ -247,8 +249,9 @@ function Prodotti() {
         setDialogProduct(e.data);
     };
 
-    const tableHeight = `${window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
-        }px`;
+    const tableHeight = `${
+        window.innerHeight - 4 - 92 - 4 - 52 - 85 - 4 - 24 - 4 - 8
+    }px`;
 
     const ptDataTable = {
         header: {
@@ -439,6 +442,7 @@ function Prodotti() {
                             pt={ptDialog}
                             breakpoints={{ "960px": "75vw", "641px": "100vw" }}
                             onHide={() => setVisible(false)}
+                            data-testid="dialog"
                         >
                             <Divider pt={ptDivider} />
                             <div className="flex items-center">
@@ -459,7 +463,10 @@ function Prodotti() {
                                 <p className="w-2/5 text-md text-black font-medium mb-2">
                                     Immagine articolo
                                 </p>
-                                <img src={dialogProduct.img_path} alt={dialogProduct.des_art} />
+                                <img
+                                    src={dialogProduct.img_path}
+                                    alt={dialogProduct.des_art}
+                                />
                             </div>
                             <Divider pt={ptDivider} />
                             <div>
