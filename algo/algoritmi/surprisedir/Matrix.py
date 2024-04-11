@@ -7,6 +7,7 @@ import os
 
 from algoritmi.Algo import BaseFileInfo 
 from algoritmi.Algo import BaseModel
+from algoritmi.Algo import BaseOperator
 
 # classe contenitore che contiene info relative al file ed ai dati
 # (model_file: path del file che memorizza il modello, file_path: nome del file contenente i dati di training, columns: nome delle colonne del file di training, scale: scala di rating (da 0 a 2 perché propria per il logaritmo usato))
@@ -73,17 +74,26 @@ class SVD_Model(BaseModel):
         self.trainset = self.data.build_full_trainset()
         self.testset = self.trainset.build_anti_testset(fill=None)
         
+
+class SVD_Operator(BaseOperator):
+    def __init__(self, modelClass, feedback_path):
+        self.modelOp = modelClass
+        self.feedback_path = feedback_path
+
+    def start(self):
+        self.model.train_model()
+
     def ratings_float2int (self, float_rating, float_ratingMax = 2, int_ratingMax = 5, float_ratingMin = 0, int_ratingMin = 1):
         return int((float_rating - float_ratingMin) / (float_ratingMax - float_ratingMin) * (int_ratingMax - int_ratingMin)) + int_ratingMin
     
     # metodo che dato ID user (NUMERICO) e n, ritorna n ID item migliori per quell'user
     def topN_1UserNItem(self, user_id, n=5):
-        if self.model is None:
+        if self.modelOp.model is None:
             raise ValueError("Model not loaded. Call load_model() or train_model() first.")
         
-        testset_filteredUI = filter(lambda x: x[0] == user_id, self.testset)
+        testset_filteredUI = filter(lambda x: x[0] == user_id, self.modelOp.testset)
         
-        predictions = self.model.test(testset_filteredUI)
+        predictions = self.modelOp.model.test(testset_filteredUI)
 
         top_n = defaultdict(int)
         for uid, iid, true_r, est, _ in predictions:
@@ -94,12 +104,12 @@ class SVD_Model(BaseModel):
     
     # metodo che dato ID item (NUMERICO) e n, ritorna n ID user migliori per quell'item
     def topN_1ItemNUser(self, item_id, n=5):
-        if self.model is None:
+        if self.modelOp.model is None:
             raise ValueError("Model not loaded. Call load_model() or train_model() first.")
         
-        testset_filteredIU = filter(lambda x: x[1] == item_id, self.testset)
+        testset_filteredIU = filter(lambda x: x[1] == item_id, self.modelOp.testset)
         
-        predictions = self.model.test(testset_filteredIU)
+        predictions = self.modelOp.model.test(testset_filteredIU)
 
         top_n = defaultdict(float)
         for uid, iid, true_r, est, _ in predictions:
