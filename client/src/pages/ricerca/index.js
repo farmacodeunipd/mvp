@@ -7,6 +7,7 @@ import Footer from "../../components/Footer";
 import NoResults from "../../components/NoResults";
 import Filter from "../../components/Filter";
 import Results from "../../components/Results";
+import { Dialog } from "primereact/dialog"
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 const algoUrl = process.env.ALGO_API_URL || "localhost:4000";
@@ -26,11 +27,29 @@ function Ricerca() {
     const [selectObject, setSelectedObject] = useState("user");
     const [idRic, setIdRic] = useState(null);
     const [algoType, setAlgoType] = useState(null);
+    const [showTrainingDialog, setShowTrainingDialog] = useState(false);
 
     function handleObjectChange(type) {
         setSelectedObject(type);
         setResults(null);
     }
+
+    const renderTrainingDialog = (algo) => {
+        return (
+            <Dialog
+                pt={ptDialog}
+                style={{ width: '450px' }}
+                header={'Warning:'}
+                modal
+                visible={showTrainingDialog}
+                onHide={() => setShowTrainingDialog(false)}
+            >
+                <p className="m-0">
+                L&apos;algoritmo selezionato, {algo}, è attualmente in training, si prega di attendere fino a che il processo non venga completato o di cambiare algoritmo di ricerca.
+                </p>
+            </Dialog>
+        );
+    };
 
     async function fetchResults(algo, object, id, n) {
         setLoading(true);
@@ -38,9 +57,15 @@ function Ricerca() {
             `http://${algoUrl}/search/${algo}/${object}/${id}/${n}`
         );
         console.log("Risposta:", response.data);
+
+        if (response.data.message === 'Training in progress. Please wait a few minutes and try again later.') {
+            setAlgoType(algo);
+            setShowTrainingDialog(true);
+            setLoading(false);
+            return; // Exit fetchResults function
+        }
         setIdRic(id.toString());
         setAlgoType(algo);
-
         setResults(response.data);
         setLoading(false);
     }
@@ -65,6 +90,24 @@ function Ricerca() {
         setItems(response.data);
     }
 
+    const ptDialog = {
+        root: {
+            className: "!rounded-3xl",
+        },
+        header: {
+            className: "!p-6 !rounded-t-3xl",
+        },
+        closeButton: {
+            className: "!w-8 !h-8",
+        },
+        closeButtonIcon: {
+            className: "!w-4 !h-4",
+        },
+        content: {
+            className: "!px-6 !pb-8 !rounded-b-3xl",
+        },
+    };
+
     return (
         <>
             <div className="h-screen p-2 flex flex-col gap-2">
@@ -76,6 +119,7 @@ function Ricerca() {
                         items={items}
                         onObjectChange={handleObjectChange}
                     ></Filter>
+                    {renderTrainingDialog(algoType)}
                     {results === null && !loading ? (
                         <NoResults></NoResults>
                     ) : null}
