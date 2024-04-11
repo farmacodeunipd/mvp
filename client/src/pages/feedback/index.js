@@ -100,11 +100,12 @@ function Cronologia() {
     };
 
     function deleteFeedback(id_feed) {
-        console.log(id_feed);
+        // console.log(id_feed);
         axios
             .put(`http://${expressUrl}/feedback/delFeed`, { id_feed })
             .then((response) => {
                 console.log(response.data.message);
+                location.reload();
             })
             .catch((error) => console.error("Errore", error));
     }
@@ -137,7 +138,6 @@ function Cronologia() {
                         onClick={() => {
                             setShowProductDialog(false);
                             deleteFeedback(selectedProduct.id_feed);
-                            location.reload();
                         }}
                     />
                 </div>
@@ -298,6 +298,7 @@ function Cronologia() {
                                         setSelectedProduct(rowData);
                                         setShowProductDialog(true);
                                     }}
+                                    data-testid="delete-button"
                                 />
                             )}
                         />
