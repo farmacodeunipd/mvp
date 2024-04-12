@@ -12,6 +12,7 @@ import pickle
 
 from algoritmi.Algo import BaseFileInfo
 from algoritmi.Algo import BaseModel
+from algoritmi.Algo import BaseOperator
 
 class NN_FileInfo(BaseFileInfo):
     def __init__(self, model_file, model_state_file, wide_preprocessor_file, tab_preprocessor_file, dataset_path, user_dataset_path, item_dataset_path):
@@ -28,7 +29,7 @@ class NN_FileInfo(BaseFileInfo):
         return pd.DataFrame(data)
 
 class NN_Model(BaseModel):
-    def __init__(self, file_info, epochs_n = 10, batch_size = 64):
+    def __init__(self, file_info=None, epochs_n = 10, batch_size = 64):
         self.file_info = file_info
         self.epochs_n = epochs_n
         self.batch_size = batch_size
@@ -99,46 +100,77 @@ class NN_Model(BaseModel):
 
         self.save_model()
         
+class NN_Operator(BaseOperator):
+    def __init__(self, modelClass= None, feedback_path= None):
+        self.modelOp = modelClass
+        self.feedback_path = feedback_path
+
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
         int_ratings = []
         for prediction in float_ratings:
             int_ratings.append(((prediction - float_ratingMax) / (float_ratingMin - float_ratingMax)) * (int_ratingMax - int_ratingMin) + int_ratingMin)
         return int_ratings
     
+    def apply_feedback(self, topic, target_id, ratings):
+        feedback_df = pd.DataFrame(pd.read_csv(self.feedback_path))
+
+        if not feedback_df.empty:
+            if topic == "user":
+                for _, row in feedback_df.iterrows():
+                    item_id = row['cod_art']
+                    if item_id == target_id: 
+                        user_id = row['cod_cli']
+                        for i, rating_tuple in enumerate(ratings):
+                            if rating_tuple[0] == user_id:
+                                ratings[i] = (user_id, min(row['rating'], rating_tuple[1]))
+
+            elif topic == "item":
+                for _, row in feedback_df.iterrows():
+                    user_id = row['cod_cli']
+                    if user_id == target_id: 
+                        item_id = row['cod_art']
+                        for i, rating_tuple in enumerate(ratings):
+                            if rating_tuple[0] == item_id:
+                                ratings[i] = (item_id, min(row['rating'], rating_tuple[1]))
+
+        return ratings
+
     def topN_1ItemNUser(self, item_id, n = 5):
-        users_df = pd.DataFrame(pd.read_csv(self.file_info.user_dataset_path))
+        users_df = pd.DataFrame(pd.read_csv(self.modelOp.file_info.user_dataset_path))
         
         users_df['cod_art'] = item_id
-        item_df = pd.read_csv(self.file_info.item_dataset_path)
+        item_df = pd.read_csv(self.modelOp.file_info.item_dataset_path)
         item_info = item_df[item_df['cod_art'] == item_id]
         users_df['cod_linea_comm'] = item_info['cod_linea_comm'].iloc[0]
         users_df['cod_sett_comm'] = item_info['cod_sett_comm'].iloc[0]
         users_df['cod_fam_comm'] = item_info['cod_fam_comm'].iloc[0]
         
-        X_user_wide = self.wide_preprocessor.transform(users_df)
-        X_user_tab = self.tab_preprocessor.transform(users_df)
+        X_user_wide = self.modelOp.wide_preprocessor.transform(users_df)
+        X_user_tab = self.modelOp.tab_preprocessor.transform(users_df)
         
-        user_rating_predictions = self.trainer.predict(X_wide = X_user_wide, X_tab = X_user_tab, batch_size = self.batch_size)
+        user_rating_predictions = self.modelOp.trainer.predict(X_wide = X_user_wide, X_tab = X_user_tab, batch_size = self.modelOp.batch_size)
 
         user_rating_predictions = abs(user_rating_predictions)
         
         converted_ratings = self.ratings_float2int(user_rating_predictions, float_ratingMax = max(user_rating_predictions))
         
         user_ratings = list(zip(users_df['cod_cli'], converted_ratings))
+        
+        user_ratings= self.apply_feedback("user", item_id, user_ratings)
 
         top_n_users = sorted(user_ratings, key=lambda x: x[1], reverse = True)[:n]
         
         return top_n_users
     
     def topN_1UserNItem(self, user_id, n = 5):
-        products_df = pd.read_csv(self.file_info.item_dataset_path)
+        products_df = pd.read_csv(self.modelOp.file_info.item_dataset_path)
 
         products_df['cod_cli'] = user_id
         
-        X_product_wide = self.wide_preprocessor.transform(products_df)
-        X_product_tab = self.tab_preprocessor.transform(products_df)         
+        X_product_wide = self.modelOp.wide_preprocessor.transform(products_df)
+        X_product_tab = self.modelOp.tab_preprocessor.transform(products_df)         
         
-        product_rating_predictions = self.trainer.predict(X_wide = X_product_wide, X_tab = X_product_tab, batch_size = self.batch_size)
+        product_rating_predictions = self.modelOp.trainer.predict(X_wide = X_product_wide, X_tab = X_product_tab, batch_size = self.modelOp.batch_size)
 
         product_rating_predictions = abs(product_rating_predictions)
         
@@ -146,7 +178,8 @@ class NN_Model(BaseModel):
         
         product_ratings = list(zip(products_df['cod_art'], converted_ratings))
         
+        product_ratings = self.apply_feedback("item", user_id, product_ratings)
+        
         top_n_products = sorted(product_ratings, key=lambda x: x[1], reverse = True)[:n] 
         
         return top_n_products
-

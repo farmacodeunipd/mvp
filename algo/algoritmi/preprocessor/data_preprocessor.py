@@ -11,17 +11,17 @@ class Preprocessor(ABC):
     def retrieve_file(self, cursor, table_name, csv_path):
         cursor.execute(f"SELECT * FROM {table_name}")
         rows = cursor.fetchall()
-        if rows:
-            csv_file = os.path.join(csv_path, f"{table_name}.csv")
-            with open(csv_file, 'w', newline='') as csvfile:
-                csv_writer = csv.writer(csvfile)
-                # Write header
-                csv_writer.writerow([description[0] for description in cursor.description])
+        csv_file = os.path.join(csv_path, f"{table_name}.csv")
+        with open(csv_file, 'w', newline='') as csvfile:  # Open with 'w' mode
+            csv_writer = csv.writer(csvfile)
+            # Write header
+            csv_writer.writerow([description[0] for description in cursor.description])
+            if rows:
                 # Write rows
                 csv_writer.writerows(rows)
-            print(f"Table '{table_name}' exported to '{csv_file}'")
-        else:
-            print(f"No data found in table '{table_name}'")
+                print(f"Table '{table_name}' exported to '{csv_file}'")
+            else:
+                print(f"No data found in table '{table_name}', but header written to '{csv_file}'")
             
     @abstractmethod
     def process_file(self, input_file_og, output_file):
@@ -110,7 +110,7 @@ class NN_Preprocessor(Preprocessor):
         df_filtered.to_csv(output_file, index=False)  # index=False to exclude index column from being saved
 
 class PreprocessorContext:
-    def __init__(self, preprocessor):
+    def __init__(self, preprocessor= None):
         self.preprocessor = preprocessor
     
     def set_preprocessor(self, preprocessor):

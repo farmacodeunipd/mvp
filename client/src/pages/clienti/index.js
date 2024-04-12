@@ -86,6 +86,7 @@ function Clienti() {
                         pt={ptButton}
                         outlined
                         onClick={clearFilter}
+                        data-testid="clear-button"
                     />
                     <InputText
                         className="!p-2 ring-1 ring-black/10"
