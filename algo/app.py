@@ -35,18 +35,12 @@ def preprocess_nn():
     nn_operator = NN_Operator(nn_model, 'algoritmi/ptwidedeep/feedback_NN.csv')
     return nn_model, nn_operator
 
-# def preprocess_feedback_nn(nn_operator):
-#     print("Preparing NN's files...")
-#     preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
-#     preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
-#     nn_operator.set_feedback_path('algoritmi/ptwidedeep/feedback_NN.csv')
-#     return nn_operator
-
 app = Flask(__name__)
 CORS(app)
 
 training_lock = Lock()  # Create a lock for synchronization
 training_in_progress = False  # Flag to indicate if training is in progress
+training_algo = None
 
 preprocessor_context = PreprocessorContext()
 
@@ -65,7 +59,7 @@ model_context = ModelContext()
 # Endpoint train
 @app.route('/train/<algo>')
 def train_endpoint(algo):
-    global training_in_progress
+    global training_in_progress, training_algo
     try:
         logger.debug("Received request to train algorithm: %s", algo)
         with training_lock:
@@ -73,6 +67,7 @@ def train_endpoint(algo):
                 return jsonify({'message': 'Training in progress. Please wait a few minutes and try again later.'}), 200
 
             training_in_progress = True
+            training_algo = algo
         
         logger.debug("Starting training for algorithm: %s", algo)
         if algo == "SVD":
@@ -81,7 +76,6 @@ def train_endpoint(algo):
             os.remove('./algoritmi/surprisedir/trained_model.pkl')
             model_context.set_model_info(svd_model)
             model_context.set_model_operator(svd_operator)
-            model_context.train_model() 
             
         if algo == "NN":
             preprocessor_context.set_preprocessor(nn_preprocessor)
@@ -89,14 +83,16 @@ def train_endpoint(algo):
             os.remove('./algoritmi/ptwidedeep/model.pt')
             model_context.set_model_info(nn_model)
             model_context.set_model_operator(nn_operator)
-            model_context.train_model() 
-        
+            
+        model_context.train_model() 
         training_in_progress = False
+        training_algo = None
         response_data = {'message': 'Training successful', 'algo': algo}
         return jsonify(response_data), 200
             
     except Exception as e:
         training_in_progress = False
+        training_algo = None
         logger.error("An error occurred during training: %s", e)
         return jsonify({'error': str(e)}), 500
 
@@ -104,7 +100,7 @@ def train_endpoint(algo):
 @app.route('/search/<algo>/<object>/<id>/<n>')
 def search_endpoint(algo, object, id, n):
     try:
-        if training_in_progress:
+        if training_in_progress and training_algo == algo:
             return jsonify({'message': 'Training in progress. Please wait a few minutes and try again later.'}), 200
         if algo == "SVD":
             preprocessor_context.set_preprocessor(svd_preprocessor)

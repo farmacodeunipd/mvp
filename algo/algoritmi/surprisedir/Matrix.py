@@ -87,7 +87,7 @@ class SVD_Operator(BaseOperator):
                     if item_id == target_id: 
                         user_id = row['cod_cli']
                         if user_id in ratings:
-                            ratings[user_id] = min(self.ratings_float2int(row['rating']), ratings[user_id])
+                            ratings[user_id] = min(row['rating'], ratings[user_id])
 
             elif topic == "item":
                 for _, row in feedback_df.iterrows():
@@ -95,7 +95,7 @@ class SVD_Operator(BaseOperator):
                     if user_id == target_id: 
                         item_id = row['cod_art']
                         if item_id in ratings:
-                            ratings[item_id] = min(self.ratings_float2int(row['rating']), ratings[item_id])
+                            ratings[item_id] = min(row['rating'], ratings[item_id])
 
         return ratings
     
