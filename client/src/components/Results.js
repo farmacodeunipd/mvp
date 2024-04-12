@@ -4,9 +4,8 @@ import axios from "axios";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Rating } from "primereact/rating";
-import { Button } from 'primereact/button'; 
-import { Dialog } from 'primereact/dialog';
-
+import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080"; // Add 'http://' to the URL
 
@@ -49,55 +48,71 @@ function Results({ data, selectObject, idRic, algoType }) {
         console.log(selectObject);
         if (selectObject === "user") {
             axios
-            .put(`http://${expressUrl}/feedback/newUser`, {user, id, idRic, algoType})
-            .then(response => {
-                console.log(response.data.message); // Log per verificare la risposta del server
-            })
-            .catch((error) =>
-                console.error("Errore", error)
-            );
+                .put(`http://${expressUrl}/feedback/newUser`, {
+                    user,
+                    id,
+                    idRic,
+                    algoType,
+                })
+                .then((response) => {
+                    console.log(response.data.message); // Log per verificare la risposta del server
+                })
+                .catch((error) => console.error("Errore", error));
         } else {
             axios
-            .put(`http://${expressUrl}/feedback/newItem`, {user, id, idRic, algoType})
-            .then(response => {
-                console.log(response.data.message); // Log per verificare la risposta del server
-            })
-            .catch((error) =>
-                console.error("Errore 2", error)
-            );
+                .put(`http://${expressUrl}/feedback/newItem`, {
+                    user,
+                    id,
+                    idRic,
+                    algoType,
+                })
+                .then((response) => {
+                    console.log(response.data.message); // Log per verificare la risposta del server
+                })
+                .catch((error) => console.error("Errore 2", error));
         }
-        
     }
 
     const renderProductDialog = () => {
         return (
-          <Dialog
-            pt={ptDialog}
-            visible={showProductDialog}
-            style={{ width: '450px' }}
-            header="Conferma feedback" // Dialog header
-            modal
-            onHide={() => setShowProductDialog(false)}
-          >
-            <div className="flex flex-column">
-              <p className="text-base font-medium mb-2">ID: {selectedProduct?.id}</p>
-              {selectObject === "user" && (
-                <p className="text-base font-medium mb-2">
-                  Descrizione prodotto: {additionalData[selectedProduct?.id]}
-                </p>
-              )}
-              {selectObject === "item" && (
-                <p className="text-base font-medium mb-2">Cliente: {additionalData[selectedProduct?.id]}</p>
-              )}
-              {/* Add more details about the product as needed */}
-              <Button pt={ptButton} label="Conferma" icon="pi pi-check" onClick={() => {
-                                sendData(selectedProduct.id)
-                                setShowProductDialog(false);
-                              }}/>
-            </div>
-          </Dialog>
+            <Dialog
+                pt={ptDialog}
+                visible={showProductDialog}
+                style={{ width: "450px" }}
+                header="Conferma feedback" // Dialog header
+                modal
+                onHide={() => setShowProductDialog(false)}
+                data-testid="feedback-dialog"
+            >
+                <div className="flex flex-column">
+                    <p className="text-base font-medium mb-2">
+                        ID: {selectedProduct?.id}
+                    </p>
+                    {selectObject === "user" && (
+                        <p className="text-base font-medium mb-2">
+                            Descrizione prodotto:{" "}
+                            {additionalData[selectedProduct?.id]}
+                        </p>
+                    )}
+                    {selectObject === "item" && (
+                        <p className="text-base font-medium mb-2">
+                            Cliente: {additionalData[selectedProduct?.id]}
+                        </p>
+                    )}
+                    {/* Add more details about the product as needed */}
+                    <Button
+                        pt={ptButton}
+                        label="Conferma"
+                        icon="pi pi-check"
+                        onClick={() => {
+                            sendData(selectedProduct.id);
+                            setShowProductDialog(false);
+                        }}
+                    />
+                </div>
+            </Dialog>
         );
-      };
+    };
 
     const renderHeader = () => {
         return (
@@ -200,7 +215,6 @@ function Results({ data, selectObject, idRic, algoType }) {
     return (
         <>
             <div className="h-full flex rounded-3xl bg-gray-200 border border-gray-300">
-
                 <DataTable
                     className="w-full rounded-3xl"
                     pt={ptDataTable}
@@ -212,7 +226,7 @@ function Results({ data, selectObject, idRic, algoType }) {
                     header={header}
                     scrollHeight={tableHeight}
                     selection={selectedProducts}
-                    onSelectionChange= {(e) => setSelectedProducts(e.value)}
+                    onSelectionChange={(e) => setSelectedProducts(e.value)}
                 >
                     <Column field="id" header="ID" pt={ptColumn} />
                     <Column
@@ -242,18 +256,19 @@ function Results({ data, selectObject, idRic, algoType }) {
                         pt={ptColumn} 
                         body={(rowData) => (
                             <Button
-                              pt={ptButtonIcon}
-                              icon="pi pi-thumbs-down"
-                              
-                              onClick={() => {
-                                setSelectedProduct(rowData);
-                                setShowProductDialog(true);
-                              }}
+                                pt={ptButtonIcon}
+                                icon="pi pi-thumbs-down"
+                                onClick={() => {
+                                    setSelectedProduct(rowData);
+                                    setShowProductDialog(true);
+                                }}
+                                data-testid="feedback-button"
                             />
                         )}
                     />
                 </DataTable>
-                {showProductDialog && renderProductDialog()} {/* Render dialog when needed */}
+                {showProductDialog && renderProductDialog()}{" "}
+                {/* Render dialog when needed */}
             </div>
         </>
     );
