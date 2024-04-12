@@ -4,6 +4,8 @@ import os
 
 from app import nn_model
 from app import svd_model
+from app import nn_operator
+from app import svd_operator
 from app import model_context
 from app import ModelContext
 
@@ -11,7 +13,8 @@ def testSVD_top5_1UserNItem():
     user = 120
     n = 5
     
-    model_context = ModelContext(svd_model)
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
     model_context.train_model() 
 
     result = model_context.topN_1UserNItem(user, n)
@@ -24,7 +27,8 @@ def testNN_top5_1UserNItem():
     user = 120
     n = 5
     
-    model_context = ModelContext(nn_model)
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
     model_context.train_model() 
 
     result = model_context.topN_1UserNItem(user, n)

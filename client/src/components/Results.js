@@ -238,7 +238,7 @@ function Results({ data, selectObject, idRic, algoType }) {
                     />
                     <Column 
                         field="feedback" 
-                        header="Feedback" 
+                        header="Inserisci un Feedback" 
                         pt={ptColumn} 
                         body={(rowData) => (
                             <Button

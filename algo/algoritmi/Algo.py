@@ -23,15 +23,17 @@ class BaseModel(ABC):
         pass
 
 class BaseOperator(ABC):
-    def __init__(self, model):
+    def __init__(self, model, feedback_path):
         self.modelOp = model
-        
-    def start(self):
-        self.modelOp.train_model()
-        
+        self.feedback_path = feedback_path
+                        
     @abstractmethod
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
         pass
+    
+    @abstractmethod
+    def apply_feedback(self, topic, target_id, ratings):
+        pass 
     
     @abstractmethod
     def topN_1UserNItem(self, user_id, n=5):
@@ -43,11 +45,15 @@ class BaseOperator(ABC):
 
     
 class ModelContext:
-    def __init__(self, model_info):
+    def __init__(self, model_info = None, model_operator = None):
         self.model_info = model_info
+        self.model_operator = model_operator
 
     def set_model_info(self, model_info):
         self.model_info = model_info
+    
+    def set_model_operator(self, model_operator):
+        self.model_operator = model_operator
 
     def process_data(self, data):
         self.model_info.load_data(data)
@@ -61,11 +67,8 @@ class ModelContext:
     def train_model(self):
         return self.model_info.train_model()
     
-    def ratings_float2int(self, float_ratings, float_ratingMax=2, float_ratingMin=0, int_ratingMax=5, int_ratingMin=1):
-        return self.model_info.ratings_float2int(float_ratings, float_ratingMax, float_ratingMin, int_ratingMax, int_ratingMin)
-
     def topN_1UserNItem(self, user_id, n=5):
-        return self.model_info.topN_1UserNItem(user_id, n)
+        return self.model_operator.topN_1UserNItem(user_id, n)
 
     def topN_1ItemNUser(self, item_id, n=5):
-        return self.model_info.topN_1ItemNUser(item_id, n)
+        return self.model_operator.topN_1ItemNUser(item_id, n)

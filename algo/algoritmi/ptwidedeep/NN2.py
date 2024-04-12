@@ -29,7 +29,7 @@ class NN_FileInfo(BaseFileInfo):
         return pd.DataFrame(data)
 
 class NN_Model(BaseModel):
-    def __init__(self, file_info, epochs_n = 10, batch_size = 64):
+    def __init__(self, file_info=None, epochs_n = 10, batch_size = 64):
         self.file_info = file_info
         self.epochs_n = epochs_n
         self.batch_size = batch_size
@@ -101,18 +101,39 @@ class NN_Model(BaseModel):
         self.save_model()
         
 class NN_Operator(BaseOperator):
-    def __init__(self, modelClass, feedback_path):
+    def __init__(self, modelClass= None, feedback_path= None):
         self.modelOp = modelClass
         self.feedback_path = feedback_path
-
-    def start(self):
-        self.modelOp.train_model()
 
     def ratings_float2int(self, float_ratings, float_ratingMax = 2, float_ratingMin = 0, int_ratingMax = 5, int_ratingMin = 1):
         int_ratings = []
         for prediction in float_ratings:
             int_ratings.append(((prediction - float_ratingMax) / (float_ratingMin - float_ratingMax)) * (int_ratingMax - int_ratingMin) + int_ratingMin)
         return int_ratings
+    
+    def apply_feedback(self, topic, target_id, ratings):
+        feedback_df = pd.DataFrame(pd.read_csv(self.feedback_path))
+
+        if not feedback_df.empty:
+            if topic == "user":
+                for _, row in feedback_df.iterrows():
+                    item_id = row['cod_art']
+                    if item_id == target_id: 
+                        user_id = row['cod_cli']
+                        for i, rating_tuple in enumerate(ratings):
+                            if rating_tuple[0] == user_id:
+                                ratings[i] = (user_id, min(row['rating'], rating_tuple[1]))
+
+            elif topic == "item":
+                for _, row in feedback_df.iterrows():
+                    user_id = row['cod_cli']
+                    if user_id == target_id: 
+                        item_id = row['cod_art']
+                        for i, rating_tuple in enumerate(ratings):
+                            if rating_tuple[0] == item_id:
+                                ratings[i] = (item_id, min(row['rating'], rating_tuple[1]))
+
+        return ratings
 
     def topN_1ItemNUser(self, item_id, n = 5):
         users_df = pd.DataFrame(pd.read_csv(self.modelOp.file_info.user_dataset_path))
@@ -134,6 +155,8 @@ class NN_Operator(BaseOperator):
         converted_ratings = self.ratings_float2int(user_rating_predictions, float_ratingMax = max(user_rating_predictions))
         
         user_ratings = list(zip(users_df['cod_cli'], converted_ratings))
+        
+        user_ratings= self.apply_feedback("user", item_id, user_ratings)
 
         top_n_users = sorted(user_ratings, key=lambda x: x[1], reverse = True)[:n]
         
@@ -154,6 +177,8 @@ class NN_Operator(BaseOperator):
         converted_ratings = self.ratings_float2int(product_rating_predictions, float_ratingMax = max(product_rating_predictions))
         
         product_ratings = list(zip(products_df['cod_art'], converted_ratings))
+        
+        product_ratings = self.apply_feedback("item", user_id, product_ratings)
         
         top_n_products = sorted(product_ratings, key=lambda x: x[1], reverse = True)[:n] 
         
