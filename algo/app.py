@@ -70,21 +70,22 @@ def train_endpoint(algo):
             training_algo = algo
         
         logger.debug("Starting training for algorithm: %s", algo)
+        
         if algo == "SVD":
             preprocessor_context.set_preprocessor(svd_preprocessor)
             svd_model, svd_operator = preprocess_svd()
             os.remove('./algoritmi/surprisedir/trained_model.pkl')
             model_context.set_model_info(svd_model)
             model_context.set_model_operator(svd_operator)
-            
-        if algo == "NN":
+        elif algo == "NN":
             preprocessor_context.set_preprocessor(nn_preprocessor)
             nn_model, nn_operator = preprocess_nn()
             os.remove('./algoritmi/ptwidedeep/model.pt')
             model_context.set_model_info(nn_model)
-            model_context.set_model_operator(nn_operator)
+            model_context.set_model_operator(nn_operator)    
+        else:
+            return jsonify({'error': "Wrong algo. Select SVD or NN"}), 500
             
-        model_context.train_model() 
         training_in_progress = False
         training_algo = None
         response_data = {'message': 'Training successful', 'algo': algo}
@@ -102,17 +103,19 @@ def search_endpoint(algo, object, id, n):
     try:
         if training_in_progress and training_algo == algo:
             return jsonify({'message': 'Training in progress. Please wait a few minutes and try again later.'}), 200
+        
         if algo == "SVD":
             preprocessor_context.set_preprocessor(svd_preprocessor)
             svd_model, svd_operator = preprocess_svd()
             model_context.set_model_info(svd_model)
             model_context.set_model_operator(svd_operator)
-            
         elif algo == "NN":
             preprocessor_context.set_preprocessor(nn_preprocessor)
             nn_model, nn_operator = preprocess_nn()
             model_context.set_model_info(nn_model)
             model_context.set_model_operator(nn_operator)
+        else:
+            return jsonify({'error': "Wrong algo. Select SVD or NN"}), 500
             
         model_context.train_model() 
         
@@ -121,7 +124,6 @@ def search_endpoint(algo, object, id, n):
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
         elif object == "item":
             dictionary = model_context.topN_1ItemNUser(int(id), int(n))
-            
             result_list = [{"id": str(iid), "value": int(est)} for iid, est in dictionary]
         else:
             return jsonify({'error': "Wrong object. Select user or item"}), 500
