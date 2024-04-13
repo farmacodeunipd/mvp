@@ -105,6 +105,13 @@ def testNNModel_load_model():
     assert nn_model.model is not None
     assert nn_model.wide_preprocessor is not None
     assert nn_model.tab_preprocessor is not None
+    
+def testNNModel_load_model_not_existing():
+    os.remove(nn_model.file_info.model_file)
+    nn_model.load_model()
+    assert nn_model.model is not None
+    assert nn_model.wide_preprocessor is not None
+    assert nn_model.tab_preprocessor is not None
 
 def testNNModel_save_model():
     nn_model.save_model()
@@ -152,14 +159,14 @@ def testNN_top5_1ItemNUser():
     item = 1101100
     n = 5
     
-    model_context.set_model_info(svd_model)
-    model_context.set_model_operator(svd_operator)
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
     model_context.train_model() 
 
     result = model_context.topN_1ItemNUser(item, n)
 
     assert len(result) == n
-    assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], int) for item in result)
+    assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], float) for item in result)
     assert all(1 <= item[1] <= 5 for item in result)
     
 @pytest.fixture
