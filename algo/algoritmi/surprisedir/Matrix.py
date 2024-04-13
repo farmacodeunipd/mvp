@@ -101,8 +101,6 @@ class SVD_Operator(BaseOperator):
     
     # metodo che dato ID user (NUMERICO) e n, ritorna n ID item migliori per quell'user
     def topN_1UserNItem(self, user_id, n=5):
-        if self.modelOp.model is None:
-            raise ValueError("Model not loaded. Call load_model() or train_model() first.")
         
         testset_filteredUI = filter(lambda x: x[0] == user_id, self.modelOp.testset)
         
@@ -118,8 +116,6 @@ class SVD_Operator(BaseOperator):
     
     # metodo che dato ID item (NUMERICO) e n, ritorna n ID user migliori per quell'item
     def topN_1ItemNUser(self, item_id, n=5):
-        if self.modelOp.model is None:
-            raise ValueError("Model not loaded. Call load_model() or train_model() first.")
         
         testset_filteredIU = filter(lambda x: x[1] == item_id, self.modelOp.testset)
         

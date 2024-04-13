@@ -44,33 +44,61 @@ nn_model, nn_operator = preprocess_nn()
 model_context = ModelContext()
 
 def testSVDModel_load_model():
-    svd_model.load_model()
-    assert svd_model.model is not None
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    model_context.load_model()
+    assert model_context.model_info.model is not None
+    
+def testSVDModel_load_model():
+    os.remove(svd_model.file_info.model_file)
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    model_context.load_model()
+    assert model_context.model_info.model is not None
 
 def testSVDModel_save_model():
-    svd_model.save_model()
-    assert os.path.exists(svd_model.file_info.model_file)
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    model_context.save_model()
+    assert os.path.exists(model_context.model_info.file_info.model_file)
 
 def testSVDModel_train_model():
-    svd_model.train_model()
-    assert svd_model.model is not None
-    assert svd_model.trainset is not None
-    assert svd_model.testset is not None
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    model_context.train_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.trainset is not None
+    assert model_context.model_info.testset is not None
+    
+def testSVDModel_train_model():
+    os.remove(svd_model.file_info.model_file)
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    model_context.train_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.trainset is not None
+    assert model_context.model_info.testset is not None
 
 def testSVDOperator_ratings_float2int():
-    assert svd_operator.ratings_float2int(0.5) == 2
-    assert svd_operator.ratings_float2int(1.5) == 4
-    assert svd_operator.ratings_float2int(2.0) == 5
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    assert model_context.model_operator.ratings_float2int(0.5) == 2
+    assert model_context.model_operator.ratings_float2int(1.5) == 4
+    assert model_context.model_operator.ratings_float2int(2.0) == 5
     
 def testSVDOperator_apply_feedback_user():
-    ratings = {1: 4, 2: 3, 3: 5}
-    updated_ratings = svd_operator.apply_feedback("user", 1, ratings)
-    assert updated_ratings == {1: 4, 2: 3, 3: 5}
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    ratings = {13: 4}
+    updated_ratings = model_context.model_operator.apply_feedback("user", 1105090, ratings)
+    assert updated_ratings == {13: 1}
 
 def testSVDOperator_apply_feedback_item():
-    ratings = {1: 4, 2: 3, 3: 5}
-    updated_ratings = svd_operator.apply_feedback("item", 2, ratings)
-    assert updated_ratings == {1: 4, 2: 3, 3: 5}
+    model_context.set_model_info(svd_model)
+    model_context.set_model_operator(svd_operator)
+    ratings = {1105090: 4}
+    updated_ratings = svd_operator.apply_feedback("item", 13, ratings)
+    assert updated_ratings == {1105090: 1}
 
 def testSVD_top5_1UserNItem():
     user = 120
@@ -101,45 +129,68 @@ def testSVD_top5_1ItemNUser():
     assert all(1 <= item[1] <= 5 for item in result)
     
 def testNNModel_load_model():
-    nn_model.load_model()
-    assert nn_model.model is not None
-    assert nn_model.wide_preprocessor is not None
-    assert nn_model.tab_preprocessor is not None
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    model_context.load_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.wide_preprocessor is not None
+    assert model_context.model_info.tab_preprocessor is not None
     
 def testNNModel_load_model_not_existing():
     os.remove(nn_model.file_info.model_file)
-    nn_model.load_model()
-    assert nn_model.model is not None
-    assert nn_model.wide_preprocessor is not None
-    assert nn_model.tab_preprocessor is not None
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    model_context.load_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.wide_preprocessor is not None
+    assert model_context.model_info.tab_preprocessor is not None
 
 def testNNModel_save_model():
-    nn_model.save_model()
-    assert os.path.exists(nn_model.file_info.model_state_file)
-    assert os.path.exists(nn_model.file_info.model_file)
-    assert os.path.exists(nn_model.file_info.wide_preprocessor_file)
-    assert os.path.exists(nn_model.file_info.tab_preprocessor_file)
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    model_context.save_model()
+    assert os.path.exists(model_context.model_info.file_info.model_state_file)
+    assert os.path.exists(model_context.model_info.file_info.model_file)
+    assert os.path.exists(model_context.model_info.file_info.wide_preprocessor_file)
+    assert os.path.exists(model_context.model_info.file_info.tab_preprocessor_file)
 
 def testNNModel_train_model():
-    nn_model.train_model()
-    assert nn_model.model is not None
-    assert nn_model.wide_preprocessor is not None
-    assert nn_model.tab_preprocessor is not None
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    model_context.train_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.wide_preprocessor is not None
+    assert model_context.model_info.tab_preprocessor is not None
+    
+def testNNModel_train_model():
+    os.remove(nn_model.file_info.model_file)
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    model_context.train_model()
+    assert model_context.model_info.model is not None
+    assert model_context.model_info.wide_preprocessor is not None
+    assert model_context.model_info.tab_preprocessor is not None
 
 def testNNOperator_ratings_float2int():
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
     float_ratings = [0.5, 1.5, 2.0]
-    result = nn_operator.ratings_float2int(float_ratings)
+    result = model_context.model_operator.ratings_float2int(float_ratings)
     assert result == [4.0, 2.0, 1.0]
 
 def testNNOperator_apply_feedback_user():
-    ratings = [(1, 4), (2, 3), (3, 5)]
-    updated_ratings = nn_operator.apply_feedback("user", 1, ratings)
-    assert updated_ratings == [(1, 4), (2, 3), (3, 5)]
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    ratings = [(13, 4.0)]
+    updated_ratings = model_context.model_operator.apply_feedback("user", 1105090, ratings)
+    assert updated_ratings == [(13, 1.0)]
 
 def testNNOperator_apply_feedback_item():
-    ratings = [(1, 4), (2, 3), (3, 5)]
-    updated_ratings = nn_operator.apply_feedback("item", 2, ratings)
-    assert updated_ratings == [(1, 4), (2, 3), (3, 5)]
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
+    ratings = [(1105090, 4.0)]
+    updated_ratings = model_context.model_operator.apply_feedback("item", 13, ratings)
+    assert updated_ratings == [(1105090, 1.0)]
     
 def testNN_top5_1UserNItem():
     user = 120
