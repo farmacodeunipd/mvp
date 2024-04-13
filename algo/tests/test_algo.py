@@ -2,7 +2,7 @@ import pytest
 import requests
 import os
 import threading
-from unittest.mock import MagicMock, patch
+
 
 from algoritmi.preprocessor.data_preprocessor import PreprocessorContext, SVD_Preprocessor, NN_Preprocessor
 from algoritmi.surprisedir.Matrix import SVD_FileInfo, SVD_Model, SVD_Operator
@@ -43,6 +43,35 @@ nn_model, nn_operator = preprocess_nn()
 
 model_context = ModelContext()
 
+def testSVDModel_load_model():
+    svd_model.load_model()
+    assert svd_model.model is not None
+
+def testSVDModel_save_model():
+    svd_model.save_model()
+    assert os.path.exists(svd_model.file_info.model_file)
+
+def testSVDModel_train_model():
+    svd_model.train_model()
+    assert svd_model.model is not None
+    assert svd_model.trainset is not None
+    assert svd_model.testset is not None
+
+def testSVDOperator_ratings_float2int():
+    assert svd_operator.ratings_float2int(0.5) == 2
+    assert svd_operator.ratings_float2int(1.5) == 4
+    assert svd_operator.ratings_float2int(2.0) == 5
+    
+def testSVDOperator_apply_feedback_user():
+    ratings = {1: 4, 2: 3, 3: 5}
+    updated_ratings = svd_operator.apply_feedback("user", 1, ratings)
+    assert updated_ratings == {1: 4, 2: 3, 3: 5}
+
+def testSVDOperator_apply_feedback_item():
+    ratings = {1: 4, 2: 3, 3: 5}
+    updated_ratings = svd_operator.apply_feedback("item", 2, ratings)
+    assert updated_ratings == {1: 4, 2: 3, 3: 5}
+
 def testSVD_top5_1UserNItem():
     user = 120
     n = 5
@@ -71,6 +100,47 @@ def testSVD_top5_1ItemNUser():
     assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], int) for item in result)
     assert all(1 <= item[1] <= 5 for item in result)
     
+def testNNModel_load_model():
+    nn_model.load_model()
+    assert nn_model.model is not None
+    assert nn_model.wide_preprocessor is not None
+    assert nn_model.tab_preprocessor is not None
+    
+def testNNModel_load_model_not_existing():
+    os.remove(nn_model.file_info.model_file)
+    nn_model.load_model()
+    assert nn_model.model is not None
+    assert nn_model.wide_preprocessor is not None
+    assert nn_model.tab_preprocessor is not None
+
+def testNNModel_save_model():
+    nn_model.save_model()
+    assert os.path.exists(nn_model.file_info.model_state_file)
+    assert os.path.exists(nn_model.file_info.model_file)
+    assert os.path.exists(nn_model.file_info.wide_preprocessor_file)
+    assert os.path.exists(nn_model.file_info.tab_preprocessor_file)
+
+def testNNModel_train_model():
+    nn_model.train_model()
+    assert nn_model.model is not None
+    assert nn_model.wide_preprocessor is not None
+    assert nn_model.tab_preprocessor is not None
+
+def testNNOperator_ratings_float2int():
+    float_ratings = [0.5, 1.5, 2.0]
+    result = nn_operator.ratings_float2int(float_ratings)
+    assert result == [4.0, 2.0, 1.0]
+
+def testNNOperator_apply_feedback_user():
+    ratings = [(1, 4), (2, 3), (3, 5)]
+    updated_ratings = nn_operator.apply_feedback("user", 1, ratings)
+    assert updated_ratings == [(1, 4), (2, 3), (3, 5)]
+
+def testNNOperator_apply_feedback_item():
+    ratings = [(1, 4), (2, 3), (3, 5)]
+    updated_ratings = nn_operator.apply_feedback("item", 2, ratings)
+    assert updated_ratings == [(1, 4), (2, 3), (3, 5)]
+    
 def testNN_top5_1UserNItem():
     user = 120
     n = 5
@@ -89,14 +159,14 @@ def testNN_top5_1ItemNUser():
     item = 1101100
     n = 5
     
-    model_context.set_model_info(svd_model)
-    model_context.set_model_operator(svd_operator)
+    model_context.set_model_info(nn_model)
+    model_context.set_model_operator(nn_operator)
     model_context.train_model() 
 
     result = model_context.topN_1ItemNUser(item, n)
 
     assert len(result) == n
-    assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], int) for item in result)
+    assert all(isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], float) for item in result)
     assert all(1 <= item[1] <= 5 for item in result)
     
 @pytest.fixture
@@ -105,185 +175,105 @@ def api_url():
     return "http://" + hostname + ":4000"
 
 def test_train_api_response_svd(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {'message': 'Training successful', 'algo': 'SVD'}
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/train/SVD")
 
-        response = requests.get(api_url + "/train/SVD")
-
-        assert response.status_code == 200
-        assert response.json()['message'] == 'Training successful'
-        assert response.json()['algo'] == 'SVD'
-
-        mock_get.assert_called_once_with(api_url + "/train/SVD")
+    assert response.status_code == 200
+    assert response.json()['message'] == 'Training successful'
+    assert response.json()['algo'] == 'SVD'
     
 def test_train_api_response_nn(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {'message': 'Training successful', 'algo': 'NN'}
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/train/NN")
 
-        response = requests.get(api_url + "/train/NN")
-
+    assert response.status_code == 200
+    assert response.json()['message'] == 'Training successful'
+    assert response.json()['algo'] == 'NN'
+    
+def test_train_api_response_training(api_url):
+    def make_training_request():
+        return requests.get(api_url + "/train/SVD")
+    
+    def make_search_request():
+        response = requests.get(api_url + "/search/SVD/user/120/5")
         assert response.status_code == 200
-        assert response.json()['message'] == 'Training successful'
-        assert response.json()['algo'] == 'NN'
+        assert response.json()['message'] == 'Training in progress. Please wait a few minutes and try again later.'
 
-        mock_get.assert_called_once_with(api_url + "/train/NN")
+    thread1 = threading.Thread(target=make_training_request)
+    
+    thread2 = threading.Thread(target=make_search_request)
 
-def test_train_api_response_already_training(api_url):
-    with patch('requests.get') as mock_get:
-        def make_training_request():
-            return requests.get(api_url + "/train/SVD")
-        
-        def make_second_training_request():
-            response = make_training_request()
-            assert response.status_code == 200
-            assert response.json()['message'] == 'Training in progress. Please wait a few minutes and try again later.'
-
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {'message': 'Training in progress. Please wait a few minutes and try again later.'}
-        mock_get.side_effect = [mock_response, mock_response]
-
-        thread1 = threading.Thread(target=make_training_request)
-        thread2 = threading.Thread(target=make_second_training_request)
-
-        thread1.start()
-        thread2.start()
-        
-        thread2.join()
-        thread1.join()
+    thread1.start()
+    thread2.start()
+    
+    thread2.join()
+    thread1.join()
     
 def test_train_api_response_wrong(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_response.json.return_value = {'error': 'Wrong algo. Select SVD or NN'}
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/train/wrong")
 
-        response = requests.get(api_url + "/train/wrong")
-
-        assert response.status_code == 500
-        assert response.json()['error'] == 'Wrong algo. Select SVD or NN'
-
-        mock_get.assert_called_once_with(api_url + "/train/wrong")
+    assert response.status_code == 500
+    assert response.json()['error'] == 'Wrong algo. Select SVD or NN'
     
 def test_search_api_response_svd_user(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = [{"id": "123", "value": 5}, {"id": "456", "value": 4}]
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/search/SVD/user/120/5")
 
-        response = requests.get(api_url + "/search/SVD/user/120/5")
+    assert response.status_code == 200
 
-        assert response.status_code == 200
+    response_data = response.json()
+    assert isinstance(response_data, list)
 
-        response_data = response.json()
-        assert isinstance(response_data, list)
-        assert len(response_data) == 2
-
-        for item in response_data:
-            assert isinstance(item, dict)
-            assert "id" in item and isinstance(item["id"], str)
-            assert "value" in item and isinstance(item["value"], int)
-
-        mock_get.assert_called_once_with(api_url + "/search/SVD/user/120/5")
+    for item in response_data:
+        assert isinstance(item, dict)
+        assert "id" in item and isinstance(item["id"], str)
+        assert "value" in item and isinstance(item["value"], int)
         
 def test_search_api_response_svd_item(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = [{"id": "1101100", "value": 5}, {"id": "1101101", "value": 4}]
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/search/SVD/item/1101100/5")
 
-        response = requests.get(api_url + "/search/SVD/item/1101100/5")
+    assert response.status_code == 200
 
-        assert response.status_code == 200
+    response_data = response.json()
+    assert isinstance(response_data, list)
 
-        response_data = response.json()
-        assert isinstance(response_data, list)
-        assert len(response_data) == 2
-
-        for item in response_data:
-            assert isinstance(item, dict)
-            assert "id" in item and isinstance(item["id"], str)
-            assert "value" in item and isinstance(item["value"], int)
-
-        mock_get.assert_called_once_with(api_url + "/search/SVD/item/1101100/5")
-
+    for item in response_data:
+        assert isinstance(item, dict)
+        assert "id" in item and isinstance(item["id"], str)
+        assert "value" in item and isinstance(item["value"], int)
+        
+        
 def test_search_api_response_nn_user(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = [{"id": "123", "value": 5}, {"id": "456", "value": 4}]
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/search/NN/user/120/5")
 
-        response = requests.get(api_url + "/search/NN/user/120/5")
+    assert response.status_code == 200
 
-        assert response.status_code == 200
+    response_data = response.json()
+    assert isinstance(response_data, list)
 
-        response_data = response.json()
-        assert isinstance(response_data, list)
-        assert len(response_data) == 2
-
-        for item in response_data:
-            assert isinstance(item, dict)
-            assert "id" in item and isinstance(item["id"], str)
-            assert "value" in item and isinstance(item["value"], int)
-
-        mock_get.assert_called_once_with(api_url + "/search/NN/user/120/5")
-
+    for item in response_data:
+        assert isinstance(item, dict)
+        assert "id" in item and isinstance(item["id"], str)
+        assert "value" in item and isinstance(item["value"], int)
+        
 def test_search_api_response_nn_item(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = [{"id": "1101100", "value": 5}, {"id": "1101101", "value": 4}]
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/search/NN/item/1101100/5")
 
-        response = requests.get(api_url + "/search/NN/item/1101100/5")
+    assert response.status_code == 200
 
-        assert response.status_code == 200
+    response_data = response.json()
+    assert isinstance(response_data, list)
 
-        response_data = response.json()
-        assert isinstance(response_data, list)
-        assert len(response_data) == 2
-
-        for item in response_data:
-            assert isinstance(item, dict)
-            assert "id" in item and isinstance(item["id"], str)
-            assert "value" in item and isinstance(item["value"], int)
-
-        mock_get.assert_called_once_with(api_url + "/search/NN/item/1101100/5")
-
-def test_search_api_response_wrong_algo(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_response.json.return_value = {'error': 'Wrong algo. Select SVD or NN'}
-        mock_get.return_value = mock_response
-
-        response = requests.get(api_url + "/search/wrong/item/1101100/5")
-
-        assert response.status_code == 500
-        assert response.json()['error'] == 'Wrong algo. Select SVD or NN'
-
-        mock_get.assert_called_once_with(api_url + "/search/wrong/item/1101100/5")
-
+    for item in response_data:
+        assert isinstance(item, dict)
+        assert "id" in item and isinstance(item["id"], str)
+        assert "value" in item and isinstance(item["value"], int)
+            
 def test_search_api_response_wrong_object(api_url):
-    with patch('requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_response.json.return_value = {'error': 'Wrong object. Select user or item'}
-        mock_get.return_value = mock_response
+    response = requests.get(api_url + "/search/SVD/wrong/1101100/5")
 
-        response = requests.get(api_url + "/search/SVD/wrong/1101100/5")
+    assert response.status_code == 500
+    assert response.json()['error'] == 'Wrong object. Select user or item'
+    
+def test_search_api_response_wrong_algo(api_url):
+    response = requests.get(api_url + "/search/wrong/item/1101100/5")
 
-        assert response.status_code == 500
-        assert response.json()['error'] == 'Wrong object. Select user or item'
-
-        mock_get.assert_called_once_with(api_url + "/search/SVD/wrong/1101100/5")
+    assert response.status_code == 500
+    assert response.json()['error'] == 'Wrong algo. Select SVD or NN'

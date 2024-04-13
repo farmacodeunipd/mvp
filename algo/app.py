@@ -1,7 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from threading import Lock
 import os
+from threading import Lock
+import sys
 import logging
 
 from algoritmi.preprocessor.data_preprocessor import PreprocessorContext, SVD_Preprocessor, NN_Preprocessor
@@ -9,11 +10,8 @@ from algoritmi.surprisedir.Matrix import SVD_FileInfo, SVD_Model, SVD_Operator
 from algoritmi.ptwidedeep.NN2 import NN_FileInfo, NN_Model, NN_Operator
 from algoritmi.Algo import ModelContext
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
-
-# Create a logger
-logger = logging.getLogger(__name__)
+root = logging.getLogger()
+root.addHandler(logging.StreamHandler(sys.stdout))
 
 # Preprocess file SVD
 def preprocess_svd():
@@ -38,9 +36,9 @@ def preprocess_nn():
 app = Flask(__name__)
 CORS(app)
 
-training_lock = Lock()  # Create a lock for synchronization
 training_in_progress = False  # Flag to indicate if training is in progress
 training_algo = None
+training_lock = Lock()
 
 preprocessor_context = PreprocessorContext()
 
@@ -61,16 +59,12 @@ model_context = ModelContext()
 def train_endpoint(algo):
     global training_in_progress, training_algo
     try:
-        logger.debug("Received request to train algorithm: %s", algo)
+        print(f"Training request for {algo} recived.")
+        
         with training_lock:
-            if training_in_progress:
-                return jsonify({'message': 'Training in progress. Please wait a few minutes and try again later.'}), 200
-
             training_in_progress = True
             training_algo = algo
-        
-        logger.debug("Starting training for algorithm: %s", algo)
-        
+                
         if algo == "SVD":
             preprocessor_context.set_preprocessor(svd_preprocessor)
             svd_model, svd_operator = preprocess_svd()
@@ -84,24 +78,29 @@ def train_endpoint(algo):
             model_context.set_model_info(nn_model)
             model_context.set_model_operator(nn_operator)    
         else:
+            print("Wrong algo. Select SVD or NN")
             return jsonify({'error': "Wrong algo. Select SVD or NN"}), 500
-            
-        training_in_progress = False
-        training_algo = None
+   
+        print(f"Starting training for {algo}.")     
+        model_context.train_model()            
         response_data = {'message': 'Training successful', 'algo': algo}
         return jsonify(response_data), 200
             
     except Exception as e:
-        training_in_progress = False
-        training_algo = None
-        logger.error("An error occurred during training: %s", e)
         return jsonify({'error': str(e)}), 500
+    
+    finally:
+        with training_lock:
+            training_in_progress = False
+            training_algo = None
 
 # Endpoint search
 @app.route('/search/<algo>/<object>/<id>/<n>')
 def search_endpoint(algo, object, id, n):
     try:
+        print(f"Search request using {algo} recived.")  
         if training_in_progress and training_algo == algo:
+            print("Training in progress. Please wait a few minutes and try again later.")
             return jsonify({'message': 'Training in progress. Please wait a few minutes and try again later.'}), 200
         
         if algo == "SVD":
@@ -115,10 +114,13 @@ def search_endpoint(algo, object, id, n):
             model_context.set_model_info(nn_model)
             model_context.set_model_operator(nn_operator)
         else:
+            print("Wrong algo. Select SVD or NN")
             return jsonify({'error': "Wrong algo. Select SVD or NN"}), 500
             
         model_context.train_model() 
         
+        print(f"Processing data...") 
+         
         if object == "user": 
             dictionary = model_context.topN_1UserNItem(int(id), int(n))
             result_list = [{"id": str(uid), "value": int(est)} for uid, est in dictionary]
@@ -126,6 +128,7 @@ def search_endpoint(algo, object, id, n):
             dictionary = model_context.topN_1ItemNUser(int(id), int(n))
             result_list = [{"id": str(iid), "value": int(est)} for iid, est in dictionary]
         else:
+            print("Wrong object. Select user or item")
             return jsonify({'error': "Wrong object. Select user or item"}), 500
 
         return jsonify(result_list) 
@@ -134,6 +137,5 @@ def search_endpoint(algo, object, id, n):
         # Gestire eventuali errori
         return jsonify({'error': str(e)}), 500
 
-# Avviare il server Flask su tutte le interfacce su porta 4000
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=4000)
