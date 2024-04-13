@@ -46,7 +46,9 @@ function Profilo() {
         try {
             await axios.put(
                 `http://${expressUrl}/userana/${userData.use_ute}/email`,
-                { newEmail }
+                {
+                    newEmail,
+                }
             );
             setEditModeEmail(false);
             getUserData(userData.use_ute);
@@ -171,11 +173,21 @@ function Profilo() {
                     {userData ? (
                         <div>
                             {errNewEmail ? (
-                                <p className="text-red-500">{errNewEmail}</p>
+                                <p
+                                    className="text-red-500"
+                                    data-testid="error-new-email"
+                                >
+                                    {errNewEmail}
+                                </p>
                             ) : null}
 
                             {errNewPassword ? (
-                                <p className="text-red-500">{errNewPassword}</p>
+                                <p
+                                    className="text-red-500"
+                                    data-testid="error-new-password"
+                                >
+                                    {errNewPassword}
+                                </p>
                             ) : null}
                             <Divider pt={ptDivider} />
                             <div className="flex items-center">

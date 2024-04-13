@@ -141,3 +141,190 @@ test("salvataggio con successo della password", async () => {
         );
     });
 });
+
+test("test correct 400 message error for email", async () => {
+    const userData = {
+        nom_ute: "Mario",
+        cog_ute: "Rossi",
+        dat_ute: "1990-01-01",
+        use_ute: "a",
+        mai_ute: "mario.rossi@example.com",
+    };
+
+    await act(async () => {
+        axios.get.mockResolvedValue({ data: [userData] });
+        // axios.put.mockImplementationOnce(() => Promise.resolve());
+        axios.put.mockRejectedValueOnce({ response: { status: 400 } });
+    });
+
+    await act(async () => {
+        sessionStorage.setItem("username", "a");
+        render(
+            <BrowserRouter>
+                <Profilo />
+            </BrowserRouter>
+        );
+    });
+
+    const newEmail = "";
+    const editEmailButton = screen.getByTestId("edit-email-button");
+    fireEvent.click(editEmailButton);
+
+    const emailInput = screen.getByDisplayValue(userData.mai_ute);
+    fireEvent.change(emailInput, { target: { value: newEmail } });
+
+    const saveButton = screen.getByTestId("save-email-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+        expect(axios.put).toHaveBeenCalledWith(
+            `http://${expressUrl}/userana/${userData.use_ute}/email`,
+            { newEmail }
+        );
+
+        const errorElement = screen.getByTestId("error-new-email");
+        expect(errorElement).toBeInTheDocument();
+        expect(errorElement).toHaveTextContent(
+            "Il campo email non può essere vuoto."
+        );
+    });
+});
+
+test("test correct 400 message error for password", async () => {
+    const userData = {
+        nom_ute: "Mario",
+        cog_ute: "Rossi",
+        dat_ute: "1990-01-01",
+        use_ute: "a",
+        mai_ute: "mario.rossi@example.com",
+    };
+
+    await act(async () => {
+        axios.get.mockResolvedValue({ data: [userData] });
+        // axios.put.mockImplementationOnce(() => Promise.resolve());
+        // axios.put.mockRejectedValueOnce({ response: { status: 400 } });
+    });
+
+    await act(async () => {
+        sessionStorage.setItem("username", "a");
+        render(
+            <BrowserRouter>
+                <Profilo />
+            </BrowserRouter>
+        );
+    });
+
+    const newPassword = "";
+    const editPasswordButton = screen.getByTestId("edit-password-button");
+    fireEvent.click(editPasswordButton);
+
+    const passwordInput = screen.getByPlaceholderText("Nuova password");
+    fireEvent.change(passwordInput, { target: { value: newPassword } });
+
+    const saveButton = screen.getByTestId("save-password-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+        const errorElement = screen.getByTestId("error-new-password");
+        expect(errorElement).toBeInTheDocument();
+        expect(errorElement).toHaveTextContent(
+            "Il campo password non può essere vuoto."
+        );
+    });
+});
+
+test("test correct 500 message error for email", async () => {
+    const userData = {
+        nom_ute: "Mario",
+        cog_ute: "Rossi",
+        dat_ute: "1990-01-01",
+        use_ute: "a",
+        mai_ute: "mario.rossi@example.com",
+    };
+
+    await act(async () => {
+        axios.get.mockResolvedValue({ data: [userData] });
+        // axios.put.mockImplementationOnce(() => Promise.resolve());
+        axios.put.mockRejectedValueOnce({ response: { status: 500 } });
+    });
+
+    await act(async () => {
+        sessionStorage.setItem("username", "a");
+        render(
+            <BrowserRouter>
+                <Profilo />
+            </BrowserRouter>
+        );
+    });
+
+    const newEmail = "";
+    const editEmailButton = screen.getByTestId("edit-email-button");
+    fireEvent.click(editEmailButton);
+
+    const emailInput = screen.getByDisplayValue(userData.mai_ute);
+    fireEvent.change(emailInput, { target: { value: newEmail } });
+
+    const saveButton = screen.getByTestId("save-email-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+        expect(axios.put).toHaveBeenCalledWith(
+            `http://${expressUrl}/userana/${userData.use_ute}/email`,
+            { newEmail }
+        );
+
+        const errorElement = screen.getByTestId("error-new-email");
+        expect(errorElement).toBeInTheDocument();
+        expect(errorElement).toHaveTextContent(
+            "Errore! Ricontrolla l'email inserita, potrebbe essere gia inserita nei nostri sistemi."
+        );
+    });
+});
+
+test("test correct 500 message error for password", async () => {
+    const userData = {
+        nom_ute: "Mario",
+        cog_ute: "Rossi",
+        dat_ute: "1990-01-01",
+        use_ute: "a",
+        mai_ute: "mario.rossi@example.com",
+    };
+
+    await act(async () => {
+        axios.get.mockResolvedValue({ data: [userData] });
+        // axios.put.mockImplementationOnce(() => Promise.resolve());
+        axios.put.mockRejectedValueOnce({ response: { status: 500 } });
+    });
+
+    await act(async () => {
+        sessionStorage.setItem("username", "a");
+        render(
+            <BrowserRouter>
+                <Profilo />
+            </BrowserRouter>
+        );
+    });
+
+    const newPassword = "password";
+    const editPasswordButton = screen.getByTestId("edit-password-button");
+    fireEvent.click(editPasswordButton);
+
+    const passwordInput = screen.getByPlaceholderText("Nuova password");
+    fireEvent.change(passwordInput, { target: { value: newPassword } });
+
+    const saveButton = screen.getByTestId("save-password-button");
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+        expect(axios.put).toHaveBeenCalledWith(
+            expect.stringContaining(`/userana/${userData.use_ute}/password`),
+            expect.any(Object)
+        );
+
+        const errorElement = screen.getByTestId("error-new-password");
+        expect(errorElement).toBeInTheDocument();
+        expect(errorElement).toHaveTextContent(
+            "Errore! Ricontrolla la password inserita."
+        );
+    });
+});
