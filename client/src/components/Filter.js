@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog"
-import { ProgressBar } from 'primereact/progressbar';
+import { Dialog } from "primereact/dialog";
+import { ProgressBar } from "primereact/progressbar";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 const algoUrl = process.env.ALGO_API_URL || "localhost:4000";
@@ -18,7 +18,7 @@ const searchObject = [
 const algo = [
     { name: "SVD", value: "SVD" },
     { name: "NN", value: "NN" },
-]
+];
 
 const tops = [
     { name: "Top 5", value: "5" },
@@ -52,10 +52,14 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         const top_sel = selectedTop;
 
         axios
-            .put(`http://${expressUrl}/cronologia/new`, { user, algo, topic, cod_ric, top_sel })
-            .catch((error) =>
-                console.error("Errore nell'inserimento", error)
-            );
+            .put(`http://${expressUrl}/cronologia/new`, {
+                user,
+                algo,
+                topic,
+                cod_ric,
+                top_sel,
+            })
+            .catch((error) => console.error("Errore nell'inserimento", error));
     }
 
     const renderProductDialog = (algo) => {
@@ -63,24 +67,29 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
             <Dialog
                 pt={ptDialog}
                 visible={showProductDialog}
-                style={{ width: '450px' }}
-                header={loadingTraining ? 'Loading' : 'Warning'}
+                style={{ width: "450px" }}
+                header={loadingTraining ? "Loading" : "Warning"}
                 modal
                 onHide={() => setShowProductDialog(false)}
             >
                 <div className="flex flex-column">
                     {loadingTraining ? (
                         <div className="flex flex-column">
-                            <div style={{ marginBottom: '20px' }}>
-                                <ProgressBar mode="indeterminate" style={{ height: '6px' }}></ProgressBar>
+                            <div style={{ marginBottom: "20px" }}>
+                                <ProgressBar
+                                    mode="indeterminate"
+                                    style={{ height: "6px" }}
+                                ></ProgressBar>
                             </div>
                             <p className="m-0"> Training ...</p>
                         </div>
                     ) : (
                         <div className="flex flex-column">
-                            <div style={{ marginBottom: '20px' }}>
+                            <div style={{ marginBottom: "20px" }}>
                                 <p className="m-0">
-                                    Sicuro di voler avviare un training per l&apos;algoritmo {algo}? Il processo potrebbe richiedere alcuni minuti.
+                                    Sicuro di voler avviare un training per
+                                    l&apos;algoritmo {algo}? Il processo
+                                    potrebbe richiedere alcuni minuti.
                                 </p>
                             </div>
                             <Button // Display the confirmation button when not loading
@@ -161,7 +170,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
         },
         closeButton: {
             className: "!w-8 !h-8",
-            disabled: loadingTraining
+            disabled: loadingTraining,
         },
         closeButtonIcon: {
             className: "!w-4 !h-4",
@@ -286,10 +295,11 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                     pt={ptDropdown}
                                     valueTemplate={selectedUserItemTemplate}
                                     itemTemplate={userItemOptionTemplate}
-                                    className={`w-full ${selectedSearchObject === "user"
-                                        ? "md:!w-96"
-                                        : "md:!w-96"
-                                        }`}
+                                    className={`w-full ${
+                                        selectedSearchObject === "user"
+                                            ? "md:!w-96"
+                                            : "md:!w-96"
+                                    }`}
                                     data-testid="users-items"
                                 />
                             ) : null}
