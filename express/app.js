@@ -21,10 +21,10 @@ function connectToDB() {
         });
         connection.connect((err) => {
             if (err) {
-                console.error("Errore di connessione: ", err);
+                console.error("    Errore di connessione: ", err);
                 reject(err);
             } else {
-                console.log("Connesso al DB");
+                console.log("    Connesso al DB");
                 resolve(connection);
             }
         });
@@ -34,10 +34,12 @@ function connectToDB() {
 // Define routes
 app.get("/", (req, res) => {
     res.send("Server is running!");
+    console.log("GET: /");
 });
 
 app.get("/login/:use", async (req, res) => {
     const uteUse = req.params.use;
+    console.log("GET: /login/" + uteUse);
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -49,12 +51,14 @@ app.get("/login/:use", async (req, res) => {
             res.status(404).json({
                 error: "Utente non trovato",
             });
+            console.error("    404: Utente non trovato");
         } else {
             res.json([results[0]]);
+            console.log("    200: Successo");
         }
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella utenti:",
+            "    500: Errore durante il recupero dei dati dalla tabella utenti:",
             error
         );
         res.status(500).json({
@@ -66,6 +70,7 @@ app.get("/login/:use", async (req, res) => {
 });
 
 app.get("/users", async (req, res) => {
+    console.log("GET: /users");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -73,9 +78,10 @@ app.get("/users", async (req, res) => {
             "SELECT cod_cli, rag_soc FROM anacli"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella users:",
+            "    500: Errore durante il recupero dei dati dalla tabella users:",
             error
         );
         res.status(500).json({
@@ -88,6 +94,7 @@ app.get("/users", async (req, res) => {
 
 app.get("/users/:id", async (req, res) => {
     const userID = req.params.id;
+    console.log("GET: /users/" + userID);
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -99,12 +106,14 @@ app.get("/users/:id", async (req, res) => {
             res.status(404).json({
                 error: "User non trovato",
             });
+            console.error("    404: Utente non trovato");
         } else {
             res.json([results[0]]);
+            console.log("    200: Successo");
         }
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella clienti:",
+            "    500: Errore durante il recupero dei dati dalla tabella clienti:",
             error
         );
         res.status(500).json({
@@ -116,6 +125,7 @@ app.get("/users/:id", async (req, res) => {
 });
 
 app.get("/items", async (req, res) => {
+    console.log("GET: /items");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -123,9 +133,10 @@ app.get("/items", async (req, res) => {
             "SELECT cod_art, des_art FROM anaart"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            "    500: Errore durante il recupero dei dati dalla tabella prodotti:",
             error
         );
         res.status(500).json({
@@ -138,6 +149,7 @@ app.get("/items", async (req, res) => {
 
 app.get("/items/:id", async (req, res) => {
     const itemID = req.params.id;
+    console.log("GET: /items/" + itemID);
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -149,12 +161,14 @@ app.get("/items/:id", async (req, res) => {
             res.status(404).json({
                 error: "Item non trovato",
             });
+            console.error("    404: Item non trovato");
         } else {
             res.json([results[0]]);
+            console.log("    200: Successo");
         }
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            "    500: Errore durante il recupero dei dati dalla tabella prodotti:",
             error
         );
         res.status(500).json({
@@ -166,6 +180,7 @@ app.get("/items/:id", async (req, res) => {
 });
 
 app.get("/prodotti", async (req, res) => {
+    console.log("GET: /prodotti");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -194,9 +209,10 @@ app.get("/prodotti", async (req, res) => {
             img_path: result.image_path,
         }));
         res.json(formattedResults);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            "    500: Errore durante il recupero dei dati dalla tabella prodotti:",
             error
         );
         res.status(500).json({
@@ -208,6 +224,7 @@ app.get("/prodotti", async (req, res) => {
 });
 
 app.get("/prodotti/lineecommerciali", async (req, res) => {
+    console.log("GET: /prodotti/lineecommerciali");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -215,9 +232,10 @@ app.get("/prodotti/lineecommerciali", async (req, res) => {
             "SELECT * FROM linee_comm"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella linee commerciali:",
+            "    500: Errore durante il recupero dei dati dalla tabella linee commerciali:",
             error
         );
         res.status(500).json({
@@ -229,6 +247,7 @@ app.get("/prodotti/lineecommerciali", async (req, res) => {
 });
 
 app.get("/prodotti/settoricommerciali", async (req, res) => {
+    console.log("GET: /prodotti/settoricommerciali");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -236,9 +255,10 @@ app.get("/prodotti/settoricommerciali", async (req, res) => {
             "SELECT * FROM settori_comm"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella linee commerciali:",
+            "    500: Errore durante il recupero dei dati dalla tabella linee commerciali:",
             error
         );
         res.status(500).json({
@@ -250,6 +270,7 @@ app.get("/prodotti/settoricommerciali", async (req, res) => {
 });
 
 app.get("/prodotti/famigliecommerciali", async (req, res) => {
+    console.log("GET: /prodotti/famigliecommerciali");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -257,9 +278,10 @@ app.get("/prodotti/famigliecommerciali", async (req, res) => {
             "SELECT * FROM famiglie_comm"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella famiglie commerciali:",
+            "    500: Errore durante il recupero dei dati dalla tabella famiglie commerciali:",
             error
         );
         res.status(500).json({
@@ -271,6 +293,7 @@ app.get("/prodotti/famigliecommerciali", async (req, res) => {
 });
 
 app.get("/prodotti/sottofamigliecommerciali", async (req, res) => {
+    console.log("GET: /prodotti/sottofamigliecommerciali");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -278,9 +301,10 @@ app.get("/prodotti/sottofamigliecommerciali", async (req, res) => {
             "SELECT * FROM sottofamiglie_comm"
         );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella sottofamiglie commerciali:",
+            "    500: Errore durante il recupero dei dati dalla tabella sottofamiglie commerciali:",
             error
         );
         res.status(500).json({
@@ -292,11 +316,12 @@ app.get("/prodotti/sottofamigliecommerciali", async (req, res) => {
 });
 
 app.get("/clienti", async (req, res) => {
+    console.log("GET: /clienti");
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT * FROM anacli JOIN tabprov ON anacli.cod_prov = tabprov.cod_prov ORDER BY cod_cli"
+            "SELECT * FROM anacli LEFT JOIN tabprov ON anacli.cod_prov = tabprov.cod_prov ORDER BY cod_cli"
         );
         const formattedResults = results.map((result) => ({
             cod_cli: result.cod_cli,
@@ -307,9 +332,10 @@ app.get("/clienti", async (req, res) => {
             },
         }));
         res.json(formattedResults);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella prodotti:",
+            "    500: Errore durante il recupero dei dati dalla tabella prodotti:",
             error
         );
         res.status(500).json({
@@ -321,13 +347,18 @@ app.get("/clienti", async (req, res) => {
 });
 
 app.get("/clienti/province", async (req, res) => {
+    console.log("GET: /clienti/province");
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT * FROM tabprov");
+        const results = await queryDatabase(
+            connection,
+            "SELECT * FROM tabprov"
+        );
         res.json(results);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella province:",
+            "    500: Errore durante il recupero dei dati dalla tabella province:",
             error
         );
         res.status(500).json({
@@ -339,21 +370,26 @@ app.get("/clienti/province", async (req, res) => {
 });
 
 app.get("/cronologia", async (req, res) => {
+    console.log("GET: /cronologia");
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT user, algo, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC");
+        const results = await queryDatabase(
+            connection,
+            "SELECT user, algo, topic, cod_ric, sel_top, dat_cro FROM cronologia ORDER BY dat_cro ASC"
+        );
         const formattedResults = results.map((result) => ({
             user: result.user,
             algo: result.algo,
             topic: result.topic,
             cod_ric: result.cod_ric,
             top_sel: result.sel_top,
-            id_dat: result.dat_cro.toISOString().split('T')[0],
+            id_dat: result.dat_cro.toISOString().split("T")[0],
         }));
         res.json(formattedResults);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella cronologia:",
+            "    500: Errore durante il recupero dei dati dalla tabella cronologia:",
             error
         );
         res.status(500).json({
@@ -371,14 +407,17 @@ app.put("/cronologia/new", async (req, res) => {
     const codice = req.body.cod_ric;
     const top = req.body.top_sel;
 
+    console.log("PUT: /cronologia/new");
 
     if (algo === null || algo === "") {
+        console.error("    400: Algoritmo nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'algoritmo",
         });
     }
 
     if (utente === null || utente === "") {
+        console.error("    400: Utente nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'utente",
         });
@@ -391,12 +430,14 @@ app.put("/cronologia/new", async (req, res) => {
     }
 
     if (codice === null || codice === "") {
+        console.error("    400: Codice nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il codice",
         });
     }
 
     if (top === null || top === "") {
+        console.error("    400: Top nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il top",
         });
@@ -412,11 +453,9 @@ app.put("/cronologia/new", async (req, res) => {
         res.status(200).json({
             message: "Inserito con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
-        console.error(
-            "Errore durante L'inserimento:",
-            error
-        );
+        console.error("    500: Errore durante l'inserimento:", error);
         res.status(500).json({
             error: "Errore durante L'inserimento",
         });
@@ -426,21 +465,26 @@ app.put("/cronologia/new", async (req, res) => {
 });
 
 app.get("/feedback", async (req, res) => {
+    console.log("GET: /feedback");
     const connection = await connectToDB();
     try {
-        const results = await queryDatabase(connection, "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed DESC");
+        const results = await queryDatabase(
+            connection,
+            "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed DESC"
+        );
         const formattedResults = results.map((result) => ({
             id_feed: result.id,
-            id_dat: result.dat_fed.toISOString().split('T')[0],
+            id_dat: result.dat_fed.toISOString().split("T")[0],
             user: result.user,
             cod_cli: result.cod_cli,
             cod_art: result.cod_art,
             algo: result.algo,
         }));
         res.json(formattedResults);
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella cronologia:",
+            "    500: Errore durante il recupero dei dati dalla tabella cronologia:",
             error
         );
         res.status(500).json({
@@ -457,26 +501,31 @@ app.put("/feedback/newUser", async (req, res) => {
     const id_ute = req.body.idRic;
     const algo = req.body.algoType;
 
+    console.log("PUT: /feedback/newUser");
 
     if (utente === null || utente === "") {
+        console.error("    400: Utente nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'utente",
         });
     }
 
     if (id_art === null || id_art === "") {
+        console.error("    400: ID prodotto nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il codice",
         });
     }
 
     if (id_ute === null || id_ute === "") {
+        console.error("    400: ID cliente nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il codice",
         });
     }
 
     if (algo === null || algo === "") {
+        console.error("    400: Algoritmo nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'algoritmo",
         });
@@ -492,11 +541,9 @@ app.put("/feedback/newUser", async (req, res) => {
         res.status(200).json({
             message: "Inserito con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
-        console.error(
-            "Errore durante L'inserimento:",
-            error
-        );
+        console.error("    500: Errore durante L'inserimento:", error);
         res.status(500).json({
             error: "Errore durante L'inserimento",
         });
@@ -511,25 +558,31 @@ app.put("/feedback/newItem", async (req, res) => {
     const id_art = req.body.idRic;
     const algo = req.body.algoType;
 
+    console.log("PUT: /feedback/newUser");
+
     if (utente === null || utente === "") {
+        console.error("    400: Utente nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'utente",
         });
     }
 
     if (id_ute === null || id_ute === "") {
+        console.error("    400: ID cliente nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il codice",
         });
     }
 
     if (id_art === null || id_art === "") {
+        console.error("    400: ID prodotto nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire il codice",
         });
     }
 
     if (algo === null || algo === "") {
+        console.error("    400: Algoritmo nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'algoritmo",
         });
@@ -545,11 +598,9 @@ app.put("/feedback/newItem", async (req, res) => {
         res.status(200).json({
             message: "Inserito con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
-        console.error(
-            "Errore durante L'inserimento:",
-            error
-        );
+        console.error("    500: Errore durante L'inserimento:", error);
         res.status(500).json({
             error: "Errore durante L'inserimento",
         });
@@ -561,7 +612,10 @@ app.put("/feedback/newItem", async (req, res) => {
 app.put("/feedback/delFeed", async (req, res) => {
     const id_feed = req.body.id_feed;
 
+    console.log("PUT: /feedback/delFeed");
+
     if (id_feed === null || id_feed === "") {
+        console.error("    400: ID feedback nullo");
         return res.status(400).json({
             error: "Errore. Devi fornire l'id",
         });
@@ -577,11 +631,9 @@ app.put("/feedback/delFeed", async (req, res) => {
         res.status(200).json({
             message: "eliminato con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
-        console.error(
-            "Errore durante l'eliminazione:",
-            error
-        );
+        console.error("    500: Errore durante l'eliminazione:", error);
         res.status(500).json({
             error: "Errore durante l'eliminazione",
         });
@@ -592,6 +644,7 @@ app.put("/feedback/delFeed", async (req, res) => {
 
 app.get("/userana/:use", async (req, res) => {
     const userID = req.params.use;
+    console.log("GET: /userana/" + userID);
     const connection = await connectToDB();
     try {
         const results = await queryDatabase(
@@ -603,13 +656,15 @@ app.get("/userana/:use", async (req, res) => {
             res.status(404).json({
                 error: "User non trovato",
             });
+            console.error("    404: Utente non trovato");
         } else {
             results[0].dat_ute = results[0].dat_ute.toISOString().split("T")[0];
             res.json([results[0]]);
+            console.log("    200: Successo");
         }
     } catch (error) {
         console.error(
-            "Errore durante il recupero dei dati dalla tabella clienti:",
+            "    500: Errore durante il recupero dei dati dalla tabella clienti:",
             error
         );
         res.status(500).json({
@@ -624,7 +679,10 @@ app.put("/userana/:use/email", async (req, res) => {
     const userID = req.params.use;
     const newEmail = req.body.newEmail;
 
+    console.log("PUT: /userana/" + userID + "/email");
+
     if (newEmail === null || newEmail === "") {
+        console.error("    400: Email nulla");
         return res.status(400).json({
             error: "Errore. Devi fornire il nuovo indirizzo email",
         });
@@ -640,9 +698,10 @@ app.put("/userana/:use/email", async (req, res) => {
         res.status(200).json({
             message: "Indirizzo email aggiornato con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante l'aggiornamento dell'indirizzo email nella tabella utenti:",
+            "    500: Errore durante l'aggiornamento dell'indirizzo email nella tabella utenti:",
             error
         );
         res.status(500).json({
@@ -657,7 +716,10 @@ app.put("/userana/:use/password", async (req, res) => {
     const userID = req.params.use;
     const newPassword = req.body.newPassword;
 
+    console.log("PUT: /userana/" + userID + "/password");
+
     if (newPassword === null || newPassword === "") {
+        console.error("    400: Password nulla");
         return res.status(400).json({
             error: "Errore. Devi fornire la nuova password",
         });
@@ -673,9 +735,10 @@ app.put("/userana/:use/password", async (req, res) => {
         res.status(200).json({
             message: "Password aggiornata con successo",
         });
+        console.log("    200: Successo");
     } catch (error) {
         console.error(
-            "Errore durante l'aggiornamento della password nella tabella utenti:",
+            "    500: Errore durante l'aggiornamento della password nella tabella utenti:",
             error
         );
         res.status(500).json({
