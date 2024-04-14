@@ -5,15 +5,14 @@ import threading
 
 
 from algoritmi.preprocessor.data_preprocessor import PreprocessorContext, SVD_Preprocessor, NN_Preprocessor
-from algoritmi.surprisedir.Matrix import SVD_FileInfo, SVD_Model, SVD_Operator
-from algoritmi.ptwidedeep.NN2 import NN_FileInfo, NN_Model, NN_Operator
+from algoritmi.surprisedir.Matrix import SVD_Model, SVD_Operator
+from algoritmi.ptwidedeep.NN2 import NN_Model, NN_Operator
 from algoritmi.Algo import ModelContext
 
 # Preprocess file SVD
 def preprocess_svd():
     print("Preparing SVD's files...")
-    preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
-    svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+    svd_file_info = preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
     svd_model = SVD_Model(file_info=svd_file_info)
     preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
     svd_operator = SVD_Operator(svd_model, 'algoritmi/surprisedir/feedback_matrix.csv')
@@ -22,12 +21,12 @@ def preprocess_svd():
 # Preprocess file NN
 def preprocess_nn():
     print("Preparing NN's files...")
-    preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
-    nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+    nn_file_info= preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
     nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
     preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
     nn_operator = NN_Operator(nn_model, 'algoritmi/ptwidedeep/feedback_NN.csv')
     return nn_model, nn_operator
+
 
 preprocessor_context = PreprocessorContext()
 
