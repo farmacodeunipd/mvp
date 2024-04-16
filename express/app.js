@@ -470,7 +470,7 @@ app.get("/feedback", async (req, res) => {
     try {
         const results = await queryDatabase(
             connection,
-            "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed DESC"
+            "SELECT id, dat_fed, user, cod_cli, cod_art, algo FROM ordclidet_feedback ORDER BY dat_fed ASC"
         );
         const formattedResults = results.map((result) => ({
             id_feed: result.id,
