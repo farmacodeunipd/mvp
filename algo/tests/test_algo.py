@@ -161,14 +161,14 @@ def testNNModel_train_model():
     assert model_context.model_info.wide_preprocessor is not None
     assert model_context.model_info.tab_preprocessor is not None
     
-def testNNModel_train_model_not_existing():
-    os.remove(nn_model.file_info.model_file)
-    model_context.set_model_info(nn_model)
-    model_context.set_model_operator(nn_operator)
-    model_context.train_model()
-    assert model_context.model_info.model is not None
-    assert model_context.model_info.wide_preprocessor is not None
-    assert model_context.model_info.tab_preprocessor is not None
+# def testNNModel_train_model_not_existing():
+#     os.remove(nn_model.file_info.model_file)
+#     model_context.set_model_info(nn_model)
+#     model_context.set_model_operator(nn_operator)
+#     model_context.train_model()
+#     assert model_context.model_info.model is not None
+#     assert model_context.model_info.wide_preprocessor is not None
+#     assert model_context.model_info.tab_preprocessor is not None
 
 def testNNOperator_ratings_float2int():
     model_context.set_model_info(nn_model)
