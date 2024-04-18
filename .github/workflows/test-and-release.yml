@@ -93,7 +93,7 @@ jobs:
       - name: Run tests and stop if they do not pass
         run: |
           ci_env=$(bash <(curl -s https://codecov.io/env))
-          docker exec $ci_env mvp_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose --ignore app.py --exclude tests/
+          docker exec $ci_env mvp_python-api_1 pytest tests/test_algo.py --cov=. --cov-report=xml:/tests/coverage.xml --verbose --ignore app.py tests/test_algo.py
           docker exec $ci_env mvp_react-app_1 npm test
           docker exec $ci_env mvp_express_1 npm test
         continue-on-error: false
