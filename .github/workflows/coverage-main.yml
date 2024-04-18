@@ -27,7 +27,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Wait for all service to be ready
-        run: sleep 120
+        run: sleep 100
 
       - name: Run tests and stop if they do not pass
         run: |
