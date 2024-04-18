@@ -48,7 +48,7 @@ def testSVDModel_load_model():
     model_context.load_model()
     assert model_context.model_info.model is not None
     
-def testSVDModel_load_model():
+def testSVDModel_load_model_not_existing():
     os.remove(svd_model.file_info.model_file)
     model_context.set_model_info(svd_model)
     model_context.set_model_operator(svd_operator)
@@ -69,7 +69,7 @@ def testSVDModel_train_model():
     assert model_context.model_info.trainset is not None
     assert model_context.model_info.testset is not None
     
-def testSVDModel_train_model():
+def testSVDModel_train_model_not_existing():
     os.remove(svd_model.file_info.model_file)
     model_context.set_model_info(svd_model)
     model_context.set_model_operator(svd_operator)
@@ -161,7 +161,7 @@ def testNNModel_train_model():
     assert model_context.model_info.wide_preprocessor is not None
     assert model_context.model_info.tab_preprocessor is not None
     
-def testNNModel_train_model():
+def testNNModel_train_model_not_existing():
     os.remove(nn_model.file_info.model_file)
     model_context.set_model_info(nn_model)
     model_context.set_model_operator(nn_operator)
