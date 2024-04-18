@@ -106,7 +106,9 @@ function Clienti() {
         return (
             <div className="flex align-items-center gap-2">
                 <span>
-                    {prov.des_prov} ({prov.cod_prov})
+                    {prov.cod_prov
+                        ? prov.des_prov + " (" + prov.cod_prov + ")"
+                        : ""}
                 </span>
             </div>
         );

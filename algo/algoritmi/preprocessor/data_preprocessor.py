@@ -4,6 +4,8 @@ import numpy as np
 import csv
 import os
 import mysql.connector
+from algoritmi.surprisedir.Matrix import SVD_FileInfo
+from algoritmi.ptwidedeep.NN2 import NN_FileInfo
 
 class Preprocessor(ABC):
     tables_to_export = []
@@ -53,6 +55,9 @@ class SVD_Preprocessor(Preprocessor):
         # Save the result to the output file
         grouped_df.to_csv(output_file, index=False)
         
+        return SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+    
+        
     def prepare_feedback(self, input_file_og, output_file):
         df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.') 
                          
@@ -92,6 +97,8 @@ class NN_Preprocessor(Preprocessor):
         merged_df.sort_values(by=['cod_cli'])
         merged_df.to_csv(output_file, index=False)
         
+        return NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+    
     def prepare_feedback(self, input_file_og, output_file):
         df1 = pd.read_csv(input_file_og, delimiter=',', thousands=',', decimal='.')     
          
@@ -132,7 +139,7 @@ class PreprocessorContext:
             for table_name in self.preprocessor.tables_to_export:
                 self.preprocessor.retrieve_file(cursor, table_name, csv_folder)
             
-            self.preprocessor.process_file(input_file_og, output_file)
+            return self.preprocessor.process_file(input_file_og, output_file)
     
     def prepare_feedback(self, input_file_og, output_file):
         self.preprocessor.prepare_feedback(input_file_og, output_file)

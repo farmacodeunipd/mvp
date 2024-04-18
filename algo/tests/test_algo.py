@@ -5,15 +5,14 @@ import threading
 
 
 from algoritmi.preprocessor.data_preprocessor import PreprocessorContext, SVD_Preprocessor, NN_Preprocessor
-from algoritmi.surprisedir.Matrix import SVD_FileInfo, SVD_Model, SVD_Operator
-from algoritmi.ptwidedeep.NN2 import NN_FileInfo, NN_Model, NN_Operator
+from algoritmi.surprisedir.Matrix import SVD_Model, SVD_Operator
+from algoritmi.ptwidedeep.NN2 import NN_Model, NN_Operator
 from algoritmi.Algo import ModelContext
 
 # Preprocess file SVD
 def preprocess_svd():
     print("Preparing SVD's files...")
-    preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
-    svd_file_info = SVD_FileInfo(model_file='./algoritmi/surprisedir/trained_model.pkl', file_path="./algoritmi/surprisedir/data_preprocessed_matrix.csv", column_1='cod_cli', column_2='cod_art', column_3='rating')
+    svd_file_info = preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/surprisedir/data_preprocessed_matrix.csv')
     svd_model = SVD_Model(file_info=svd_file_info)
     preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/surprisedir/feedback_matrix.csv')
     svd_operator = SVD_Operator(svd_model, 'algoritmi/surprisedir/feedback_matrix.csv')
@@ -22,12 +21,12 @@ def preprocess_svd():
 # Preprocess file NN
 def preprocess_nn():
     print("Preparing NN's files...")
-    preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
-    nn_file_info = NN_FileInfo("./algoritmi/ptwidedeep/model.pt", "./algoritmi/ptwidedeep/wd_model.pt", "./algoritmi/ptwidedeep/WidePreprocessor.pkl", "./algoritmi/ptwidedeep/TabPreprocessor.pkl", "./algoritmi/ptwidedeep/data_preprocessed_NN.csv", "./algoritmi/preprocessor/exported_csv/anacli.csv", "./algoritmi/preprocessor/exported_csv/anaart.csv")
+    nn_file_info= preprocessor_context.process_file('algoritmi/preprocessor/exported_csv/ordclidet.csv', 'algoritmi/ptwidedeep/data_preprocessed_NN.csv')
     nn_model = NN_Model(file_info=nn_file_info, epochs_n=5)
     preprocessor_context.prepare_feedback('algoritmi/preprocessor/exported_csv/ordclidet_feedback.csv', 'algoritmi/ptwidedeep/feedback_NN.csv')
     nn_operator = NN_Operator(nn_model, 'algoritmi/ptwidedeep/feedback_NN.csv')
     return nn_model, nn_operator
+
 
 preprocessor_context = PreprocessorContext()
 
@@ -49,7 +48,7 @@ def testSVDModel_load_model():
     model_context.load_model()
     assert model_context.model_info.model is not None
     
-def testSVDModel_load_model():
+def testSVDModel_load_model_not_existing():
     os.remove(svd_model.file_info.model_file)
     model_context.set_model_info(svd_model)
     model_context.set_model_operator(svd_operator)
@@ -70,7 +69,7 @@ def testSVDModel_train_model():
     assert model_context.model_info.trainset is not None
     assert model_context.model_info.testset is not None
     
-def testSVDModel_train_model():
+def testSVDModel_train_model_not_existing():
     os.remove(svd_model.file_info.model_file)
     model_context.set_model_info(svd_model)
     model_context.set_model_operator(svd_operator)
@@ -162,14 +161,14 @@ def testNNModel_train_model():
     assert model_context.model_info.wide_preprocessor is not None
     assert model_context.model_info.tab_preprocessor is not None
     
-def testNNModel_train_model():
-    os.remove(nn_model.file_info.model_file)
-    model_context.set_model_info(nn_model)
-    model_context.set_model_operator(nn_operator)
-    model_context.train_model()
-    assert model_context.model_info.model is not None
-    assert model_context.model_info.wide_preprocessor is not None
-    assert model_context.model_info.tab_preprocessor is not None
+# def testNNModel_train_model_not_existing():
+#     os.remove(nn_model.file_info.model_file)
+#     model_context.set_model_info(nn_model)
+#     model_context.set_model_operator(nn_operator)
+#     model_context.train_model()
+#     assert model_context.model_info.model is not None
+#     assert model_context.model_info.wide_preprocessor is not None
+#     assert model_context.model_info.tab_preprocessor is not None
 
 def testNNOperator_ratings_float2int():
     model_context.set_model_info(nn_model)

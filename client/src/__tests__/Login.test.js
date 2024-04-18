@@ -61,7 +61,14 @@ test("test funzione validate() in Login", () => {
 test("test successful login", async () => {
     const mockedResponse = {
         status: 200,
-        data: [{ use_ute: "a", pas_ute: "a", amm_ute: 1 }],
+        data: [
+            {
+                use_ute: "a",
+                pas_ute:
+                    "$2a$10$LDpvuJQOfj9b1.fvjeW5Bu/C7BJlGMCtEh0j4o2N62Za.4Uz/0h72",
+                amm_ute: 1,
+            },
+        ],
     };
 
     axios.get.mockResolvedValueOnce(mockedResponse);
@@ -85,5 +92,59 @@ test("test successful login", async () => {
 
     await waitFor(() => {
         expect(window.location.pathname).toEqual("/");
+    });
+});
+
+test("test 404 message", async () => {
+    const mockedResponse = {
+        status: 404,
+        data: [{}],
+    };
+
+    axios.get.mockResolvedValueOnce(mockedResponse);
+
+    render(
+        <BrowserRouter>
+            <Login />
+        </BrowserRouter>
+    );
+
+    await act(async () => {
+        userEvent.type(screen.getByLabelText("Username"), "c");
+        userEvent.type(screen.getByLabelText("Password"), "c");
+        userEvent.click(screen.getByText("Accedi"));
+    });
+
+    await waitFor(() => {
+        expect(
+            screen.getByText("Errore! Inserisci un username valido")
+        ).toBeInTheDocument();
+    });
+});
+
+test("test credenziali errate message", async () => {
+    const mockedResponse = {
+        status: 200,
+        data: [{ use_ute: "a", pas_ute: "c", amm_ute: 1 }],
+    };
+
+    axios.get.mockResolvedValueOnce(mockedResponse);
+
+    render(
+        <BrowserRouter>
+            <Login />
+        </BrowserRouter>
+    );
+
+    await act(async () => {
+        userEvent.type(screen.getByLabelText("Username"), "c");
+        userEvent.type(screen.getByLabelText("Password"), "c");
+        userEvent.click(screen.getByText("Accedi"));
+    });
+
+    await waitFor(() => {
+        expect(
+            screen.getByText("Errore! Inserisci delle credenziali valide")
+        ).toBeInTheDocument();
     });
 });
