@@ -92,7 +92,8 @@ CREATE TABLE cronologia(
     cod_ric varchar(13) NOT NULL,
     sel_top varchar(2) NOT NULL,
     dat_cro datetime DEFAULT NOW(),
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    FOREIGN KEY(user) REFERENCES ute(use_ute) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE ordclidet_feedback(
@@ -103,8 +104,25 @@ CREATE TABLE ordclidet_feedback(
     cod_art varchar(13) NOT NULL,
     algo varchar(13) NOT NULL,
     rating int NOT NULL DEFAULT 1,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    FOREIGN KEY(cod_cli) REFERENCES anacli(cod_cli) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(cod_art) REFERENCES anaart(cod_art) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(user) REFERENCES ute(use_ute) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE INDEX idx_cod_prov ON anacli(cod_prov);
+
+CREATE INDEX idx_cod_linea_comm ON anaart(cod_linea_comm);
+CREATE INDEX idx_cod_sett_comm ON anaart(cod_sett_comm);
+CREATE INDEX idx_cod_fam_comm ON anaart(cod_fam_comm);
+CREATE INDEX idx_cod_sott_comm ON anaart(cod_sott_comm);
+
+CREATE INDEX idx_cod_cli ON ordclidet(cod_cli);
+
+CREATE INDEX idx_cod_art ON ordclidet(cod_art);
+
+CREATE INDEX idx_user ON cronologia(user);
+CREATE INDEX idx_dat_cro ON cronologia(dat_cro);
 
 INSERT INTO ute VALUES 
 ("Mario", "Rossi", "1994-09-10", "mario.rossi@ergon.it", "a", "$2a$10$LDpvuJQOfj9b1.fvjeW5Bu/C7BJlGMCtEh0j4o2N62Za.4Uz/0h72", TRUE),

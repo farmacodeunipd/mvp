@@ -1,6 +1,12 @@
 import "@testing-library/jest-dom/extend-expect";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+    render,
+    screen,
+    fireEvent,
+    waitFor,
+    within,
+} from "@testing-library/react";
 import Filter from "../components/Filter";
 
 const originalConsoleError = console.error;
@@ -292,4 +298,120 @@ test("onFetchResult NN item chiamata correttamente", async () => {
     fireEvent.click(ricercaButton);
 
     expect(mockFetchResults).toHaveBeenCalledWith("NN", "item", "A123", "5");
+});
+
+test("training button disabled", () => {
+    sessionStorage.setItem("amministratore", 1);
+    render(
+        <Filter
+            onFetchResults={() => {}}
+            users={[]}
+            items={[]}
+            onObjectChange={() => {}}
+        />
+    );
+
+    const trainingButton = screen.getByTestId("training-button");
+    expect(trainingButton).toHaveAttribute("disabled");
+});
+
+test("training button not disabled", async () => {
+    sessionStorage.setItem("amministratore", 1);
+    render(
+        <Filter
+            onFetchResults={() => {}}
+            users={[]}
+            items={[]}
+            onObjectChange={() => {}}
+        />
+    );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("NN");
+    const algoOption = screen.getByText("NN");
+    fireEvent.click(algoOption);
+
+    const trainingButton = screen.getByTestId("training-button");
+    expect(trainingButton).not.toHaveAttribute('disabled=""');
+});
+
+test("no training button in the page", () => {
+    sessionStorage.setItem("amministratore", 0);
+    render(
+        <Filter
+            onFetchResults={() => {}}
+            users={[]}
+            items={[]}
+            onObjectChange={() => {}}
+        />
+    );
+
+    expect(screen.queryByTestId("training-button")).not.toBeInTheDocument();
+});
+
+test("test training confermation dialog visibility", async () => {
+    sessionStorage.setItem("amministratore", 1);
+    render(
+        <Filter
+            onFetchResults={() => {}}
+            users={[]}
+            items={[]}
+            onObjectChange={() => {}}
+        />
+    );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("NN");
+    const algoOption = screen.getByText("NN");
+    fireEvent.click(algoOption);
+
+    const trainingButton = screen.getByTestId("training-button");
+    fireEvent.click(trainingButton);
+
+    await waitFor(() => {
+        const dialog = screen.getByTestId("dialog");
+        expect(dialog).toBeInTheDocument();
+        const dialogTitle = within(dialog).getByText("Warning");
+        expect(dialogTitle).toBeInTheDocument();
+    });
+});
+
+test("test training confermation dialog loading", async () => {
+    sessionStorage.setItem("amministratore", 1);
+    render(
+        <Filter
+            onFetchResults={() => {}}
+            users={[]}
+            items={[]}
+            onObjectChange={() => {}}
+        />
+    );
+
+    const dropdownAlgo = screen.getByTestId("algo");
+    fireEvent.click(dropdownAlgo);
+    await screen.findByText("NN");
+    const algoOption = screen.getByText("NN");
+    fireEvent.click(algoOption);
+
+    const trainingButton = screen.getByTestId("training-button");
+    fireEvent.click(trainingButton);
+
+    await waitFor(() => {
+        const dialog = screen.getByTestId("dialog");
+        expect(dialog).toBeInTheDocument();
+        const dialogTitle = within(dialog).getByText("Warning");
+        expect(dialogTitle).toBeInTheDocument();
+    });
+
+    const confirmButton = screen.getByTestId("confirm-training-button");
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+        const dialog = screen.getByTestId("dialog");
+        expect(dialog).toBeInTheDocument();
+        const dialogTitle = within(dialog).getByText("Loading");
+        expect(dialogTitle).toBeInTheDocument();
+    });
 });

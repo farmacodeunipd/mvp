@@ -389,7 +389,7 @@ describe("PUT /feedback/newUser", () => {
     it("responds with JSON containing a successful message when adding feedback newUser", async () => {
         const user = "a";
         const id = "1101100";
-        const idRic = "1";
+        const idRic = "0";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newUser")
@@ -404,7 +404,7 @@ describe("PUT /feedback/newUser", () => {
     it("responds with JSON containing the 400 status for no user", async () => {
         const user = "";
         const id = "1101100";
-        const idRic = "1";
+        const idRic = "0";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newUser")
@@ -419,7 +419,7 @@ describe("PUT /feedback/newUser", () => {
     it("responds with JSON containing the 400 status for no id", async () => {
         const user = "a";
         const id = "";
-        const idRic = "1";
+        const idRic = "0";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newUser")
@@ -449,7 +449,7 @@ describe("PUT /feedback/newUser", () => {
     it("responds with JSON containing the 400 status for no algoType", async () => {
         const user = "a";
         const id = "1101100";
-        const idRic = "1";
+        const idRic = "0";
         const algoType = "";
         const response = await request(app)
             .put("/feedback/newUser")
@@ -466,8 +466,8 @@ describe("PUT /feedback/newUser", () => {
 describe("PUT /feedback/newItem", () => {
     it("responds with JSON containing a successful message when adding feedback newItem", async () => {
         const user = "a";
-        const id = "1101100";
-        const idRic = "1";
+        const id = "0";
+        const idRic = "1101100";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newItem")
@@ -481,8 +481,8 @@ describe("PUT /feedback/newItem", () => {
     });
     it("responds with JSON containing the 400 status for no user", async () => {
         const user = "";
-        const id = "1101100";
-        const idRic = "1";
+        const id = "0";
+        const idRic = "1101100";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newItem")
@@ -497,7 +497,7 @@ describe("PUT /feedback/newItem", () => {
     it("responds with JSON containing the 400 status for no id", async () => {
         const user = "a";
         const id = "";
-        const idRic = "1";
+        const idRic = "1101100";
         const algoType = "NN";
         const response = await request(app)
             .put("/feedback/newItem")
@@ -511,7 +511,7 @@ describe("PUT /feedback/newItem", () => {
     });
     it("responds with JSON containing the 400 status for no idRic", async () => {
         const user = "a";
-        const id = "1101100";
+        const id = "0";
         const idRic = "";
         const algoType = "NN";
         const response = await request(app)
@@ -526,8 +526,8 @@ describe("PUT /feedback/newItem", () => {
     });
     it("responds with JSON containing the 400 status for no algoType", async () => {
         const user = "a";
-        const id = "1101100";
-        const idRic = "1";
+        const id = "0";
+        const idRic = "1101100";
         const algoType = "";
         const response = await request(app)
             .put("/feedback/newItem")

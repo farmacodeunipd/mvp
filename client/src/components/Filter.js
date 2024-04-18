@@ -71,6 +71,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                 header={loadingTraining ? "Loading" : "Warning"}
                 modal
                 onHide={() => setShowProductDialog(false)}
+                data-testid="dialog"
             >
                 <div className="flex flex-column">
                     {loadingTraining ? (
@@ -105,6 +106,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                     setLoadingTraining(false); // Set loading to false when training complete
                                     setShowProductDialog(false);
                                 }}
+                                data-testid="confirm-training-button"
                             />
                         </div>
                     )}
@@ -215,7 +217,10 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
 
     return (
         <>
-            <div className="p-2 bg-gray-200 rounded-3xl border border-gray-300">
+            <div
+                className="p-2 bg-gray-200 rounded-3xl border border-gray-300"
+                data-testid="filter"
+            >
                 <div className="flex">
                     <form
                         className="flex flex-grow justify-center md:flex-row md:justify-around md:items-center space-x-2"
@@ -243,6 +248,7 @@ function Filter({ onFetchResults, users, items, onObjectChange }) {
                                     }}
                                     type="button"
                                     disabled={isTrainButtonDisabled()}
+                                    data-testid="training-button"
                                 />
                             )}
 

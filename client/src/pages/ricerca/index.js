@@ -7,7 +7,7 @@ import Footer from "../../components/Footer";
 import NoResults from "../../components/NoResults";
 import Filter from "../../components/Filter";
 import Results from "../../components/Results";
-import { Dialog } from "primereact/dialog"
+import { Dialog } from "primereact/dialog";
 
 const expressUrl = process.env.EXPRESS_API_URL || "localhost:3080";
 const algoUrl = process.env.ALGO_API_URL || "localhost:4000";
@@ -38,14 +38,16 @@ function Ricerca() {
         return (
             <Dialog
                 pt={ptDialog}
-                style={{ width: '450px' }}
-                header={'Warning:'}
+                style={{ width: "450px" }}
+                header={"Warning:"}
                 modal
                 visible={showTrainingDialog}
                 onHide={() => setShowTrainingDialog(false)}
             >
                 <p className="m-0">
-                L&apos;algoritmo selezionato, {algo}, è attualmente in training, si prega di attendere fino a che il processo non venga completato o di cambiare algoritmo di ricerca.
+                    L&apos;algoritmo selezionato, {algo}, è attualmente in
+                    training, si prega di attendere fino a che il processo non
+                    venga completato o di cambiare algoritmo di ricerca.
                 </p>
             </Dialog>
         );
@@ -58,7 +60,10 @@ function Ricerca() {
         );
         console.log("Risposta:", response.data);
 
-        if (response.data.message === 'Training in progress. Please wait a few minutes and try again later.') {
+        if (
+            response.data.message ===
+            "Training in progress. Please wait a few minutes and try again later."
+        ) {
             setAlgoType(algo);
             setShowTrainingDialog(true);
             setLoading(false);
@@ -124,7 +129,7 @@ function Ricerca() {
                         <NoResults></NoResults>
                     ) : null}
                     {loading ? (
-                        <p className="">Caricamento in corso...</p>
+                        <p data-testid="loading">Caricamento in corso...</p>
                     ) : (
                         results !== null && (
                             <Results
